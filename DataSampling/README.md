@@ -1,9 +1,9 @@
-# Text2SQL Multi-Agent
+# Text2SQL Multi-Agent Data Sampling
 
 ## Overview
-This project aims to build a multi-agent system for text-to-SQL generation. The system will be trained on the Spider dataset and evaluated on the Spider and Bird datasets.
+This is a part of the main Multi-Agent LLMs in Text2SQL project that focuses on data sampling and analysis. The main goal of this part of the project is to analyze the Text2SQL datasets and create a new dataset that is more balanced and representative of the original dataset. The new dataset will be used to train the Multi-Agent LLMs in Text2SQL project.
 
-## Project Structure
+## Data Sampling Project Structure
 ```
 text2sql-multi-agent/
 ├── .gitignore
