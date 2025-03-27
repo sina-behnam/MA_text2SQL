@@ -1,0 +1,51 @@
+=== BIRD Dataset Statistics ===
+
+Global Statistics:
+Number of databases: 11
+Number of tables: 79
+Number of queries: 1534
+
+Table Attributes:
+Average attributes per table: 10.26
+Distribution: Min=2, Max=115
+Average values per attribute: 8324.51
+Average numerical attributes per table: 5.58
+Average categorical attributes per table: 4.68
+
+Query Types:
+  join: 1140 queries (74.3%)
+  simple_join: 1012 queries (66.0%)
+  simple_select: 372 queries (24.3%)
+  order_by: 309 queries (20.1%)
+  limit: 302 queries (19.7%)
+  distinct: 237 queries (15.4%)
+  case_when: 117 queries (7.6%)
+  nested_query: 115 queries (7.5%)
+  group_by: 113 queries (7.4%)
+  having: 19 queries (1.2%)
+  group_by_having: 19 queries (1.2%)
+
+Numeric Values:
+Questions with numerical values: 545 (35.5%)
+Queries with numerical values: 957 (62.4%)
+
+Aggregation Functions:
+  count: 495 queries (32.3%)
+  sum: 183 queries (11.9%)
+  avg: 55 queries (3.6%)
+  max: 26 queries (1.7%)
+  min: 15 queries (1.0%)
+
+Special Functions:
+  math_operations: 230 queries (15.0%)
+  cast: 154 queries (10.0%)
+  date_functions: 115 queries (7.5%)
+  substring: 65 queries (4.2%)
+
+Text Length:
+Average question length: 82.5 characters
+Average query length: 160.0 characters
+
+Plots saved to current directory.
+
+Analysis complete!

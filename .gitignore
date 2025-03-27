@@ -59,3 +59,9 @@ output/
 *.pem
 *.pub
 *.ppk
+
+# add related_works
+related_works/
+
+# add outputs 
+outputs/
