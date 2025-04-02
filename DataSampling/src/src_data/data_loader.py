@@ -355,6 +355,462 @@ class SpiderDataset(BaseDataset):
         
         return "\n".join(lines)
 
+class BirdDataset(BaseDataset):
+    """
+    Bird dataset implementation for Text2SQL tasks.
+    """
+    
+    def __init__(self, 
+                 base_dir: str,
+                 split: str = 'train',
+                 limit: Optional[int] = None,
+                 load_evidence: bool = True):
+        """
+        Initialize the Bird dataset.
+        
+        Args:
+            base_dir: Base directory containing the Bird data
+            split: Data split ('train', 'dev', 'test')
+            limit: Optional limit on the number of examples to load
+            load_evidence: Whether to load evidence from the dataset
+        """
+        super().__init__(base_dir, 'bird', split, limit)
+        self.data_file = os.path.join(base_dir, f"{split}.json")
+        self.db_dir = os.path.join(base_dir, f"{split}_databases")
+        self.load_evidence = load_evidence
+        
+    def load_data(self) -> List[Dict]:
+        """
+        Load Bird dataset from files.
+        
+        Returns:
+            List of examples
+        """
+        if self.data:
+            return self.data
+        
+        if not os.path.exists(self.data_file):
+            raise FileNotFoundError(f"File not found: {self.data_file}")
+        
+        with open(self.data_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Apply limit if specified
+        if self.limit is not None:
+            data = data[:self.limit]
+        
+        self.data = data
+        return self.data
+    
+    def load_schemas(self) -> Dict:
+        """
+        Load Bird database schemas from database description files.
+        
+        Returns:
+            Dictionary mapping database names to schema information
+        """ 
+        if self.db_schemas:
+            return self.db_schemas
+        
+        if not os.path.exists(self.db_dir):
+            raise FileNotFoundError(f"Database directory not found: {self.db_dir}")
+        
+        db_schemas = {}
+        # Get all database directories
+        db_dirs = [d for d in os.listdir(self.db_dir) if os.path.isdir(os.path.join(self.db_dir, d))]
+        
+        for db_id in db_dirs:
+            db_path = os.path.join(self.db_dir, db_id)
+            desc_dir = os.path.join(db_path, "database_description")
+            
+            # Flag to track if description directory exists
+            has_description_files = os.path.exists(desc_dir)
+            
+            # Extract table information from CSV files
+            tables = []
+            columns = []
+            table_to_columns = {}
+            foreign_keys = []
+            primary_keys = []
+            
+            # Extract schema using SQLite metadata
+            try:
+                conn = self.get_db_connection(db_id)
+                cursor = conn.cursor()
+                
+                # Get tables
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+                table_names = [row[0] for row in cursor.fetchall() if not row[0].startswith('sqlite_')]
+                
+                for table_idx, table_name in enumerate(table_names):
+                    tables.append({
+                        'id': table_idx,
+                        'name': table_name.lower(),
+                        'original_name': table_name
+                    })
+                    table_to_columns[table_idx] = []
+                    
+                    # Get columns for this table - handle reserved keywords by quoting
+                    try:
+                        cursor.execute(f'PRAGMA table_info("{table_name}");')
+                        cols = cursor.fetchall()
+                    except sqlite3.OperationalError:
+                        # Try with square brackets if double quotes don't work
+                        try:
+                            cursor.execute(f"PRAGMA table_info([{table_name}]);")
+                            cols = cursor.fetchall()
+                        except sqlite3.OperationalError as e:
+                            print(f"Could not get columns for table {table_name}: {e}")
+                            cols = []
+                    
+                    for col in cols:
+                        col_id = len(columns)
+                        col_name = col[1]
+                        col_type = col[2]
+                        is_pk = col[5] == 1  # The primary key flag
+                        
+                        columns.append({
+                            'id': col_id,
+                            'name': col_name.lower(),
+                            'original_name': col_name,
+                            'table_idx': table_idx,
+                            'table': table_name,
+                            'type': col_type
+                        })
+                        
+                        table_to_columns[table_idx].append(col_id)
+                        
+                        if is_pk:
+                            primary_keys.append(col_id)
+                
+                # Get foreign keys - handle reserved keywords
+                for table_name in table_names:
+                    try:
+                        cursor.execute(f'PRAGMA foreign_key_list("{table_name}");')
+                        fks = cursor.fetchall()
+                    except sqlite3.OperationalError:
+                        try:
+                            cursor.execute(f"PRAGMA foreign_key_list([{table_name}]);")
+                            fks = cursor.fetchall()
+                        except sqlite3.OperationalError as e:
+                            print(f"Could not get foreign keys for table {table_name}: {e}")
+                            fks = []
+                    
+                    if fks:
+                        table_idx = next((i for i, t in enumerate(tables) if t['original_name'] == table_name), None)
+                        if table_idx is not None:
+                            for fk in fks:
+                                from_col_name = fk[3]
+                                to_table = fk[2]
+                                to_col_name = fk[4]
+                                
+                                # Find column ids
+                                from_col_id = next((c['id'] for c in columns if c['table_idx'] == table_idx and c['original_name'] == from_col_name), None)
+                                to_table_idx = next((i for i, t in enumerate(tables) if t['original_name'] == to_table), None)
+                                to_col_id = next((c['id'] for c in columns if c['table_idx'] == to_table_idx and c['original_name'] == to_col_name), None)
+                                
+                                if from_col_id is not None and to_col_id is not None:
+                                    foreign_keys.append([from_col_id, to_col_id])
+                
+                conn.close()
+            except Exception as e:
+                print(f"Error extracting schema for {db_id}: {e}")
+                # Continue to next database instead of stopping completely
+                continue
+            
+            # Add description information from CSV files if available
+            if has_description_files:
+                # Get all CSV files in the description directory
+                csv_files = [f for f in os.listdir(desc_dir) if f.endswith('.csv')]
+                
+                # Process each CSV description file
+                for csv_file in csv_files:
+                    table_name = os.path.basename(csv_file).replace(".csv", "")
+                    try:
+                        # Try different encodings - this is key to fixing the encoding issues
+                        encodings_to_try = ['utf-8', 'latin1', 'cp1252', 'ISO-8859-1']
+                        desc_df = None
+                        
+                        for encoding in encodings_to_try:
+                            try:
+                                desc_df = pd.read_csv(os.path.join(desc_dir, csv_file), encoding=encoding, 
+                                                    on_bad_lines='skip', engine='python')
+                                break  # If successful, break the loop
+                            except UnicodeDecodeError:
+                                continue
+                            except Exception as e:
+                                print(f"Error with encoding {encoding} for {csv_file}: {e}")
+                                continue
+                        
+                        if desc_df is None:
+                            print(f"Could not read CSV file {csv_file} with any encoding")
+                            continue
+                            
+                        # Find the table index
+                        table_idx = next((i for i, t in enumerate(tables) if t['original_name'].lower() == table_name.lower()), None)
+                        
+                        if table_idx is not None:
+                            # Add description to the table
+                            tables[table_idx]['description_file'] = csv_file
+                            
+                            # Process each row in description file to find column descriptions
+                            for _, row in desc_df.iterrows():
+                                col_desc = {}
+                                
+                                # Extract column information from description
+                                for col in desc_df.columns:
+                                    if pd.notna(row[col]):
+                                        col_desc[col] = row[col]
+                                
+                                if 'column_name' in col_desc:
+                                    col_name = col_desc['column_name']
+                                    # Find the column
+                                    col_ids = table_to_columns.get(table_idx, [])
+                                    for col_id in col_ids:
+                                        if columns[col_id]['original_name'].lower() == col_name.lower():
+                                            # Add description to column
+                                            columns[col_id]['description'] = col_desc.get('column_description', '')
+                                            columns[col_id]['value_description'] = col_desc.get('value_description', '')
+                                            break
+                    except Exception as e:
+                        print(f"Error processing description CSV for {table_name}: {e}")
+            
+            # Build schema
+            schema = {
+                'db_id': db_id,
+                'tables': tables,
+                'columns': columns,
+                'table_to_columns': table_to_columns,
+                'foreign_keys': foreign_keys,
+                'primary_keys': primary_keys,
+                'has_description_files': has_description_files
+            }
+            
+            db_schemas[db_id] = schema
+        
+        self.db_schemas = db_schemas
+        return self.db_schemas
+    
+    def get_db_connection(self, db_name: str) -> sqlite3.Connection:
+        """
+        Get a SQLite database connection for a Bird database.
+        
+        Args:
+            db_name: Name of the database
+        
+        Returns:
+            SQLite connection object
+        """
+        # Updated path to match the actual Bird dataset structure
+        db_path = os.path.join(self.db_dir, db_name, f"{db_name}.sqlite")
+        
+        if not os.path.exists(db_path):
+            # Try alternative path patterns
+            alt_paths = [
+                os.path.join(self.db_dir, db_name, "sqlite", f"{db_name}.sqlite"),
+                os.path.join(self.db_dir, db_name, "database", f"{db_name}.sqlite"),
+                os.path.join(self.db_dir, db_name, "db", f"{db_name}.sqlite")
+            ]
+            
+            for path in alt_paths:
+                if os.path.exists(path):
+                    db_path = path
+                    break
+            else:
+                raise FileNotFoundError(f"Database file not found for {db_name}. Tried: {db_path} and alternatives")
+        
+        conn = sqlite3.connect(db_path)
+        return conn
+    
+    def get_tables_for_schema(self, db_name: str) -> Dict[str, pd.DataFrame]:
+        """
+        Get tables for a database schema.
+        
+        Args:
+            db_name: Name of the database
+        
+        Returns:
+            Dictionary mapping table names to DataFrames
+        """
+        schema = self.get_schema_by_db_name(db_name)
+        conn = self.get_db_connection(db_name)
+        
+        tables = {}
+        for table in schema['tables']:
+            table_name = table['original_name']
+            try:
+                # Handle reserved keywords by quoting table names
+                query = f'SELECT * FROM "{table_name}" LIMIT 5;'
+                tables[table_name] = pd.read_sql_query(query, conn)
+            except Exception as e:
+                try:
+                    # Try with square brackets if double quotes don't work
+                    query = f"SELECT * FROM [{table_name}] LIMIT 5;"
+                    tables[table_name] = pd.read_sql_query(query, conn)
+                except Exception as e2:
+                    print(f"Warning: Could not read table {table_name}: {e2}")
+                    tables[table_name] = pd.DataFrame()
+        
+        conn.close()
+        return tables
+    
+    def get_evidence_for_example(self, idx: int) -> str:
+        """
+        Get the evidence text for a specific example.
+        
+        Args:
+            idx: Index of the example
+        
+        Returns:
+            Evidence text
+        """
+        example = self.get_example_by_idx(idx)
+        return example.get('evidence', '')
+    
+    def get_sample_with_schema_and_evidence(self, idx: int) -> Dict:
+        """
+        Get a sample with its schema and evidence.
+        
+        Args:
+            idx: Index of the example
+        
+        Returns:
+            Dictionary containing example, schema, and evidence
+        """
+        example = self.get_example_by_idx(idx)
+        db_name = example['db_id']
+        
+        try:
+            schema = self.get_schema_by_db_name(db_name)
+        except Exception as e:
+            print(f"Warning: Could not load schema for {db_name}: {e}")
+            schema = {"error": str(e)}
+        
+        return {
+            'example': example,
+            'schema': schema,
+            'evidence': example.get('evidence', '')
+        }
+    
+    def get_table_schemas_text(self, db_name: str) -> str:
+        """
+        Get a text representation of the schema for a database.
+        Useful for prompting LLMs.
+        
+        Args:
+            db_name: Name of the database
+        
+        Returns:
+            Text representation of the schema
+        """
+        try:
+            schema = self.get_schema_by_db_name(db_name)
+        except Exception as e:
+            return f"Error loading schema for {db_name}: {str(e)}"
+            
+        tables = schema['tables']
+        table_to_columns = schema['table_to_columns']
+        columns = schema['columns']
+        
+        lines = [f"Database: {db_name}"]
+        lines.append("Tables:")
+        
+        for table in tables:
+            table_id = table['id']
+            table_name = table['original_name']
+            lines.append(f"  {table_name}")
+            
+            # Add description if available
+            if 'description' in table and table['description']:
+                lines.append(f"    Description: {table['description']}")
+            
+            # Add columns for this table
+            col_indexes = table_to_columns.get(table_id, [])
+            for col_idx in col_indexes:
+                if col_idx >= len(columns):
+                    continue  # Skip if column index is out of range
+                    
+                col = columns[col_idx]
+                col_name = col['original_name']
+                col_type = col['type']
+                pk_flag = "PRIMARY KEY" if col_idx in schema.get('primary_keys', []) else ""
+                
+                # Base column info
+                col_line = f"    {col_name} ({col_type}) {pk_flag}"
+                lines.append(col_line)
+                
+                # Add description if available
+                if 'description' in col and col['description']:
+                    lines.append(f"      Description: {col['description']}")
+                
+                # Add value description if available
+                if 'value_description' in col and col['value_description']:
+                    lines.append(f"      Values: {col['value_description']}")
+        
+        # Add foreign key constraints
+        if schema.get('foreign_keys', []):
+            lines.append("Foreign Keys:")
+            for fk in schema['foreign_keys']:
+                try:
+                    from_col = columns[fk[0]]['original_name']
+                    from_table = tables[columns[fk[0]]['table_idx']]['original_name']
+                    to_col = columns[fk[1]]['original_name']
+                    to_table = tables[columns[fk[1]]['table_idx']]['original_name']
+                    lines.append(f"  {from_table}.{from_col} -> {to_table}.{to_col}")
+                except (IndexError, KeyError) as e:
+                    # Skip invalid foreign key references
+                    continue
+        
+        return "\n".join(lines)
+    
+    def analyze_db_schema(self, db_name: str) -> Dict:
+        """
+        Analyze a database schema and return detailed statistics.
+        
+        Args:
+            db_name: Name of the database
+            
+        Returns:
+            Dictionary with database schema statistics
+        """
+        schema = self.get_schema_by_db_name(db_name)
+        
+        # Calculate basic statistics
+        num_tables = len(schema['tables'])
+        num_columns = len(schema['columns'])
+        num_fk = len(schema.get('foreign_keys', []))
+        num_pk = len(schema.get('primary_keys', []))
+        
+        # Calculate columns per table
+        cols_per_table = {}
+        for table in schema['tables']:
+            table_id = table['id']
+            table_name = table['original_name']
+            cols_per_table[table_name] = len(schema['table_to_columns'].get(table_id, []))
+        
+        # Count column types
+        column_types = {}
+        for col in schema['columns']:
+            col_type = col.get('type', '').upper()
+            if col_type in column_types:
+                column_types[col_type] += 1
+            else:
+                column_types[col_type] = 1
+        
+        # Create analysis result
+        analysis = {
+            'db_id': db_name,
+            'num_tables': num_tables,
+            'num_columns': num_columns,
+            'num_foreign_keys': num_fk,
+            'num_primary_keys': num_pk,
+            'avg_columns_per_table': num_columns / num_tables if num_tables else 0,
+            'columns_per_table': cols_per_table,
+            'column_types': column_types,
+            'has_description_files': schema.get('has_description_files', False),
+        }
+        
+        return analysis
 
 class DataLoader:
     """
@@ -375,36 +831,24 @@ class DataLoader:
         """
         if dataset_name.lower() == 'spider':
             return SpiderDataset(**kwargs)
+        elif dataset_name.lower() == 'bird':
+            return BirdDataset(**kwargs)
         else:
             raise ValueError(f"Unknown dataset: {dataset_name}")
 
 
 # Usage example
 if __name__ == "__main__":
-    # Example usage
-    base_dir = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/data/spider"
-    
-    # Create a dataset
-    dataset = DataLoader.get_dataset('spider', base_dir=base_dir, split='train')
+    # Example of loading the Bird dataset
+    Bird_dataset_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Bird/dev_20240627"
+
+    bird_dataset = DataLoader.get_dataset('bird', base_dir=Bird_dataset_path, split='dev')
     
     # Load data and schemas
-    data = dataset.load_data()
-    schemas = dataset.load_schemas()
+    bird_dataset.load_data()
+    schema = bird_dataset.load_schemas()
     
-    # Print statistics
-    print(f"Loaded {len(data)} examples")
-    print(f"Loaded {len(schemas)} database schemas")
+    # save the loaded schema to a json file
+    with open('outputs/bird_schema.json', 'w') as f:
+        json.dump(schema, f, indent=4)
     
-    # Get a sample
-    if data:
-        sample = dataset[0]
-        db_name = sample['db_id']
-        
-        # Print schema as text
-        schema_text = dataset.get_table_schemas_text(db_name)
-        print(f"\nExample schema for '{db_name}':")
-        print(schema_text)
-        
-        # Print the question and SQL
-        print(f"\nQuestion: {sample['question']}")
-        print(f"SQL: {sample['query']}")
