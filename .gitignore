@@ -65,3 +65,11 @@ related_works/
 
 # add outputs 
 outputs/
+
+# Add all MACOSX
+*.DS_Store
+__MACOSX
+# Add all Windows
+*.lnk
+# Add all Linux
+*.so

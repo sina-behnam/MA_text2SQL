@@ -10,6 +10,7 @@ import json
 class FeatureEngineering:
     """
     Feature engineering for Text2SQL tasks.
+    Works with processed data from any dataset implementation.
     """
     
     def __init__(self, processed_data=None):
@@ -21,6 +22,7 @@ class FeatureEngineering:
         """
         self.processed_data = processed_data
         self.features = {}
+        self.datasets_present = set()
         
         # Load spaCy model for NLP features
         try:
@@ -29,6 +31,19 @@ class FeatureEngineering:
             print("Downloading spaCy model...")
             spacy.cli.download("en_core_web_lg")
             self.nlp = spacy.load("en_core_web_lg")
+        
+        # If data is provided, identify which datasets are present
+        if self.processed_data:
+            self._identify_datasets()
+    
+    def _identify_datasets(self):
+        """
+        Identify which datasets are present in the processed data.
+        """
+        self.datasets_present = set()
+        for item in self.processed_data:
+            if 'dataset' in item and not 'error' in item:
+                self.datasets_present.add(item['dataset'].lower())
     
     def load_processed_data(self, file_path):
         """
@@ -39,6 +54,10 @@ class FeatureEngineering:
         """
         with open(file_path, 'r', encoding='utf-8') as f:
             self.processed_data = json.load(f)
+            
+        # Identify which datasets are present
+        self._identify_datasets()
+        print(f"Loaded data from {len(self.datasets_present)} datasets: {', '.join(self.datasets_present)}")
     
     def extract_question_features(self):
         """
@@ -62,6 +81,7 @@ class FeatureEngineering:
             feature = {
                 'question_id': item.get('question_id'),
                 'db_id': item.get('db_id'),
+                'dataset': item.get('dataset', 'unknown'),
                 'q_char_length': q_analysis.get('char_length', 0),
                 'q_word_length': q_analysis.get('word_length', 0),
                 'q_has_entities': q_analysis.get('has_entities', False),
@@ -95,6 +115,14 @@ class FeatureEngineering:
                     'q_max_column_similarity': q_analysis.get('max_column_similarity', 0)
                 })
             
+            # Add any evidence-related features if the dataset supports it
+            if 'evidence' in item and item['evidence']:
+                feature['q_has_evidence'] = True
+                feature['q_evidence_length'] = len(item['evidence'])
+            else:
+                feature['q_has_evidence'] = False
+                feature['q_evidence_length'] = 0
+            
             features.append(feature)
         
         # Convert to DataFrame
@@ -127,6 +155,7 @@ class FeatureEngineering:
             feature = {
                 'question_id': item.get('question_id'),
                 'db_id': item.get('db_id'),
+                'dataset': item.get('dataset', 'unknown'),
                 'sql_char_length': sql_analysis.get('char_length', 0),
                 'sql_tables_count': sql_analysis.get('tables_count', 0),
                 'sql_join_count': sql_analysis.get('join_count', 0),
@@ -168,12 +197,17 @@ class FeatureEngineering:
         features = []
         
         # Extract unique db_ids
-        db_ids = set(item.get('db_id') for item in self.processed_data if 'error' not in item)
+        db_ids = set()
+        for item in self.processed_data:
+            if 'error' not in item and 'db_id' in item:
+                db_ids.add((item.get('db_id'), item.get('dataset', 'unknown')))
         
-        for db_id in db_ids:
+        for db_id, dataset in db_ids:
             # Find the first instance with this db_id
             instance = next((item for item in self.processed_data 
-                            if item.get('db_id') == db_id and 'error' not in item), None)
+                            if item.get('db_id') == db_id and 
+                            item.get('dataset') == dataset and 
+                            'error' not in item), None)
             
             if not instance:
                 continue
@@ -183,6 +217,7 @@ class FeatureEngineering:
             # Extract basic features
             feature = {
                 'db_id': db_id,
+                'dataset': dataset,
                 'schema_table_count': schema_analysis.get('table_count', 0),
                 'schema_column_count': schema_analysis.get('column_count', 0),
                 'schema_primary_key_count': schema_analysis.get('primary_key_count', 0),
@@ -236,10 +271,10 @@ class FeatureEngineering:
         schema_df = self.features['schema']
         
         # Merge question and SQL features (one-to-one)
-        combined_df = pd.merge(question_df, sql_df, on=['question_id', 'db_id'], how='left')
+        combined_df = pd.merge(question_df, sql_df, on=['question_id', 'db_id', 'dataset'], how='left')
         
         # Merge with schema features (many-to-one)
-        combined_df = pd.merge(combined_df, schema_df, on='db_id', how='left')
+        combined_df = pd.merge(combined_df, schema_df, on=['db_id', 'dataset'], how='left')
         
         return combined_df
     
@@ -260,7 +295,7 @@ class FeatureEngineering:
         sql_df = self.features['sql']
         
         # Merge dataframes
-        merged_df = pd.merge(question_df, sql_df, on=['question_id', 'db_id'], how='left')
+        merged_df = pd.merge(question_df, sql_df, on=['question_id', 'db_id', 'dataset'], how='left')
         
         # Define weights for complexity factors
         weights = {
@@ -302,7 +337,82 @@ class FeatureEngineering:
         # Round to 2 decimal places
         merged_df['complexity_score'] = merged_df['complexity_score'].round(2)
         
-        return merged_df[['question_id', 'db_id', 'complexity_score']]
+        # Add dataset-specific complexity adjustments
+        # This allows for dataset-specific calibration of complexity scores
+        for dataset in self.datasets_present:
+            dataset_mask = merged_df['dataset'] == dataset
+            if dataset_mask.sum() > 0:
+                # Optionally adjust scores for specific datasets
+                # For example, BIRD might have more complex questions on average
+                if dataset.lower() == 'bird':
+                    # Apply a small multiplier for BIRD to account for its generally higher complexity
+                    # This is just an example - you would calibrate based on your analysis
+                    merged_df.loc[dataset_mask, 'complexity_score'] = merged_df.loc[dataset_mask, 'complexity_score'] * 1.05
+                    merged_df.loc[dataset_mask, 'complexity_score'] = merged_df.loc[dataset_mask, 'complexity_score'].round(2)
+                    
+                # Cap at 10
+                merged_df.loc[merged_df['complexity_score'] > 10, 'complexity_score'] = 10
+        
+        return merged_df[['question_id', 'db_id', 'dataset', 'complexity_score']]
+    
+    def extract_dataset_specific_features(self, dataset_name):
+        """
+        Extract features that are specific to a particular dataset.
+        
+        Args:
+            dataset_name: Name of the dataset
+            
+        Returns:
+            DataFrame with dataset-specific features
+        """
+        if not self.processed_data:
+            raise ValueError("No processed data available")
+        
+        features = []
+        
+        # Filter processed data for this dataset
+        dataset_data = [item for item in self.processed_data 
+                        if item.get('dataset', '').lower() == dataset_name.lower() 
+                        and 'error' not in item]
+        
+        if not dataset_data:
+            return pd.DataFrame()  # Empty DataFrame if no data for this dataset
+        
+        for item in dataset_data:
+            # Initialize with common identifiers
+            feature = {
+                'question_id': item.get('question_id'),
+                'db_id': item.get('db_id'),
+                'dataset': dataset_name
+            }
+            
+            # Add dataset-specific features
+            if dataset_name.lower() == 'bird':
+                # BIRD-specific features (e.g., evidence-related)
+                feature.update({
+                    'has_evidence': bool(item.get('evidence', '')),
+                    'evidence_length': len(item.get('evidence', '')),
+                    # Add more BIRD-specific features as needed
+                })
+            
+            elif dataset_name.lower() == 'spider':
+                # Spider-specific features
+                # For example, difficulty level if available
+                if 'orig_instance' in item and 'difficulty' in item['orig_instance']:
+                    feature['difficulty'] = item['orig_instance']['difficulty']
+                # Add more Spider-specific features as needed
+            
+            # Add other dataset-specific features as needed
+            
+            features.append(feature)
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(features)
+        
+        # Cache features with dataset prefix
+        self.features[f'{dataset_name.lower()}_specific'] = df
+        
+        return df
     
     def save_features(self, output_path, feature_type='all'):
         """
@@ -310,16 +420,19 @@ class FeatureEngineering:
         
         Args:
             output_path: Path to save the features
-            feature_type: Type of features to save ('all', 'question', 'sql', 'schema', 'combined')
+            feature_type: Type of features to save ('all', 'question', 'sql', 'schema', 'combined', 
+                                                  or a specific dataset name for dataset-specific features)
         """
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
         if feature_type == 'all':
             # Save all feature types
-            for ft in ['question', 'sql', 'schema', 'combined']:
+            for ft in ['question', 'sql', 'schema', 'combined', 'complexity']:
                 if ft == 'combined':
                     df = self.combine_features()
+                elif ft == 'complexity':
+                    df = self.compute_complexity_score()
                 elif ft in self.features:
                     df = self.features[ft]
                 else:
@@ -334,10 +447,24 @@ class FeatureEngineering:
                 ft_path = output_path.replace('.csv', f'_{ft}.csv')
                 df.to_csv(ft_path, index=False)
                 print(f"Saved {ft} features to {ft_path}")
+                
+            # Save dataset-specific features for each dataset
+            for dataset in self.datasets_present:
+                df = self.extract_dataset_specific_features(dataset)
+                if not df.empty:
+                    ds_path = output_path.replace('.csv', f'_{dataset}_specific.csv')
+                    df.to_csv(ds_path, index=False)
+                    print(f"Saved {dataset}-specific features to {ds_path}")
         else:
             # Save specific feature type
             if feature_type == 'combined':
                 df = self.combine_features()
+            elif feature_type == 'complexity':
+                df = self.compute_complexity_score()
+            elif '_specific' in feature_type:
+                # Extract dataset name from feature_type (e.g., 'bird_specific' -> 'bird')
+                dataset_name = feature_type.split('_')[0]
+                df = self.extract_dataset_specific_features(dataset_name)
             elif feature_type in self.features:
                 df = self.features[feature_type]
             else:
@@ -348,7 +475,11 @@ class FeatureEngineering:
                 elif feature_type == 'schema':
                     df = self.extract_schema_features()
                 else:
-                    raise ValueError(f"Unknown feature type: {feature_type}")
+                    # Check if it's a dataset name
+                    if feature_type.lower() in self.datasets_present:
+                        df = self.extract_dataset_specific_features(feature_type)
+                    else:
+                        raise ValueError(f"Unknown feature type: {feature_type}")
             
             # Save to CSV
             df.to_csv(output_path, index=False)
@@ -357,8 +488,8 @@ class FeatureEngineering:
 
 # Example usage
 if __name__ == "__main__":
-    # Path to processed data
-    processed_data_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/processed_bird_dev_0.json"
+    # Path to processed data that contains multiple datasets
+    processed_data_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/processed_combined_data.json"
     
     # Create feature engineering object
     feature_eng = FeatureEngineering()
@@ -383,6 +514,11 @@ if __name__ == "__main__":
     complexity_scores = feature_eng.compute_complexity_score()
     print(f"Computed complexity scores")
     
-    # Save features
-    output_dir = "outputs/directory_0"
-    feature_eng.save_features(os.path.join(output_dir, "bird_features.csv"), feature_type='all')
+    # Extract dataset-specific features
+    for dataset in feature_eng.datasets_present:
+        dataset_features = feature_eng.extract_dataset_specific_features(dataset)
+        print(f"Extracted {len(dataset_features)} {dataset}-specific features")
+    
+    # Save all features
+    output_dir = "outputs/features"
+    feature_eng.save_features(os.path.join(output_dir, "all_datasets_features.csv"), feature_type='all')

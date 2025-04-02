@@ -5,29 +5,255 @@ import sqlparse
 import spacy
 import pandas as pd
 from typing import Dict, List, Tuple, Optional, Union, Any
-from data_loader import BirdDataset, DataLoader
 
-# Load spaCy model for NLP analysis
+# Load spaCy model for NLP analysis - same as before
 try:
-    nlp = spacy.load("en_core_web_lg")  # Use larger model for better entity recognition
+    nlp = spacy.load("en_core_web_lg")
 except OSError:
     print("Downloading spaCy model...")
     spacy.cli.download("en_core_web_lg")
     nlp = spacy.load("en_core_web_lg")
 
-class DataProcessor:
+
+class SchemaAdapter:
     """
-    Processor for Text2SQL dataset instances.
+    Adapter class to standardize schema access across different dataset formats.
+    """
+    @staticmethod
+    def adapt_schema(schema: Dict, dataset_name: str) -> Dict:
+        """
+        Adapt a schema to a standardized format based on dataset type.
+        
+        Args:
+            schema: The original schema
+            dataset_name: Name of the dataset
+            
+        Returns:
+            Standardized schema dictionary
+        """
+        if dataset_name.lower() == 'spider':
+            return SpiderSchemaAdapter.adapt(schema)
+        elif dataset_name.lower() == 'bird':
+            return BirdSchemaAdapter.adapt(schema)
+        else:
+            # Default - return schema as is
+            return schema
+
+
+class SpiderSchemaAdapter:
+    """Spider-specific schema adapter"""
+    
+    @staticmethod
+    def adapt(schema: Dict) -> Dict:
+        """
+        Adapt Spider schema to standardized format.
+        
+        Args:
+            schema: The Spider schema
+            
+        Returns:
+            Standardized schema dictionary
+        """
+        # Spider schemas are already in the expected format for most fields
+        # Just ensure all expected fields are present
+        adapted_schema = schema.copy()
+        
+        # Ensure all necessary fields are present
+        if 'tables' not in adapted_schema:
+            adapted_schema['tables'] = []
+            
+        if 'columns' not in adapted_schema:
+            adapted_schema['columns'] = []
+            
+        if 'table_to_columns' not in adapted_schema:
+            # Create table_to_columns mapping from columns if not present
+            table_to_columns = {}
+            for col in adapted_schema.get('columns', []):
+                table_idx = col.get('table_idx', -1)
+                if table_idx >= 0:
+                    if table_idx not in table_to_columns:
+                        table_to_columns[table_idx] = []
+                    table_to_columns[table_idx].append(col['id'])
+            
+            adapted_schema['table_to_columns'] = table_to_columns
+            
+        if 'foreign_keys' not in adapted_schema:
+            adapted_schema['foreign_keys'] = []
+            
+        if 'primary_keys' not in adapted_schema:
+            adapted_schema['primary_keys'] = []
+            
+        return adapted_schema
+
+
+class BirdSchemaAdapter:
+    """Bird-specific schema adapter"""
+    
+    @staticmethod
+    def adapt(schema: Dict) -> Dict:
+        """
+        Adapt Bird schema to standardized format.
+        
+        Args:
+            schema: The Bird schema
+            
+        Returns:
+            Standardized schema dictionary
+        """
+        # Bird schemas are already close to the expected format
+        # Just ensure all expected fields are present
+        adapted_schema = schema.copy()
+        
+        # Ensure all necessary fields are present
+        if 'tables' not in adapted_schema:
+            adapted_schema['tables'] = []
+            
+        if 'columns' not in adapted_schema:
+            adapted_schema['columns'] = []
+            
+        if 'table_to_columns' not in adapted_schema:
+            # Create table_to_columns mapping from columns if not present
+            table_to_columns = {}
+            for col in adapted_schema.get('columns', []):
+                table_idx = col.get('table_idx', -1)
+                if table_idx >= 0:
+                    if table_idx not in table_to_columns:
+                        table_to_columns[table_idx] = []
+                    table_to_columns[table_idx].append(col['id'])
+            
+            adapted_schema['table_to_columns'] = table_to_columns
+            
+        if 'foreign_keys' not in adapted_schema:
+            adapted_schema['foreign_keys'] = []
+            
+        if 'primary_keys' not in adapted_schema:
+            adapted_schema['primary_keys'] = []
+            
+        return adapted_schema
+
+
+class DataAdapter:
+    """
+    Abstract adapter class to standardize dataset-specific fields
+    for the DataProcessor.
     """
     
-    def __init__(self, dataset):
+    def get_db_id(self, instance: Dict) -> str:
+        """Extract database ID from instance."""
+        return instance.get('db_id', '')
+    
+    def get_question(self, instance: Dict) -> str:
+        """Extract question text from instance."""
+        return instance.get('question', '')
+    
+    def get_sql(self, instance: Dict) -> str:
+        """Extract SQL query from instance."""
+        pass  # To be implemented by subclasses
+    
+    def get_evidence(self, instance: Dict) -> str:
+        """Extract evidence text from instance (if available)."""
+        return ''  # Default implementation returns empty string
+    
+    def get_question_id(self, instance: Dict) -> str:
+        """Extract question ID from instance."""
+        pass  # To be implemented by subclasses
+    
+    def create_standardized_instance(self, instance: Dict) -> Dict:
+        """Convert dataset-specific instance to standardized format."""
+        pass  # To be implemented by subclasses
+
+
+class BirdDataAdapter(DataAdapter):
+    """Adapter for BIRD dataset."""
+    
+    def get_sql(self, instance: Dict) -> str:
+        return instance.get('SQL', '')
+    
+    def get_evidence(self, instance: Dict) -> str:
+        return instance.get('evidence', '')
+    
+    def get_question_id(self, instance: Dict) -> str:
+        return instance.get('question_id', '')
+    
+    def create_standardized_instance(self, instance: Dict) -> Dict:
+        """Convert BIRD instance to standardized format."""
+        return {
+            'db_id': self.get_db_id(instance),
+            'question': self.get_question(instance),
+            'sql': self.get_sql(instance),
+            'evidence': self.get_evidence(instance),
+            'question_id': self.get_question_id(instance),
+            'orig_instance': instance  # Keep original for reference
+        }
+
+
+class SpiderDataAdapter(DataAdapter):
+    """Adapter for Spider dataset."""
+    
+    def get_sql(self, instance: Dict) -> str:
+        return instance.get('query', '')  # Different field name in Spider
+    
+    def get_evidence(self, instance: Dict) -> str:
+        # Spider doesn't have evidence
+        return ''
+    
+    def get_question_id(self, instance: Dict) -> str:
+        # Spider might have different ID field or format
+        if 'id' in instance:
+            return str(instance.get('id', ''))
+        else:
+            return str(instance.get('question_index', ''))
+    
+    def create_standardized_instance(self, instance: Dict) -> Dict:
+        """Convert Spider instance to standardized format."""
+        return {
+            'db_id': self.get_db_id(instance),
+            'question': self.get_question(instance),
+            'sql': self.get_sql(instance),
+            'evidence': self.get_evidence(instance),
+            'question_id': self.get_question_id(instance),
+            'orig_instance': instance  # Keep original for reference
+        }
+
+
+class AdapterFactory:
+    """Factory for creating dataset-specific adapters."""
+    
+    @staticmethod
+    def get_adapter(dataset_name: str) -> DataAdapter:
+        """Get adapter for specified dataset."""
+        if dataset_name.lower() == 'bird':
+            return BirdDataAdapter()
+        elif dataset_name.lower() == 'spider':
+            return SpiderDataAdapter()
+        else:
+            raise ValueError(f"Unsupported dataset: {dataset_name}")
+
+
+class DataProcessor:
+    """
+    Generalized processor for Text2SQL dataset instances.
+    """
+    
+    def __init__(self, dataset, dataset_name=None):
         """
         Initialize data processor.
         
         Args:
             dataset: A dataset instance (e.g., BirdDataset)
+            dataset_name: Name of the dataset (optional if can be inferred from dataset)
         """
         self.dataset = dataset
+        
+        # Try to infer dataset_name if not provided
+        if dataset_name is None:
+            if hasattr(dataset, 'dataset_name'):
+                dataset_name = dataset.dataset_name
+            else:
+                raise ValueError("Dataset name must be provided if not available in dataset object")
+        
+        self.dataset_name = dataset_name
+        self.adapter = AdapterFactory.get_adapter(dataset_name)
         
     def analyze_question(self, question_text, schema=None):
         """
@@ -113,16 +339,17 @@ class DataProcessor:
         Returns:
             Dictionary with overlap metrics
         """
+        # Apply schema adapter to ensure consistent structure
+        adapted_schema = SchemaAdapter.adapt_schema(schema, self.dataset_name)
+        
         # Extract schema elements
-        tables = schema.get('tables', [])
-        columns = schema.get('columns', [])
+        tables = adapted_schema.get('tables', [])
+        columns = adapted_schema.get('columns', [])
         
         # Prepare sets of schema terms (normalize to lowercase)
         table_names = {table.get('original_name', '').lower() for table in tables}
-        # table_names_alt = {table.get('name', '').lower() for table in tables}
         
         column_names = {col.get('original_name', '').lower() for col in columns}
-        # column_names_alt = {col.get('name', '').lower() for col in columns}
         
         # Get descriptions if available
         column_descriptions = set()
@@ -207,7 +434,6 @@ class DataProcessor:
             'column_overlap_count': column_overlap_count,
             'column_overlap_lemma_count': column_overlap_lemma_count,
             'description_overlap_count': desc_overlap_count,
-            # 'semantic_similarities': semantic_similarity,
             'avg_table_similarity': sum(table_sim_values) / max(1, len(table_sim_values)) if table_sim_values else 0,
             'avg_column_similarity': sum(column_sim_values) / max(1, len(column_sim_values)) if column_sim_values else 0,
             'max_table_similarity': max(table_sim_values, default=0),
@@ -382,12 +608,15 @@ class DataProcessor:
             # Get schema information
             schema = self.dataset.get_schema_by_db_name(db_name)
             
+            # Apply schema adapter to ensure consistent structure
+            adapted_schema = SchemaAdapter.adapt_schema(schema, self.dataset_name)
+            
             # Basic statistics
-            tables = schema.get('tables', [])
-            columns = schema.get('columns', [])
-            table_to_columns = schema.get('table_to_columns', {})
-            foreign_keys = schema.get('foreign_keys', [])
-            primary_keys = schema.get('primary_keys', [])
+            tables = adapted_schema.get('tables', [])
+            columns = adapted_schema.get('columns', [])
+            table_to_columns = adapted_schema.get('table_to_columns', {})
+            foreign_keys = adapted_schema.get('foreign_keys', [])
+            primary_keys = adapted_schema.get('primary_keys', [])
             
             # Count tables
             table_count = len(tables)
@@ -482,40 +711,47 @@ class DataProcessor:
         Returns:
             Dictionary with complete analysis
         """
-        try:
-            # !!!  This part is only belong to BIRD dataset
-            db_id = instance.get('db_id')
-            question = instance.get('question', '')
-            sql = instance.get('SQL', '')
-            evidence = instance.get('evidence', '')
+        # try:
+        # Standardize the instance using the appropriate adapter
+        std_instance = self.adapter.create_standardized_instance(instance)
+        
+        # Extract standardized fields
+        db_id = std_instance['db_id']
+        question = std_instance['question']
+        sql = std_instance['sql']
+        evidence = std_instance['evidence']
+        question_id = std_instance['question_id']
+        
+        # Load schema
+        schema = self.dataset.get_schema_by_db_name(db_id)
+        
+        # Analyze components
+        question_analysis = self.analyze_question(question, schema)
+        sql_analysis = self.analyze_sql(sql)
+        schema_analysis = self.analyze_schema(db_id)
+        
+        # Combine into a complete analysis
+        analysis = {
+            'question_id': question_id,
+            'db_id': db_id,
+            'question': question,
+            'sql': sql,
+            'evidence': evidence,
+            'question_analysis': question_analysis,
+            'sql_analysis': sql_analysis,
+            'schema_analysis': schema_analysis,
+            'dataset': self.dataset_name
+        }
+        
+        return analysis
             
-            # Load schema
-            schema = self.dataset.get_schema_by_db_name(db_id)
-            
-            # Analyze components
-            question_analysis = self.analyze_question(question, schema)
-            sql_analysis = self.analyze_sql(sql)
-            schema_analysis = self.analyze_schema(db_id)
-            
-            # Combine into a complete analysis
-            analysis = {
-                'question_id': instance.get('question_id'),
-                'db_id': db_id,
-                'question': question,
-                'sql': sql,
-                'evidence': evidence,
-                'question_analysis': question_analysis,
-                'sql_analysis': sql_analysis,
-                'schema_analysis': schema_analysis
-            }
-            
-            return analysis
-            
-        except Exception as e:
-            return {
-                'question_id': instance.get('question_id'),
-                'error': str(e)
-            }
+        # except Exception as e:
+        #     # Handle any errors in processing
+        #     return {
+        #         'question_id': self.adapter.get_question_id(instance) if instance else '',
+        #         'error': str(e),
+        #         'dataset': self.dataset_name
+        #     }
     
     def batch_process(self, limit=None):
         """
@@ -562,25 +798,29 @@ class DataProcessor:
         print(f"Saved processed data to {output_path}")
 
 
-# Example usage
+# Example usage for testing
 if __name__ == "__main__":
-    # Path to the BIRD dataset
-    bird_dataset_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Bird/dev_20240627"
+    from data_loader import DataLoader
     
-    # Create dataset
+    # Example for BIRD dataset
+    bird_dataset_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Bird/dev_20240627"
     bird_dataset = DataLoader.get_dataset('bird', base_dir=bird_dataset_path, split='dev')
     
-    # Create processor
-    processor = DataProcessor(bird_dataset)
+    # Create processor with BIRD dataset
+    bird_processor = DataProcessor(bird_dataset, 'bird')
     
-    # Process a single instance
-    example = bird_dataset[0]
-    analysis = processor.process_dataset_instance(example)
-    print(f"Processed example (ID: {analysis['question_id']})")
+    # Process a batch of instances
+    bird_results = bird_processor.batch_process(limit=2)
+    bird_processor.save_processed_data("outputs/test_multi/processed_bird_data.json", bird_results)
+
     
-    # Process batch (limit to 10 instances for testing)
-    results = processor.batch_process(limit=1)
+    # Example for Spider dataset
+    spider_dataset_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/spider_data"
+    spider_dataset = DataLoader.get_dataset('spider', base_dir=spider_dataset_path, split='dev')
     
-    # Save processed data
-    output_dir = "outputs"
-    processor.save_processed_data(os.path.join(output_dir, "processed_bird_dev_0.json"), results)
+    # Create processor with Spider dataset
+    spider_processor = DataProcessor(spider_dataset, 'spider')
+    
+    # Process a batch of instances
+    spider_results = spider_processor.batch_process(limit=2)
+    spider_processor.save_processed_data("outputs/test_multi/processed_spider_data.json", spider_results)

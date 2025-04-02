@@ -206,45 +206,72 @@ class SpiderDataset(BaseDataset):
         # Process schemas
         db_schemas = {}
         for entry in tables_data:
-            db_id = entry['db_id']
-            tables = entry['table_names_original']
-            table_names = entry['table_names']
-            
-            # Process columns and table relationships
-            columns = []
-            table_to_columns = {i: [] for i in range(len(tables))}
-            
-            for i, (col_name, col_orig_name, table_idx) in enumerate(zip(
-                entry['column_names'], 
-                entry['column_names_original'], 
-                entry['column_to_table']
-            )):
-                columns.append({
-                    'id': i,
-                    'name': col_name,
-                    'original_name': col_orig_name,
-                    'table_idx': table_idx,
-                    'table': tables[table_idx] if table_idx >= 0 else None,
-                    'type': entry['column_types'][i]
-                })
+            try:
+                db_id = entry['db_id']
+                tables = entry['table_names_original']
+                table_names = entry['table_names']
                 
-                if table_idx >= 0:
-                    table_to_columns[table_idx].append(i)
+                # Process columns and table relationships
+                columns = []
+                table_to_columns = {i: [] for i in range(len(tables))}
+                
+                # Check how column information is structured in the Spider dataset
+                # In Spider, column_names often has format [(table_idx, column_name), ...]
+                column_names = entry['column_names']
+                column_names_original = entry['column_names_original']
+                column_types = entry.get('column_types', [])
+                
+                # Extract table indices and column names from the structure
+                for i, (col_entry, col_orig_entry) in enumerate(zip(column_names, column_names_original)):
+                    # Handle different possible structures
+                    if isinstance(col_entry, (list, tuple)) and len(col_entry) >= 2:
+                        # Format: [table_idx, column_name]
+                        table_idx = col_entry[0]
+                        col_name = col_entry[1]
+                    else:
+                        # Fallback if structure is unexpected
+                        table_idx = -1
+                        col_name = col_entry
+                    
+                    if isinstance(col_orig_entry, (list, tuple)) and len(col_orig_entry) >= 2:
+                        col_orig_name = col_orig_entry[1]
+                    else:
+                        col_orig_name = col_orig_entry
+                    
+                    # Get column type if available
+                    col_type = column_types[i] if i < len(column_types) else "text"
+                    
+                    columns.append({
+                        'id': i,
+                        'name': col_name,
+                        'original_name': col_orig_name,
+                        'table_idx': table_idx,
+                        'table': tables[table_idx] if table_idx >= 0 and table_idx < len(tables) else None,
+                        'type': col_type
+                    })
+                    
+                    if table_idx >= 0 and table_idx < len(tables):
+                        table_to_columns[table_idx].append(i)
+                
+                # Build schema
+                schema = {
+                    'db_id': db_id,
+                    'tables': [{'id': i, 'name': name, 'original_name': orig_name} 
+                            for i, (name, orig_name) in enumerate(zip(table_names, tables))],
+                    'columns': columns,
+                    'table_to_columns': table_to_columns,
+                    'foreign_keys': entry.get('foreign_keys', []),
+                    'primary_keys': entry.get('primary_keys', [])
+                }
+                
+                db_schemas[db_id] = schema
+            except Exception as e:
+                print(f"Error processing schema for database {entry.get('db_id', 'unknown')}: {str(e)}")
+                # Continue to next schema instead of failing completely
+                continue
             
-            # Build schema
-            schema = {
-                'db_id': db_id,
-                'tables': [{'id': i, 'name': name, 'original_name': orig_name} 
-                           for i, (name, orig_name) in enumerate(zip(table_names, tables))],
-                'columns': columns,
-                'table_to_columns': table_to_columns,
-                'foreign_keys': entry.get('foreign_keys', []),
-                'primary_keys': entry.get('primary_keys', [])
-            }
-            
-            db_schemas[db_id] = schema
-        
         self.db_schemas = db_schemas
+        print(f"Loaded {len(self.db_schemas)} schemas from Spider dataset")
         return self.db_schemas
     
     def get_db_connection(self, db_name: str) -> sqlite3.Connection:
