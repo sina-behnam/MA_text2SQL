@@ -207,7 +207,7 @@ class DataProcessor:
             'column_overlap_count': column_overlap_count,
             'column_overlap_lemma_count': column_overlap_lemma_count,
             'description_overlap_count': desc_overlap_count,
-            'semantic_similarities': semantic_similarity,
+            # 'semantic_similarities': semantic_similarity,
             'avg_table_similarity': sum(table_sim_values) / max(1, len(table_sim_values)) if table_sim_values else 0,
             'avg_column_similarity': sum(column_sim_values) / max(1, len(column_sim_values)) if column_sim_values else 0,
             'max_table_similarity': max(table_sim_values, default=0),
@@ -579,8 +579,8 @@ if __name__ == "__main__":
     print(f"Processed example (ID: {analysis['question_id']})")
     
     # Process batch (limit to 10 instances for testing)
-    results = processor.batch_process()
+    results = processor.batch_process(limit=1)
     
     # Save processed data
     output_dir = "outputs"
-    processor.save_processed_data(os.path.join(output_dir, "processed_bird_dev.json"), results)
+    processor.save_processed_data(os.path.join(output_dir, "processed_bird_dev_0.json"), results)
