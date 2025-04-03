@@ -6,6 +6,8 @@ import spacy
 import pandas as pd
 from typing import Dict, List, Tuple, Optional, Union, Any
 
+from tqdm.auto import tqdm
+
 # Load spaCy model for NLP analysis - same as before
 try:
     nlp = spacy.load("en_core_web_lg")
@@ -804,7 +806,6 @@ class DataProcessor:
 # Example usage for testing
 if __name__ == "__main__":
     from data_loader import DataLoader
-    from tqdm.auto import tqdm
     
     # Example for BIRD dataset
     bird_dataset_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Bird/dev_20240627"
