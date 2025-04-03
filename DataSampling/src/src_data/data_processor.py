@@ -183,6 +183,7 @@ class BirdDataAdapter(DataAdapter):
             'sql': self.get_sql(instance),
             'evidence': self.get_evidence(instance),
             'question_id': self.get_question_id(instance),
+            'difficulty': instance.get('difficulty', 'unknown'),
             'orig_instance': instance  # Keep original for reference
         }
 
@@ -212,6 +213,7 @@ class SpiderDataAdapter(DataAdapter):
             'sql': self.get_sql(instance),
             'evidence': self.get_evidence(instance),
             'question_id': self.get_question_id(instance),
+            'difficulty': 'unknown',  # Spider doesn't have difficulty
             'orig_instance': instance  # Keep original for reference
         }
 
@@ -721,6 +723,7 @@ class DataProcessor:
         sql = std_instance['sql']
         evidence = std_instance['evidence']
         question_id = std_instance['question_id']
+        difficulty = std_instance['difficulty']
         
         # Load schema
         schema = self.dataset.get_schema_by_db_name(db_id)
@@ -735,6 +738,7 @@ class DataProcessor:
             'question_id': question_id,
             'db_id': db_id,
             'question': question,
+            'difficulty': difficulty,
             'sql': sql,
             'evidence': evidence,
             'question_analysis': question_analysis,
