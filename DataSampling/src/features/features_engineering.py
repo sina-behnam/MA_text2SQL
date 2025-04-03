@@ -374,88 +374,7 @@ class FeatureEngineering:
         
         return combined_df
     
-    def compute_complexity_score(self):
-        """
-        Compute a complexity score for each question.
-        
-        Returns:
-            DataFrame with complexity scores
-        """
-        if 'question' not in self.features or 'sql' not in self.features:
-            if not self.processed_data:
-                raise ValueError("No processed data available")
-            self.extract_question_features()
-            self.extract_sql_features()
-        
-        question_df = self.features['question']
-        sql_df = self.features['sql']
-        
-        # Merge dataframes
-        merged_df = pd.merge(question_df, sql_df, on=['question_id', 'db_id', 'dataset', 'difficulty'], how='left')
-        
-        # Define weights for complexity factors
-        weights = {
-            'q_word_length': 0.05,
-            'q_entity_count': 0.05,
-            'q_number_count': 0.05,
-            'q_has_negation': 0.1,
-            'q_has_comparatives': 0.1,
-            'q_has_superlatives': 0.1,
-            'sql_tables_count': 0.15,
-            'sql_join_count': 0.1,
-            'sql_where_conditions': 0.1,
-            'sql_subquery_count': 0.15,
-            'sql_clauses_count': 0.05,
-            'sql_agg_function_count': 0.1
-        }
-        
-        # Normalize the factors
-        for factor in weights.keys():
-            if factor in merged_df.columns:
-                if factor.startswith('q_has_') and merged_df[factor].dtype == bool:
-                    merged_df[factor] = merged_df[factor].astype(int)
-                
-                max_val = merged_df[factor].max()
-                if max_val > 0:  # Avoid division by zero
-                    merged_df[f'norm_{factor}'] = merged_df[factor] / max_val
-                else:
-                    merged_df[f'norm_{factor}'] = 0
-        
-        # Compute complexity score
-        merged_df['complexity_score'] = 0
-        for factor, weight in weights.items():
-            if f'norm_{factor}' in merged_df.columns:
-                merged_df['complexity_score'] += merged_df[f'norm_{factor}'] * weight
-        
-        # Scale to 0-10 range
-        merged_df['complexity_score'] = merged_df['complexity_score'] * 10
-        
-        # Round to 2 decimal places
-        merged_df['complexity_score'] = merged_df['complexity_score'].round(2)
-        
-        # Add dataset-specific complexity adjustments
-        # This allows for dataset-specific calibration of complexity scores
-        for dataset in self.datasets_present:
-            dataset_mask = merged_df['dataset'] == dataset
-            if dataset_mask.sum() > 0:
-                # Optionally adjust scores for specific datasets
-                # For example, BIRD might have more complex questions on average
-                if dataset.lower() == 'bird':
-                    # Apply a small multiplier for BIRD to account for its generally higher complexity
-                    merged_df.loc[dataset_mask, 'complexity_score'] = merged_df.loc[dataset_mask, 'complexity_score'] * 1.05
-                    merged_df.loc[dataset_mask, 'complexity_score'] = merged_df.loc[dataset_mask, 'complexity_score'].round(2)
-                    
-                # Cap at 10
-                merged_df.loc[merged_df['complexity_score'] > 10, 'complexity_score'] = 10
-        
-        # Return only relevant columns - keep original difficulty as-is
-        result_df = merged_df[['question_id', 'db_id', 'dataset', 'difficulty', 
-                                'complexity_score']]
-        
-        # Optimize memory usage
-        result_df = self._optimize_dataframe(result_df)
-        
-        return result_df
+
     
     def extract_dataset_specific_features(self, dataset_name):
         """
@@ -621,7 +540,7 @@ class FeatureEngineering:
         Args:
             output_path: Path to save the features
             feature_type: Type of features to save ('all', 'question', 'sql', 'schema', 'combined', 
-                                                  'complexity', or a specific dataset name for dataset-specific features)
+                                                  or a specific dataset name for dataset-specific features)
             max_rows_per_file: Maximum rows per output file (for chunking large files)
             fmt: Format to save ('csv' or 'pickle')
         """
@@ -633,11 +552,9 @@ class FeatureEngineering:
         
         if feature_type == 'all':
             # Save all feature types
-            for ft in ['question', 'sql', 'schema', 'combined', 'complexity']:
+            for ft in ['question', 'sql', 'schema', 'combined']:
                 if ft == 'combined':
                     df = self.combine_features()
-                elif ft == 'complexity':
-                    df = self.compute_complexity_score()
                 elif ft in self.features:
                     df = self.features[ft]
                 else:
@@ -720,8 +637,6 @@ class FeatureEngineering:
             # Save specific feature type
             if feature_type == 'combined':
                 df = self.combine_features()
-            elif feature_type == 'complexity':
-                df = self.compute_complexity_score()
             elif '_specific' in feature_type:
                 # Extract dataset name from feature_type (e.g., 'bird_specific' -> 'bird')
                 dataset_name = feature_type.split('_')[0]
@@ -824,10 +739,6 @@ if __name__ == "__main__":
     print(f"Extracted {len(question_features)} question features")
     print(f"Extracted {len(sql_features)} SQL features")
     print(f"Extracted {len(schema_features)} schema features")
-    
-    # Compute complexity scores
-    complexity_scores = feature_eng.compute_complexity_score()
-    print(f"Computed complexity scores for {len(complexity_scores)} questions")
     
     # Save all features with chunking and compression
     output_dir = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/features"

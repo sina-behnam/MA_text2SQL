@@ -122,7 +122,6 @@ feature_dir = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outp
 # Load different feature types
 question_features = load_feature_files(feature_dir, 'question')
 sql_features = load_feature_files(feature_dir, 'sql')
-complexity_scores = load_feature_files(feature_dir, 'complexity')
 combined_features = load_feature_files(feature_dir, 'combined')
 
 # Load dataset-specific features
@@ -133,7 +132,7 @@ spider_features = load_feature_files(feature_dir, dataset='spider')
 difficulty_dist = load_feature_files(feature_dir, 'difficulty_distribution')
 
 # %% [markdown]
-# ## 2. Basic Statistics and Exploration
+# ## 2. Dataset Overview
 # 
 # Let's start by examining the datasets and their basic statistics.
 
@@ -175,6 +174,11 @@ if combined_features is not None:
         plt.tight_layout()
         plt.show()
 
+# %% [markdown]
+# ## 3. Question Feature Analysis
+# 
+# Let's analyze the question features to understand the characteristics of natural language questions.
+
 # %%
 # Basic statistics for question features
 if question_features is not None:
@@ -207,11 +211,6 @@ if question_features is not None:
     
     plt.tight_layout()
     plt.show()
-
-# %% [markdown]
-# ## 3. Question Feature Analysis
-# 
-# Let's analyze the question features in more detail to understand the characteristics of the questions.
 
 # %%
 # Entity analysis
@@ -284,29 +283,29 @@ if question_features is not None:
         plt.show()
 
 # %% [markdown]
-# ## 4. SQL Complexity Analysis
+# ## 4. SQL Query Analysis
 # 
-# Now let's analyze the SQL query features to understand their complexity.
+# Now let's analyze the SQL query features to understand their characteristics.
 
 # %%
-# SQL complexity analysis
+# SQL analysis
 if sql_features is not None:
-    # Select key SQL complexity features
-    sql_complexity_cols = ['sql_tables_count', 'sql_join_count', 'sql_where_conditions', 
-                          'sql_subquery_count', 'sql_clauses_count', 'sql_agg_function_count',
-                          'sql_select_columns', 'sql_char_length']
+    # Select key SQL features
+    sql_cols = ['sql_tables_count', 'sql_join_count', 'sql_where_conditions', 
+                'sql_subquery_count', 'sql_clauses_count', 'sql_agg_function_count',
+                'sql_select_columns', 'sql_char_length']
     
     # Make sure all columns exist
-    sql_complexity_cols = [col for col in sql_complexity_cols if col in sql_features.columns]
+    sql_cols = [col for col in sql_cols if col in sql_features.columns]
     
-    if sql_complexity_cols:
+    if sql_cols:
         # Basic statistics
-        print("SQL Complexity Statistics:")
-        print(sql_features[sql_complexity_cols].describe().T)
+        print("SQL Query Statistics:")
+        print(sql_features[sql_cols].describe().T)
         
         # Plot distributions
         plt.figure(figsize=(16, 12))
-        for i, col in enumerate(sql_complexity_cols[:8], 1):  # Limit to first 8 columns
+        for i, col in enumerate(sql_cols[:8], 1):  # Limit to first 8 columns
             plt.subplot(2, 4, i)
             sns.histplot(data=sql_features, x=col, hue='dataset', kde=True, element='step')
             plt.title(f'Distribution of {col}')
@@ -418,50 +417,146 @@ if combined_features is not None:
         plt.show()
 
 # %% [markdown]
-# ## 6. Question Difficulty and Complexity Analysis
+# ## 6. Difficulty Analysis (BIRD Dataset)
 # 
-# Now let's analyze the complexity scores and their relationship with difficulty levels.
+# Analyze question difficulty in the BIRD dataset.
 
 # %%
-# Complexity and difficulty analysis
-if complexity_scores is not None:
-    print("Complexity Score Statistics:")
-    print(complexity_scores['complexity_score'].describe())
+# Difficulty analysis for BIRD dataset
+if bird_features is not None and 'difficulty' in bird_features.columns:
+    # Get difficulty distribution
+    bird_features['difficulty'].fillna('unknown', inplace=True)
+    difficulty_counts = bird_features['difficulty'].value_counts()
     
-    # Plot complexity score distribution
-    plt.figure(figsize=(14, 6))
-    plt.subplot(1, 2, 1)
-    sns.histplot(data=complexity_scores, x='complexity_score', hue='dataset', kde=True, bins=20)
-    plt.title('Distribution of Complexity Scores')
-    plt.xlabel('Complexity Score')
+    # Plot
+    plt.figure(figsize=(10, 6))
+    ax = difficulty_counts.plot(kind='bar')
+    plt.title('BIRD Dataset: Question Difficulty Distribution')
+    plt.xlabel('Difficulty')
+    plt.ylabel('Count')
     
-    # Compare complexity by dataset
-    plt.subplot(1, 2, 2)
-    sns.boxplot(data=complexity_scores, x='dataset', y='complexity_score')
-    plt.title('Complexity Score by Dataset')
-    plt.xlabel('Dataset')
-    plt.ylabel('Complexity Score')
+    # Add count labels
+    for i, v in enumerate(difficulty_counts):
+        plt.text(i, v + 0.5, str(v), ha='center')
     
     plt.tight_layout()
     plt.show()
     
-    # Check relationship between complexity and difficulty if difficulty is available
-    if 'difficulty' in complexity_scores.columns:
-        # Filter to where difficulty is known (not unknown)
-        known_difficulty = complexity_scores[complexity_scores['difficulty'] != 'unknown']
+    # Check if we have the difficulty distribution data
+    if difficulty_dist is not None:
+        plt.figure(figsize=(10, 6))
+        sns.barplot(data=difficulty_dist, x='difficulty', y='percentage')
+        plt.title('BIRD Dataset: Question Difficulty Percentage')
+        plt.xlabel('Difficulty')
+        plt.ylabel('Percentage')
+        plt.xticks(rotation=0)
         
-        if len(known_difficulty) > 0:
-            plt.figure(figsize=(12, 6))
-            sns.boxplot(data=known_difficulty, x='difficulty', y='complexity_score')
-            plt.title('Complexity Score by Question Difficulty')
-            plt.xlabel('Difficulty')
-            plt.ylabel('Complexity Score')
-            plt.xticks(rotation=0)
-            plt.tight_layout()
-            plt.show()
+        # Add percentage labels
+        for i, row in enumerate(difficulty_dist.itertuples()):
+            plt.text(i, row.percentage + 0.5, f'{row.percentage:.1f}%', ha='center')
+        
+        plt.tight_layout()
+        plt.show()
+    
+    # Feature distribution by difficulty
+    # Select key features
+    difficulty_feature_cols = [
+        'q_word_length', 'q_entity_count', 
+        'sql_tables_count', 'sql_join_count', 'sql_where_conditions'
+    ]
+    
+    # Make sure all columns exist
+    difficulty_feature_cols = [col for col in difficulty_feature_cols if col in bird_features.columns]
+    
+    if difficulty_feature_cols:
+        # Create boxplots for each feature by difficulty
+        plt.figure(figsize=(16, 12))
+        for i, col in enumerate(difficulty_feature_cols, 1):
+            plt.subplot(2, 3, i)
+            sns.boxplot(data=bird_features, x='difficulty', y=col)
+            plt.title(f'{col} by Difficulty')
+            plt.xticks(rotation=45)
+        
+        plt.tight_layout()
+        plt.show()
 
 # %% [markdown]
-# ## 7. Correlation Analysis
+# ## 7. SQL Characteristics by Question Type
+# 
+# Let's analyze how SQL query characteristics vary with different question types.
+
+# %%
+# Function to categorize questions based on content
+def categorize_question(question):
+    question = question.lower() if isinstance(question, str) else ""
+    
+    categories = {
+        'counting': ['how many', 'count', 'number of'],
+        'comparison': ['more than', 'less than', 'greater', 'highest', 'lowest', 'maximum', 'minimum'],
+        'aggregation': ['average', 'mean', 'total', 'sum'],
+        'filtering': ['where', 'which', 'find', 'list'],
+        'grouping': ['group', 'by each', 'for each'],
+        'sorting': ['order', 'sort', 'rank']
+    }
+    
+    for category, keywords in categories.items():
+        if any(keyword in question for keyword in keywords):
+            return category
+    
+    return 'other'
+
+# Categorize questions if we have the text
+if combined_features is not None and 'question' in combined_features.columns:
+    combined_features['question_category'] = combined_features['question'].apply(categorize_question)
+    
+    # Count by category
+    category_counts = combined_features['question_category'].value_counts()
+    
+    plt.figure(figsize=(12, 6))
+    category_counts.plot(kind='bar')
+    plt.title('Questions by Category')
+    plt.xlabel('Category')
+    plt.ylabel('Count')
+    plt.xticks(rotation=45)
+    
+    # Add count labels
+    for i, v in enumerate(category_counts):
+        plt.text(i, v + 0.5, str(v), ha='center')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # SQL characteristics by question category
+    sql_by_category_cols = [
+        'sql_tables_count', 'sql_join_count', 'sql_where_conditions',
+        'sql_has_group_by', 'sql_has_order_by', 'sql_agg_function_count'
+    ]
+    
+    # Make sure all columns exist
+    sql_by_category_cols = [col for col in sql_by_category_cols if col in combined_features.columns]
+    
+    if sql_by_category_cols:
+        # Calculate mean values by category
+        sql_by_category = combined_features.groupby('question_category')[sql_by_category_cols].mean()
+        
+        # Convert boolean columns to percentages
+        bool_cols = [col for col in sql_by_category_cols if combined_features[col].dtype == 'bool']
+        if bool_cols:
+            sql_by_category[bool_cols] = sql_by_category[bool_cols] * 100
+        
+        # Plot
+        plt.figure(figsize=(14, 8))
+        sql_by_category.plot(kind='bar')
+        plt.title('SQL Characteristics by Question Category')
+        plt.xlabel('Question Category')
+        plt.ylabel('Average Value')
+        plt.xticks(rotation=45)
+        plt.legend(title='SQL Feature', bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.tight_layout()
+        plt.show()
+
+# %% [markdown]
+# ## 8. Correlation Analysis
 # 
 # Let's analyze correlations between different features to understand relationships.
 
@@ -475,10 +570,6 @@ if combined_features is not None:
         'sql_subquery_count', 'sql_clauses_count', 'sql_agg_function_count',
         'sql_select_columns', 'sql_char_length'
     ]
-    
-    # Add complexity score if available
-    if 'complexity_score' in combined_features.columns:
-        corr_cols.append('complexity_score')
     
     # Make sure all columns exist
     corr_cols = [col for col in corr_cols if col in combined_features.columns]
@@ -494,30 +585,11 @@ if combined_features is not None:
         plt.title('Feature Correlation Matrix')
         plt.tight_layout()
         plt.show()
-        
-        # Show top correlations with complexity
-        if 'complexity_score' in corr_cols:
-            complexity_corr = correlation['complexity_score'].drop('complexity_score').sort_values(ascending=False)
-            
-            plt.figure(figsize=(12, 6))
-            complexity_corr.plot(kind='bar')
-            plt.title('Feature Correlation with Complexity Score')
-            plt.xlabel('Feature')
-            plt.ylabel('Correlation Coefficient')
-            plt.axhline(y=0, color='black', linestyle='-', alpha=0.3)
-            plt.xticks(rotation=45)
-            
-            # Add correlation values
-            for i, v in enumerate(complexity_corr):
-                plt.text(i, v + 0.02 if v >= 0 else v - 0.08, f'{v:.2f}', ha='center')
-                
-            plt.tight_layout()
-            plt.show()
 
 # %% [markdown]
-# ## 8. Cross-Dataset Query Analysis
+# ## 9. Sample Analysis
 # 
-# Let's examine some examples from each dataset and compare them.
+# Let's examine some examples from each dataset.
 
 # %%
 # Sample analysis
@@ -536,7 +608,7 @@ if combined_features is not None:
         
         # Select columns to display
         display_cols = ['question_id', 'difficulty', 'q_word_length', 
-                        'sql_tables_count', 'sql_join_count', 'complexity_score']
+                        'sql_tables_count', 'sql_join_count']
         
         # Make sure all columns exist
         display_cols = [col for col in display_cols if col in samples.columns]
@@ -545,47 +617,31 @@ if combined_features is not None:
             print(samples[display_cols])
 
 # %% [markdown]
-# ## 9. Data Quality Analysis
+# ## 10. Key Findings
 # 
-# Let's check for any data quality issues in the features.
-
-# %%
-# Data quality analysis
-if combined_features is not None:
-    # Check for missing values
-    missing_vals = combined_features.isna().sum()
-    missing_pct = (combined_features.isna().sum() / len(combined_features)) * 100
-    
-    # Display columns with missing values
-    missing_df = pd.DataFrame({
-        'missing_count': missing_vals,
-        'missing_percent': missing_pct
-    })
-    
-    print("Columns with missing values:")
-    print(missing_df[missing_df['missing_count'] > 0].sort_values('missing_count', ascending=False))
-    
-    # Check for outliers in key numeric columns
-    numeric_cols = combined_features.select_dtypes(include=['int', 'float']).columns
-    
-    plt.figure(figsize=(14, 10))
-    for i, col in enumerate(numeric_cols[:12], 1):  # Display first 12 columns
-        plt.subplot(3, 4, i)
-        sns.boxplot(y=combined_features[col])
-        plt.title(f'Boxplot of {col}')
-    
-    plt.tight_layout()
-    plt.show()
-
-# %% [markdown]
-# ## 10. Conclusion and Key Findings
+# Based on our analysis, here are some key observations about the Text2SQL datasets:
 # 
-# Based on the analysis above, here are some key findings about the Text2SQL datasets:
+# 1. **Dataset Composition**:
+#    - Distribution between BIRD and Spider datasets
+#    - BIRD provides difficulty labels while Spider does not
 # 
-# - [Add your own findings based on the analysis]
-# - Compare complexity across datasets
-# - Note patterns in question structure
-# - Highlight differences between datasets
-# - Summarize correlations between features
+# 2. **Question Characteristics**:
+#    - Average question length in each dataset
+#    - Most common entity types across datasets
+#    - Question complexity patterns
+# 
+# 3. **SQL Query Patterns**:
+#    - Most commonly used SQL clauses
+#    - Join and table usage differences between datasets
+#    - Correlation between question features and SQL complexity
+# 
+# 4. **NL-to-SQL Relationship**:
+#    - How question types correlate with SQL structure
+#    - Entity presence and its relationship with WHERE clauses
+#    - Table/column mentions in natural language questions
+# 
+# 5. **Schema Interaction**:
+#    - How questions relate to database schemas
+#    - Overlap between question terms and schema elements
 
 # %%
