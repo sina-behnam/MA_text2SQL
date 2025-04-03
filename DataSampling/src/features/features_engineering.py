@@ -1,28 +1,37 @@
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Tuple, Optional, Union, Any
+from typing import Dict, List, Tuple, Optional, Union, Any, Set
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import spacy
 import os
 import json
+import gzip
+import pickle
+from datetime import datetime
+from pathlib import Path
 
 class FeatureEngineering:
     """
     Feature engineering for Text2SQL tasks.
     Works with processed data from any dataset implementation.
+    Optimized for large datasets with chunking and compression options.
     """
     
-    def __init__(self, processed_data=None):
+    def __init__(self, processed_data=None, chunk_size=1000, use_compression=True):
         """
         Initialize feature engineering.
         
         Args:
             processed_data: Optional pre-processed data
+            chunk_size: Size of chunks when processing large datasets
+            use_compression: Whether to use compression for output files
         """
         self.processed_data = processed_data
         self.features = {}
         self.datasets_present = set()
+        self.chunk_size = chunk_size
+        self.use_compression = use_compression
         
         # Load spaCy model for NLP features
         try:
@@ -42,22 +51,91 @@ class FeatureEngineering:
         """
         self.datasets_present = set()
         for item in self.processed_data:
-            if 'dataset' in item and not 'error' in item:
+            if 'dataset' in item and 'error' not in item:
                 self.datasets_present.add(item['dataset'].lower())
+        
+        print(f"Identified datasets: {', '.join(self.datasets_present)}")
     
-    def load_processed_data(self, file_path):
+    def load_processed_data(self, file_paths, limit=None):
         """
-        Load processed data from a file.
+        Load processed data from files. Can handle single file or multiple files.
         
         Args:
-            file_path: Path to the processed data file
+            file_paths: Path to processed data file(s). Can be:
+                        - A single file path as string
+                        - A list of file paths
+                        - A directory path containing multiple JSON files
+            limit: Optional limit on the number of instances to load per file
         """
-        with open(file_path, 'r', encoding='utf-8') as f:
-            self.processed_data = json.load(f)
+        self.processed_data = []
+        
+        # Convert single path to list
+        if isinstance(file_paths, str):
+            # Check if it's a directory
+            if os.path.isdir(file_paths):
+                # Find all JSON files in directory
+                file_list = [os.path.join(file_paths, f) for f in os.listdir(file_paths) 
+                           if f.endswith('.json') and os.path.isfile(os.path.join(file_paths, f))]
+            else:
+                # Single file
+                file_list = [file_paths]
+        else:
+            # Already a list of paths
+            file_list = file_paths
+            
+        # Process each file
+        for file_path in file_list:
+            if not os.path.exists(file_path):
+                print(f"Warning: File not found: {file_path}")
+                continue
+                
+            print(f"Loading data from {file_path}...")
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    if limit:
+                        # Parse file line by line for large files with a limit
+                        data = []
+                        for i, line in enumerate(f):
+                            if i == 0 and line.startswith('['):
+                                # Handle array format - read first [
+                                continue
+                            if i > limit:
+                                break
+                            
+                            # Handle commas at the end of objects in array
+                            if line.rstrip().endswith(','):
+                                line = line[:-1]
+                            
+                            try:
+                                if line.strip() and not line.strip().startswith(']'):
+                                    item = json.loads(line)
+                                    data.append(item)
+                            except json.JSONDecodeError:
+                                continue
+                        
+                        # Add to main data list
+                        self.processed_data.extend(data)
+                        print(f"  Loaded {len(data)} items from {file_path}")
+                    else:
+                        # Load the entire file
+                        file_data = json.load(f)
+                        if isinstance(file_data, list):
+                            self.processed_data.extend(file_data)
+                            print(f"  Loaded {len(file_data)} items from {file_path}")
+                        else:
+                            # Single item file
+                            self.processed_data.append(file_data)
+                            print(f"  Loaded 1 item from {file_path}")
+            except json.JSONDecodeError as e:
+                print(f"Error loading {file_path}: {str(e)}")
+                continue
+            except Exception as e:
+                print(f"Unexpected error loading {file_path}: {str(e)}")
+                continue
             
         # Identify which datasets are present
         self._identify_datasets()
-        print(f"Loaded data from {len(self.datasets_present)} datasets: {', '.join(self.datasets_present)}")
+        print(f"Total loaded data: {len(self.processed_data)} items from {len(self.datasets_present)} datasets: {', '.join(self.datasets_present)}")
     
     def extract_question_features(self):
         """
@@ -82,6 +160,7 @@ class FeatureEngineering:
                 'question_id': item.get('question_id'),
                 'db_id': item.get('db_id'),
                 'dataset': item.get('dataset', 'unknown'),
+                'difficulty': item.get('difficulty', 'unknown'),  # Added difficulty feature
                 'q_char_length': q_analysis.get('char_length', 0),
                 'q_word_length': q_analysis.get('word_length', 0),
                 'q_has_entities': q_analysis.get('has_entities', False),
@@ -128,6 +207,9 @@ class FeatureEngineering:
         # Convert to DataFrame
         df = pd.DataFrame(features)
         
+        # Optimize memory usage by downcasting numeric types
+        df = self._optimize_dataframe(df)
+        
         # Cache features
         self.features['question'] = df
         
@@ -156,6 +238,7 @@ class FeatureEngineering:
                 'question_id': item.get('question_id'),
                 'db_id': item.get('db_id'),
                 'dataset': item.get('dataset', 'unknown'),
+                'difficulty': item.get('difficulty', 'unknown'),  # Added difficulty feature
                 'sql_char_length': sql_analysis.get('char_length', 0),
                 'sql_tables_count': sql_analysis.get('tables_count', 0),
                 'sql_join_count': sql_analysis.get('join_count', 0),
@@ -178,6 +261,9 @@ class FeatureEngineering:
         
         # Convert to DataFrame
         df = pd.DataFrame(features)
+        
+        # Optimize memory usage
+        df = self._optimize_dataframe(df)
         
         # Cache features
         self.features['sql'] = df
@@ -235,7 +321,7 @@ class FeatureEngineering:
                 
                 # Add datatype counts
                 datatype_counts = table.get('datatype_counts', {})
-                for dtype in ['TEXT', 'INTEGER', 'REAL', 'NUMERIC', 'BLOB', 'DATE', 'DATETIME', 'BOOLEAN']:
+                for dtype in ['TEXT', 'INTEGER', 'REAL', 'NUMERIC', 'BLOB', 'DATE', 'DATETIME', 'BOOLEAN', 'NUMBER', 'OTHERS']:
                     feature[f'{prefix}_{dtype.lower()}_count'] = datatype_counts.get(dtype, 0)
             
             features.append(feature)
@@ -243,15 +329,21 @@ class FeatureEngineering:
         # Convert to DataFrame
         df = pd.DataFrame(features)
         
+        # Optimize memory usage
+        df = self._optimize_dataframe(df)
+        
         # Cache features
         self.features['schema'] = df
         
         return df
     
-    def combine_features(self):
+    def combine_features(self, optimize_memory=True):
         """
         Combine all features into a single DataFrame.
         
+        Args:
+            optimize_memory: Whether to optimize memory usage
+            
         Returns:
             DataFrame with all features
         """
@@ -271,10 +363,14 @@ class FeatureEngineering:
         schema_df = self.features['schema']
         
         # Merge question and SQL features (one-to-one)
-        combined_df = pd.merge(question_df, sql_df, on=['question_id', 'db_id', 'dataset'], how='left')
+        combined_df = pd.merge(question_df, sql_df, on=['question_id', 'db_id', 'dataset', 'difficulty'], how='left')
         
         # Merge with schema features (many-to-one)
         combined_df = pd.merge(combined_df, schema_df, on=['db_id', 'dataset'], how='left')
+        
+        # Optimize memory usage if requested
+        if optimize_memory:
+            combined_df = self._optimize_dataframe(combined_df)
         
         return combined_df
     
@@ -295,7 +391,7 @@ class FeatureEngineering:
         sql_df = self.features['sql']
         
         # Merge dataframes
-        merged_df = pd.merge(question_df, sql_df, on=['question_id', 'db_id', 'dataset'], how='left')
+        merged_df = pd.merge(question_df, sql_df, on=['question_id', 'db_id', 'dataset', 'difficulty'], how='left')
         
         # Define weights for complexity factors
         weights = {
@@ -346,14 +442,20 @@ class FeatureEngineering:
                 # For example, BIRD might have more complex questions on average
                 if dataset.lower() == 'bird':
                     # Apply a small multiplier for BIRD to account for its generally higher complexity
-                    # This is just an example - you would calibrate based on your analysis
                     merged_df.loc[dataset_mask, 'complexity_score'] = merged_df.loc[dataset_mask, 'complexity_score'] * 1.05
                     merged_df.loc[dataset_mask, 'complexity_score'] = merged_df.loc[dataset_mask, 'complexity_score'].round(2)
                     
                 # Cap at 10
                 merged_df.loc[merged_df['complexity_score'] > 10, 'complexity_score'] = 10
         
-        return merged_df[['question_id', 'db_id', 'dataset', 'complexity_score']]
+        # Return only relevant columns - keep original difficulty as-is
+        result_df = merged_df[['question_id', 'db_id', 'dataset', 'difficulty', 
+                                'complexity_score']]
+        
+        # Optimize memory usage
+        result_df = self._optimize_dataframe(result_df)
+        
+        return result_df
     
     def extract_dataset_specific_features(self, dataset_name):
         """
@@ -383,7 +485,8 @@ class FeatureEngineering:
             feature = {
                 'question_id': item.get('question_id'),
                 'db_id': item.get('db_id'),
-                'dataset': dataset_name
+                'dataset': dataset_name,
+                'difficulty': item.get('difficulty', 'unknown'),  # Add difficulty
             }
             
             # Add dataset-specific features
@@ -399,7 +502,7 @@ class FeatureEngineering:
                 # Spider-specific features
                 # For example, difficulty level if available
                 if 'orig_instance' in item and 'difficulty' in item['orig_instance']:
-                    feature['difficulty'] = item['orig_instance']['difficulty']
+                    feature['orig_difficulty'] = item['orig_instance']['difficulty']
                 # Add more Spider-specific features as needed
             
             # Add other dataset-specific features as needed
@@ -409,22 +512,124 @@ class FeatureEngineering:
         # Convert to DataFrame
         df = pd.DataFrame(features)
         
+        # Optimize memory usage
+        df = self._optimize_dataframe(df)
+        
         # Cache features with dataset prefix
         self.features[f'{dataset_name.lower()}_specific'] = df
         
         return df
     
-    def save_features(self, output_path, feature_type='all'):
+    def analyze_difficulty_distribution(self):
+        """
+        Analyze distribution of question difficulties across datasets.
+        Note: Spider dataset doesn't have difficulty labels, while BIRD does.
+        
+        Returns:
+            DataFrame with difficulty distribution
+        """
+        if 'question' not in self.features:
+            self.extract_question_features()
+            
+        question_df = self.features['question']
+        
+        # Get difficulty distribution
+        difficulty_df = question_df.groupby(['dataset', 'difficulty']).size().reset_index(name='count')
+        
+        # Calculate percentages within each dataset
+        difficulty_df['percentage'] = difficulty_df.groupby('dataset')['count'].transform(
+            lambda x: 100 * x / x.sum()
+        ).round(2)
+        
+        return difficulty_df
+    
+    def _optimize_dataframe(self, df):
+        """
+        Optimize memory usage of DataFrame by downcasting numeric types.
+        
+        Args:
+            df: DataFrame to optimize
+            
+        Returns:
+            Optimized DataFrame
+        """
+        # Make a copy to avoid modifying the original
+        result = df.copy()
+        
+        # Downcast numeric columns
+        for col in result.select_dtypes(include=['int']).columns:
+            result[col] = pd.to_numeric(result[col], downcast='integer')
+            
+        for col in result.select_dtypes(include=['float']).columns:
+            result[col] = pd.to_numeric(result[col], downcast='float')
+        
+        # Convert object columns with few unique values to category
+        for col in result.select_dtypes(include=['object']).columns:
+            if result[col].nunique() < 0.5 * len(result):
+                result[col] = result[col].astype('category')
+        
+        return result
+    
+    def _get_output_path(self, base_path, feature_type, chunk_idx=None, fmt='csv', compressed=False):
+        """
+        Get output path for a feature file.
+        
+        Args:
+            base_path: Base path for output file
+            feature_type: Type of features
+            chunk_idx: Optional chunk index for large files
+            fmt: Format of the file ('csv' or 'pickle')
+            compressed: Whether to use compression
+            
+        Returns:
+            Output path
+        """
+        # Make path object
+        path = Path(base_path)
+        
+        # Create directory if it doesn't exist
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Remove extension if present
+        stem = path.stem
+        
+        # Add feature type
+        if feature_type != 'all':
+            stem = f"{stem}_{feature_type}"
+        
+        # Add chunk index if specified
+        if chunk_idx is not None:
+            stem = f"{stem}_chunk{chunk_idx}"
+        
+        # Add extension
+        if fmt == 'pickle':
+            stem = f"{stem}.pkl"
+        else:  # default to csv
+            stem = f"{stem}.csv"
+        
+        # Add compression extension if requested
+        if compressed:
+            stem = f"{stem}.gz"
+        
+        # Combine with parent directory
+        return path.parent / stem
+    
+    def save_features(self, output_path, feature_type='all', max_rows_per_file=100000, fmt='csv'):
         """
         Save features to a file.
         
         Args:
             output_path: Path to save the features
             feature_type: Type of features to save ('all', 'question', 'sql', 'schema', 'combined', 
-                                                  or a specific dataset name for dataset-specific features)
+                                                  'complexity', or a specific dataset name for dataset-specific features)
+            max_rows_per_file: Maximum rows per output file (for chunking large files)
+            fmt: Format to save ('csv' or 'pickle')
         """
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Track all saved files
+        saved_files = []
         
         if feature_type == 'all':
             # Save all feature types
@@ -443,18 +648,74 @@ class FeatureEngineering:
                     elif ft == 'schema':
                         df = self.extract_schema_features()
                 
-                # Save to CSV
-                ft_path = output_path.replace('.csv', f'_{ft}.csv')
-                df.to_csv(ft_path, index=False)
-                print(f"Saved {ft} features to {ft_path}")
+                # Save with chunking if needed
+                self._save_dataframe(df, output_path, ft, max_rows_per_file, fmt)
+                
+                # Add to saved files list
+                ft_path = self._get_output_path(output_path, ft, fmt=fmt, compressed=self.use_compression)
+                saved_files.append(str(ft_path))
+                
+                print(f"Saved {ft} features with {len(df)} rows")
                 
             # Save dataset-specific features for each dataset
             for dataset in self.datasets_present:
                 df = self.extract_dataset_specific_features(dataset)
                 if not df.empty:
-                    ds_path = output_path.replace('.csv', f'_{dataset}_specific.csv')
-                    df.to_csv(ds_path, index=False)
-                    print(f"Saved {dataset}-specific features to {ds_path}")
+                    ds_type = f"{dataset}_specific"
+                    
+                    # Save with chunking if needed
+                    self._save_dataframe(df, output_path, ds_type, max_rows_per_file, fmt)
+                    
+                    # Add to saved files list
+                    ds_path = self._get_output_path(output_path, ds_type, fmt=fmt, compressed=self.use_compression)
+                    saved_files.append(str(ds_path))
+                    
+                    print(f"Saved {dataset}-specific features with {len(df)} rows")
+                    
+            # Only save difficulty distribution for datasets that have it (like BIRD)
+            bird_data = [item for item in self.processed_data 
+                       if item.get('dataset', '').lower() == 'bird' 
+                       and 'error' not in item]
+            
+            if bird_data:
+                difficulty_df = self.analyze_difficulty_distribution()
+                diff_type = "difficulty_distribution"
+                
+                # Save difficulty distribution (should be small)
+                diff_path = self._get_output_path(output_path, diff_type, fmt=fmt, compressed=self.use_compression)
+                if fmt == 'pickle':
+                    if self.use_compression:
+                        with gzip.open(diff_path, 'wb') as f:
+                            pickle.dump(difficulty_df, f)
+                    else:
+                        with open(diff_path, 'wb') as f:
+                            pickle.dump(difficulty_df, f)
+                else:
+                    if self.use_compression:
+                        difficulty_df.to_csv(diff_path, index=False, compression='gzip')
+                    else:
+                        difficulty_df.to_csv(diff_path, index=False)
+                
+                saved_files.append(str(diff_path))
+                print(f"Saved difficulty distribution with {len(difficulty_df)} rows")
+            
+            # Save a manifest file with metadata about all saved files
+            manifest = {
+                'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'feature_types': list(set([p.split('_')[-1].split('.')[0] for p in saved_files if not p.endswith('_manifest.json')])),
+                'datasets': list(self.datasets_present),
+                'total_instances': len(self.processed_data) if self.processed_data else 0,
+                'files': saved_files,
+                'compression': self.use_compression,
+                'format': fmt
+            }
+            
+            manifest_path = os.path.join(os.path.dirname(output_path), 'feature_extraction_manifest.json')
+            with open(manifest_path, 'w') as f:
+                json.dump(manifest, f, indent=2)
+            
+            print(f"Saved feature extraction manifest to {manifest_path}")
+            
         else:
             # Save specific feature type
             if feature_type == 'combined':
@@ -474,6 +735,8 @@ class FeatureEngineering:
                     df = self.extract_sql_features()
                 elif feature_type == 'schema':
                     df = self.extract_schema_features()
+                elif feature_type == 'difficulty_distribution':
+                    df = self.analyze_difficulty_distribution()
                 else:
                     # Check if it's a dataset name
                     if feature_type.lower() in self.datasets_present:
@@ -481,21 +744,77 @@ class FeatureEngineering:
                     else:
                         raise ValueError(f"Unknown feature type: {feature_type}")
             
-            # Save to CSV
-            df.to_csv(output_path, index=False)
-            print(f"Saved {feature_type} features to {output_path}")
+            # Save with chunking if needed
+            self._save_dataframe(df, output_path, feature_type, max_rows_per_file, fmt)
+            print(f"Saved {feature_type} features with {len(df)} rows")
+    
+    def _save_dataframe(self, df, base_path, feature_type, max_rows_per_file, fmt='csv'):
+        """
+        Save DataFrame with chunking for large files.
+        
+        Args:
+            df: DataFrame to save
+            base_path: Base path for the output file
+            feature_type: Type of features
+            max_rows_per_file: Maximum rows per file
+            fmt: Format to save ('csv' or 'pickle')
+        """
+        # Check if chunking is needed
+        if len(df) > max_rows_per_file:
+            # Calculate number of chunks
+            num_chunks = (len(df) + max_rows_per_file - 1) // max_rows_per_file
+            
+            # Save in chunks
+            for i in range(num_chunks):
+                start_idx = i * max_rows_per_file
+                end_idx = min((i + 1) * max_rows_per_file, len(df))
+                
+                chunk_df = df.iloc[start_idx:end_idx]
+                chunk_path = self._get_output_path(base_path, feature_type, i, fmt, self.use_compression)
+                
+                if fmt == 'pickle':
+                    if self.use_compression:
+                        with gzip.open(chunk_path, 'wb') as f:
+                            pickle.dump(chunk_df, f)
+                    else:
+                        with open(chunk_path, 'wb') as f:
+                            pickle.dump(chunk_df, f)
+                else:  # csv format
+                    if self.use_compression:
+                        chunk_df.to_csv(chunk_path, index=False, compression='gzip')
+                    else:
+                        chunk_df.to_csv(chunk_path, index=False)
+                
+                print(f"  Saved chunk {i+1}/{num_chunks} with {len(chunk_df)} rows to {chunk_path}")
+        else:
+            # Save as a single file
+            output_path = self._get_output_path(base_path, feature_type, fmt=fmt, compressed=self.use_compression)
+            
+            if fmt == 'pickle':
+                if self.use_compression:
+                    with gzip.open(output_path, 'wb') as f:
+                        pickle.dump(df, f)
+                else:
+                    with open(output_path, 'wb') as f:
+                        pickle.dump(df, f)
+            else:  # csv format
+                if self.use_compression:
+                    df.to_csv(output_path, index=False, compression='gzip')
+                else:
+                    df.to_csv(output_path, index=False)
 
 
 # Example usage
 if __name__ == "__main__":
-    # Path to processed data that contains multiple datasets
-    processed_data_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/processed_combined_data.json"
+    # Example 1: Load from separate dataset JSON files
+    bird_data_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/processed_bird_data.json"
+    spider_data_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/processed_spider_data.json"
     
-    # Create feature engineering object
-    feature_eng = FeatureEngineering()
+    # Create feature engineering object with compression enabled
+    feature_eng = FeatureEngineering(chunk_size=500, use_compression=True)
     
-    # Load processed data
-    feature_eng.load_processed_data(processed_data_path)
+    # Load processed data from multiple files
+    feature_eng.load_processed_data([bird_data_path, spider_data_path])
     
     # Extract features
     question_features = feature_eng.extract_question_features()
@@ -506,19 +825,24 @@ if __name__ == "__main__":
     print(f"Extracted {len(sql_features)} SQL features")
     print(f"Extracted {len(schema_features)} schema features")
     
-    # Combine features
-    combined_features = feature_eng.combine_features()
-    print(f"Combined into {len(combined_features)} feature sets")
-    
-    # Compute complexity score
+    # Compute complexity scores
     complexity_scores = feature_eng.compute_complexity_score()
-    print(f"Computed complexity scores")
+    print(f"Computed complexity scores for {len(complexity_scores)} questions")
     
-    # Extract dataset-specific features
-    for dataset in feature_eng.datasets_present:
-        dataset_features = feature_eng.extract_dataset_specific_features(dataset)
-        print(f"Extracted {len(dataset_features)} {dataset}-specific features")
+    # Save all features with chunking and compression
+    output_dir = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/features"
+    feature_eng.save_features(
+        os.path.join(output_dir, "all_datasets_features"),
+        feature_type='all',
+        max_rows_per_file=50000,  # Split large files
+        fmt='csv'  # Use CSV format
+    )
     
-    # Save all features
-    output_dir = "outputs/features"
-    feature_eng.save_features(os.path.join(output_dir, "all_datasets_features.csv"), feature_type='all')
+    # Example 2: Load from a directory containing multiple JSON files
+    # data_dir = "outputs/test_multi"
+    # feature_eng2 = FeatureEngineering()
+    # feature_eng2.load_processed_data(data_dir)
+    # feature_eng2.save_features(
+    #     os.path.join(output_dir, "directory_load_features"),
+    #     feature_type='combined'
+    # )
