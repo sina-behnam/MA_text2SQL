@@ -777,8 +777,7 @@ class DataProcessor:
             instances = instances[:limit]
         
         # Process each instance
-        for idx, instance in enumerate(instances):
-            print(f"Processing instance {idx+1}/{len(instances)}")
+        for instance in tqdm(instances, desc="Processing instances", unit="instance"):
             result = self.process_dataset_instance(instance)
             results.append(result)
         
@@ -805,6 +804,7 @@ class DataProcessor:
 # Example usage for testing
 if __name__ == "__main__":
     from data_loader import DataLoader
+    from tqdm.auto import tqdm
     
     # Example for BIRD dataset
     bird_dataset_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Bird/dev_20240627"
