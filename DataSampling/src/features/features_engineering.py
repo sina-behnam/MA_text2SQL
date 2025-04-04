@@ -310,19 +310,19 @@ class FeatureEngineering:
                 'schema_foreign_key_count': schema_analysis.get('foreign_key_count', 0)
             }
             
-            # Add table-specific features
-            tables = schema_analysis.get('tables', [])
-            for idx, table in enumerate(tables[:10]):  # Limit to first 10 tables for large schemas
-                prefix = f'table_{idx+1}'
-                feature[f'{prefix}_name'] = table.get('name', '')
-                feature[f'{prefix}_columns_count'] = table.get('columns_count', 0)
-                feature[f'{prefix}_pk_count'] = table.get('primary_key_count', 0)
-                feature[f'{prefix}_fk_count'] = table.get('foreign_key_count', 0)
+            # # Add table-specific features
+            # tables = schema_analysis.get('tables', [])
+            # for idx, table in enumerate(tables[:10]):  # Limit to first 10 tables for large schemas
+            #     prefix = f'table_{idx+1}'
+            #     feature[f'{prefix}_name'] = table.get('name', '')
+            #     feature[f'{prefix}_columns_count'] = table.get('columns_count', 0)
+            #     feature[f'{prefix}_pk_count'] = table.get('primary_key_count', 0)
+            #     feature[f'{prefix}_fk_count'] = table.get('foreign_key_count', 0)
                 
-                # Add datatype counts
-                datatype_counts = table.get('datatype_counts', {})
-                for dtype in ['TEXT', 'INTEGER', 'REAL', 'NUMERIC', 'BLOB', 'DATE', 'DATETIME', 'BOOLEAN', 'NUMBER', 'OTHERS']:
-                    feature[f'{prefix}_{dtype.lower()}_count'] = datatype_counts.get(dtype, 0)
+            #     # Add datatype counts
+            #     datatype_counts = table.get('datatype_counts', {})
+            #     for dtype in ['TEXT', 'INTEGER', 'REAL', 'NUMERIC', 'BLOB', 'DATE', 'DATETIME', 'BOOLEAN', 'NUMBER', 'OTHERS']:
+            #         feature[f'{prefix}_{dtype.lower()}_count'] = datatype_counts.get(dtype, 0)
             
             features.append(feature)
         
@@ -722,8 +722,8 @@ class FeatureEngineering:
 # Example usage
 if __name__ == "__main__":
     # Example 1: Load from separate dataset JSON files
-    bird_data_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/processed_bird_data.json"
-    spider_data_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/processed_spider_data.json"
+    bird_data_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/processed_bird_data_test.json"
+    spider_data_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/processed_spider_data_test.json"
     
     # Create feature engineering object with compression enabled
     feature_eng = FeatureEngineering(chunk_size=500, use_compression=True)
@@ -741,7 +741,7 @@ if __name__ == "__main__":
     print(f"Extracted {len(schema_features)} schema features")
     
     # Save all features with chunking and compression
-    output_dir = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/features"
+    output_dir = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/features_test"
     feature_eng.save_features(
         os.path.join(output_dir, "all_datasets_features"),
         feature_type='all',
