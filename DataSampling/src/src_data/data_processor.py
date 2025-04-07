@@ -408,7 +408,7 @@ class DataProcessor:
         # Compute description overlap if we have descriptions
         desc_overlap_count = 0
         
-        for term in question_lemmas:
+        for term in question_terms.union(question_lemmas):
             if term in column_descriptions or term in value_descriptions:
                 desc_overlap_count += 1
         
