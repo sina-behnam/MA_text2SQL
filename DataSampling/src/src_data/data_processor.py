@@ -260,6 +260,9 @@ class DataProcessor:
         self.dataset_name = dataset_name
         self.adapter = AdapterFactory.get_adapter(dataset_name)
         
+        # Dictionary to store schema analysis by db_id
+        self.schema_analyses = {}
+        
     def analyze_question(self, question_text, schema=None):
         """
         Analyze natural language question.
@@ -714,9 +717,8 @@ class DataProcessor:
             instance: The dataset instance to process
             
         Returns:
-            Dictionary with complete analysis
+            Dictionary with complete analysis (excluding schema analysis)
         """
-        # try:
         # Standardize the instance using the appropriate adapter
         std_instance = self.adapter.create_standardized_instance(instance)
         
@@ -731,10 +733,13 @@ class DataProcessor:
         # Load schema
         schema = self.dataset.get_schema_by_db_name(db_id)
         
-        # Analyze components
+        # Check if we already analyzed this schema
+        if db_id not in self.schema_analyses:
+            self.schema_analyses[db_id] = self.analyze_schema(db_id)
+        
+        # Analyze components (excluding schema analysis)
         question_analysis = self.analyze_question(question, schema)
         sql_analysis = self.analyze_sql(sql)
-        schema_analysis = self.analyze_schema(db_id)
         
         # Combine into a complete analysis
         analysis = {
@@ -746,19 +751,10 @@ class DataProcessor:
             'evidence': evidence,
             'question_analysis': question_analysis,
             'sql_analysis': sql_analysis,
-            'schema_analysis': schema_analysis,
             'dataset': self.dataset_name
         }
         
         return analysis
-            
-        # except Exception as e:
-        #     # Handle any errors in processing
-        #     return {
-        #         'question_id': self.adapter.get_question_id(instance) if instance else '',
-        #         'error': str(e),
-        #         'dataset': self.dataset_name
-        #     }
     
     def batch_process(self, limit=None):
         """
@@ -768,7 +764,7 @@ class DataProcessor:
             limit: Maximum number of instances to process
             
         Returns:
-            List of processed instances
+            List of processed instances and dictionary of schema analyses
         """
         results = []
         
@@ -797,11 +793,19 @@ class DataProcessor:
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
+        # Create output structure with instances and schemas
+        output_data = {
+            'instances': results,
+            'schemas': self.schema_analyses
+        }
+        
         # Save to file
         with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(results, f, indent=2)
+            json.dump(output_data, f, indent=2)
         
         print(f"Saved processed data to {output_path}")
+        print(f"- {len(results)} instances")
+        print(f"- {len(self.schema_analyses)} database schemas")
 
 
 # Example usage for testing
@@ -836,4 +840,3 @@ if __name__ == "__main__":
     # Save results
     processor.save_processed_data(args.output, results)
     print(f"Processing complete! Saved {len(results)} instances to {args.output}")
-    
