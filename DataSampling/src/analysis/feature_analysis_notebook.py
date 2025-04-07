@@ -1,6 +1,3 @@
-# Text2SQL Feature Analysis and Visualization
-# This notebook analyzes the outputs from the Text2SQL feature engineering module
-# %%
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -34,11 +31,11 @@ pd.options.display.float_format = '{:.3f}'.format
 # Function to find and load feature files
 def load_feature_files(base_dir, feature_type=None, dataset=None):
     """
-    Load feature files from the specified directory.
+    Load feature files from the specified directory, handling chunked files properly.
     
     Args:
         base_dir: Base directory containing feature files
-        feature_type: Optional type of features to load (e.g., 'question', 'sql')
+        feature_type: Optional type of features to load (e.g., 'question', 'sql', 'combined')
         dataset: Optional dataset filter (e.g., 'bird', 'spider')
         
     Returns:
@@ -57,13 +54,40 @@ def load_feature_files(base_dir, feature_type=None, dataset=None):
         for file_path in manifest.get('files', []):
             file_name = os.path.basename(file_path)
             
-            # Apply filters
-            if feature_type and f"_{feature_type}" not in file_name and not file_name.startswith(feature_type):
-                continue
-                
+            # Check for chunked files pattern
+            is_chunk = '_chunk' in file_name
+            base_type = None
+            
+            # Extract base feature type from file name (handles chunked files)
+            if is_chunk:
+                # For chunked files like "all_datasets_features_combined_chunk0.csv.gz"
+                # Extract "combined" as the feature type
+                match = re.search(r'_([a-zA-Z]+)_chunk\d+', file_name)
+                if match:
+                    base_type = match.group(1)
+            else:
+                # For regular files like "all_datasets_features_combined.csv.gz"
+                match = re.search(r'_([a-zA-Z]+)\.csv', file_name)
+                if match:
+                    base_type = match.group(1)
+            
+            # Apply feature type filter
+            if feature_type:
+                # For combined, we need special handling as it might be chunked
+                if feature_type == 'combined':
+                    if base_type != 'combined' and not file_name.startswith('combined'):
+                        continue
+                # For other types, check both patterns: _type or starts with type
+                elif base_type != feature_type and not file_name.startswith(feature_type):
+                    # Additional check for full word match (not partial)
+                    if f"_{feature_type}" not in file_name and not file_name.startswith(feature_type):
+                        continue
+            
+            # Apply dataset filter
             if dataset and f"{dataset}" not in file_name:
                 continue
                 
+            # Check if file exists at given path
             if os.path.exists(file_path):
                 files_to_load.append(file_path)
             else:
@@ -73,23 +97,49 @@ def load_feature_files(base_dir, feature_type=None, dataset=None):
                     files_to_load.append(rel_path)
     else:
         # No manifest, find files manually
+        # This handles chunked files automatically through glob patterns
+        
+        # Define base pattern
         pattern = "*"
         if feature_type:
-            pattern = f"*_{feature_type}*"
-        if dataset:
-            pattern = f"*{dataset}*_{feature_type}*" if feature_type else f"*{dataset}*"
-            
-        # Find all CSV files matching the pattern
-        files_to_load = glob.glob(os.path.join(base_dir, pattern + ".csv"))
-        
-        # Also check for compressed files
-        files_to_load.extend(glob.glob(os.path.join(base_dir, pattern + ".csv.gz")))
+            # For combined, look for both combined.csv and combined_chunk*.csv
+            if feature_type == 'combined':
+                files_to_load = glob.glob(os.path.join(base_dir, f"*{feature_type}*.csv"))
+                files_to_load.extend(glob.glob(os.path.join(base_dir, f"*{feature_type}*_chunk*.csv")))
+                # Also check for compressed files
+                files_to_load.extend(glob.glob(os.path.join(base_dir, f"*{feature_type}*.csv.gz")))
+                files_to_load.extend(glob.glob(os.path.join(base_dir, f"*{feature_type}*_chunk*.csv.gz")))
+            else:
+                # For other types, use standard pattern matching
+                pattern = f"*_{feature_type}*"
+                if dataset:
+                    pattern = f"*{dataset}*_{feature_type}*"
+                
+                # Find all CSV files matching the pattern
+                files_to_load = glob.glob(os.path.join(base_dir, pattern + ".csv"))
+                files_to_load.extend(glob.glob(os.path.join(base_dir, pattern + "_chunk*.csv")))
+                
+                # Also check for compressed files
+                files_to_load.extend(glob.glob(os.path.join(base_dir, pattern + ".csv.gz")))
+                files_to_load.extend(glob.glob(os.path.join(base_dir, pattern + "_chunk*.csv.gz")))
+        elif dataset:
+            # Just dataset filter
+            pattern = f"*{dataset}*"
+            files_to_load = glob.glob(os.path.join(base_dir, pattern + ".csv"))
+            files_to_load.extend(glob.glob(os.path.join(base_dir, pattern + ".csv.gz")))
+        else:
+            # No filters, load all files (but be careful, could be many)
+            files_to_load = glob.glob(os.path.join(base_dir, "*.csv"))
+            files_to_load.extend(glob.glob(os.path.join(base_dir, "*.csv.gz")))
     
     # Load and combine all files
     if not files_to_load:
         print(f"No matching files found in {base_dir}")
         return None
-        
+    
+    # Sort files to ensure chunks are loaded in order
+    files_to_load = sorted(files_to_load)
+    
     print(f"Loading {len(files_to_load)} files:")
     dfs = []
     
@@ -117,19 +167,28 @@ def load_feature_files(base_dir, feature_type=None, dataset=None):
 
 # %%
 # Specify the directory where feature files are stored
-feature_dir = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/outputs/test_multi/features"  # Update this to your directory
+feature_dir = "outputs/features"  # Update this to your directory
 
-# Load different feature types
+# Load individual feature types
+print("Loading question features...")
 question_features = load_feature_files(feature_dir, 'question')
-sql_features = load_feature_files(feature_dir, 'sql')
-combined_features = load_feature_files(feature_dir, 'combined')
 
-# Load dataset-specific features
-bird_features = load_feature_files(feature_dir, dataset='bird')
-spider_features = load_feature_files(feature_dir, dataset='spider')
+print("\nLoading SQL features...")
+sql_features = load_feature_files(feature_dir, 'sql')
+
+print("\nLoading schema features...")
+schema_features = load_feature_files(feature_dir, 'schema')
+
+# Load dataset-specific features if needed
+# bird_specific = load_feature_files(feature_dir, dataset='bird')
+# spider_specific = load_feature_files(feature_dir, dataset='spider')
 
 # Try to load the difficulty distribution if available
 difficulty_dist = load_feature_files(feature_dir, 'difficulty_distribution')
+
+# You can also load the combined features if needed for specific analyses
+# Note: This might be memory-intensive, so we'll avoid it by default
+# combined_features = load_feature_files(feature_dir, 'combined')
 
 # %% [markdown]
 # ## 2. Dataset Overview
@@ -138,9 +197,9 @@ difficulty_dist = load_feature_files(feature_dir, 'difficulty_distribution')
 
 # %%
 # Dataset overview
-if combined_features is not None:
-    # Count questions by dataset
-    dataset_counts = combined_features['dataset'].value_counts()
+if question_features is not None:
+    # Extract dataset info from question features
+    dataset_counts = question_features['dataset'].value_counts()
     print("Questions per dataset:")
     print(dataset_counts)
     
@@ -153,12 +212,12 @@ if combined_features is not None:
     plt.show()
     
     # Difficulty distribution if available
-    if 'difficulty' in combined_features.columns:
+    if 'difficulty' in question_features.columns:
         # Handle unknown difficulties
-        combined_features['difficulty'].fillna('unknown', inplace=True)
-        combined_features.loc[combined_features['difficulty'] == '', 'difficulty'] = 'unknown'
+        question_features['difficulty'].fillna('unknown', inplace=True)
+        question_features.loc[question_features['difficulty'] == '', 'difficulty'] = 'unknown'
         
-        difficulty_counts = combined_features.groupby(['dataset', 'difficulty']).size().unstack(fill_value=0)
+        difficulty_counts = question_features.groupby(['dataset', 'difficulty']).size().unstack(fill_value=0)
         
         # Plot difficulty distribution
         ax = difficulty_counts.plot(kind='bar', figsize=(12, 6), width=0.8)
@@ -350,71 +409,65 @@ if sql_features is not None:
             plt.show()
 
 # %% [markdown]
-# ## 5. Dataset Comparison
+# ## 5. Cross-Dataset Feature Comparison
 # 
-# Let's compare key features across datasets to understand their differences.
+# Let's compare key features across datasets using the individual feature DataFrames.
 
 # %%
-# Dataset comparison
-if combined_features is not None:
-    # Select key comparison features
-    comparison_cols = [
-        'q_word_length', 'q_entity_count', 'q_number_count',
-        'sql_tables_count', 'sql_join_count', 'sql_where_conditions',
-        'sql_agg_function_count', 'q_avg_table_similarity'
-    ]
+# Dataset comparison using individual feature DataFrames
+if question_features is not None and sql_features is not None:
+    # First, we need to create a mini-join for just the comparison
+    # This is much smaller than loading the entire combined DataFrame
+
+    # Get means of question features by dataset
+    q_comparison = question_features.groupby('dataset')[
+        ['q_word_length', 'q_entity_count', 'q_number_count']
+    ].mean().reset_index()
     
-    # Make sure all columns exist
-    comparison_cols = [col for col in comparison_cols if col in combined_features.columns]
+    # Get means of SQL features by dataset
+    sql_comparison = sql_features.groupby('dataset')[
+        ['sql_tables_count', 'sql_join_count', 'sql_where_conditions', 'sql_agg_function_count']
+    ].mean().reset_index()
     
-    if comparison_cols:
-        # Calculate average by dataset
-        comparison_by_dataset = combined_features.groupby('dataset')[comparison_cols].mean()
-        
-        # Normalize for radar chart
-        # Get min and max for each column
-        mins = comparison_by_dataset.min()
-        maxs = comparison_by_dataset.max()
-        
-        # Normalize to 0-1 range
-        radar_df = (comparison_by_dataset - mins) / (maxs - mins)
-        
-        # Create radar chart
-        datasets = radar_df.index
-        num_features = len(comparison_cols)
-        
-        # Create angles for radar chart
-        angles = np.linspace(0, 2*np.pi, num_features, endpoint=False).tolist()
-        angles += angles[:1]  # Close the circle
-        
-        # Create figure
-        fig, ax = plt.subplots(figsize=(12, 8), subplot_kw=dict(polar=True))
-        
-        # Add feature labels
-        plt.xticks(angles[:-1], comparison_cols, size=12)
-        
-        # Plot each dataset
-        for i, dataset in enumerate(datasets):
-            values = radar_df.loc[dataset].values.tolist()
-            values += values[:1]  # Close the circle
-            
-            ax.plot(angles, values, linewidth=2, linestyle='solid', label=dataset)
-            ax.fill(angles, values, alpha=0.1)
-        
-        plt.title('Dataset Feature Comparison', size=15)
-        plt.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1))
-        plt.show()
-        
-        # Bar chart comparison for key metrics
-        plt.figure(figsize=(14, 8))
-        comparison_by_dataset.plot(kind='bar')
-        plt.title('Average Feature Values by Dataset')
-        plt.xlabel('Dataset')
-        plt.ylabel('Average Value')
-        plt.xticks(rotation=0)
-        plt.legend(title='Feature', bbox_to_anchor=(1.05, 1), loc='upper left')
-        plt.tight_layout()
-        plt.show()
+    # Merge just these aggregated statistics
+    # This is a very small DataFrame compared to merging all the raw data
+    comparison_df = pd.merge(q_comparison, sql_comparison, on='dataset')
+    
+    # Plot aggregated features side-by-side
+    plt.figure(figsize=(14, 8))
+    
+    # Transpose to make datasets the columns and features the rows
+    comparison_df.set_index('dataset').T.plot(kind='bar')
+    
+    plt.title('Average Feature Values by Dataset')
+    plt.xlabel('Feature')
+    plt.ylabel('Average Value')
+    plt.legend(title='Dataset')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+    
+    # Bar chart for question features by dataset
+    plt.figure(figsize=(10, 6))
+    q_comparison.set_index('dataset').plot(kind='bar')
+    plt.title('Question Features by Dataset')
+    plt.xlabel('Dataset')
+    plt.ylabel('Average Value')
+    plt.xticks(rotation=0)
+    plt.legend(title='Feature')
+    plt.tight_layout()
+    plt.show()
+    
+    # Bar chart for SQL features by dataset
+    plt.figure(figsize=(10, 6))
+    sql_comparison.set_index('dataset').plot(kind='bar')
+    plt.title('SQL Features by Dataset')
+    plt.xlabel('Dataset')
+    plt.ylabel('Average Value')
+    plt.xticks(rotation=0)
+    plt.legend(title='Feature')
+    plt.tight_layout()
+    plt.show()
 
 # %% [markdown]
 # ## 6. Difficulty Analysis (BIRD Dataset)
@@ -423,10 +476,13 @@ if combined_features is not None:
 
 # %%
 # Difficulty analysis for BIRD dataset
-if bird_features is not None and 'difficulty' in bird_features.columns:
+# Use the bird_specific features if available, otherwise filter question_features
+bird_data = bird_specific if bird_specific is not None else question_features[question_features['dataset'] == 'bird']
+
+if bird_data is not None and 'difficulty' in bird_data.columns:
     # Get difficulty distribution
-    bird_features['difficulty'].fillna('unknown', inplace=True)
-    difficulty_counts = bird_features['difficulty'].value_counts()
+    bird_data['difficulty'].fillna('unknown', inplace=True)
+    difficulty_counts = bird_data['difficulty'].value_counts()
     
     # Plot
     plt.figure(figsize=(10, 6))
@@ -458,190 +514,233 @@ if bird_features is not None and 'difficulty' in bird_features.columns:
         plt.tight_layout()
         plt.show()
     
-    # Feature distribution by difficulty
-    # Select key features
-    difficulty_feature_cols = [
-        'q_word_length', 'q_entity_count', 
-        'sql_tables_count', 'sql_join_count', 'sql_where_conditions'
-    ]
-    
-    # Make sure all columns exist
-    difficulty_feature_cols = [col for col in difficulty_feature_cols if col in bird_features.columns]
-    
-    if difficulty_feature_cols:
-        # Create boxplots for each feature by difficulty
-        plt.figure(figsize=(16, 12))
-        for i, col in enumerate(difficulty_feature_cols, 1):
-            plt.subplot(2, 3, i)
-            sns.boxplot(data=bird_features, x='difficulty', y=col)
-            plt.title(f'{col} by Difficulty')
-            plt.xticks(rotation=45)
+    # Feature distribution by difficulty - using only question features
+    if 'q_word_length' in bird_data.columns:
+        # Select available features
+        difficulty_feature_cols = [col for col in 
+                                ['q_word_length', 'q_entity_count'] 
+                                if col in bird_data.columns]
         
-        plt.tight_layout()
-        plt.show()
+        if difficulty_feature_cols:
+            # Create boxplots for each feature by difficulty
+            plt.figure(figsize=(12, 8))
+            for i, col in enumerate(difficulty_feature_cols, 1):
+                plt.subplot(1, len(difficulty_feature_cols), i)
+                sns.boxplot(data=bird_data, x='difficulty', y=col)
+                plt.title(f'{col} by Difficulty')
+                plt.xticks(rotation=45)
+            
+            plt.tight_layout()
+            plt.show()
+    
+    # Now do the same for SQL features if available
+    bird_sql = sql_features[sql_features['dataset'] == 'bird'] if sql_features is not None else None
+    
+    if bird_sql is not None and 'difficulty' in bird_sql.columns:
+        # Select available features
+        sql_difficulty_cols = [col for col in 
+                             ['sql_tables_count', 'sql_join_count', 'sql_where_conditions'] 
+                             if col in bird_sql.columns]
+        
+        if sql_difficulty_cols:
+            # Create boxplots for each feature by difficulty
+            plt.figure(figsize=(16, 6))
+            for i, col in enumerate(sql_difficulty_cols, 1):
+                plt.subplot(1, len(sql_difficulty_cols), i)
+                sns.boxplot(data=bird_sql, x='difficulty', y=col)
+                plt.title(f'{col} by Difficulty')
+                plt.xticks(rotation=45)
+            
+            plt.tight_layout()
+            plt.show()
 
 # %% [markdown]
-# ## 7. SQL Characteristics by Question Type
+# ## 7. SQL Characteristics Analysis
 # 
-# Let's analyze how SQL query characteristics vary with different question types.
+# Let's analyze the SQL query characteristics directly from the SQL features DataFrame.
 
 # %%
-# Function to categorize questions based on content
-def categorize_question(question):
-    question = question.lower() if isinstance(question, str) else ""
+# Create a smaller feature set for analysis by merging a subset of features
+if question_features is not None and sql_features is not None:
+    # Get just the columns we need for this analysis
+    # Using question_id as the join key
+    mini_q_features = question_features[['question_id', 'dataset', 'q_word_length']].copy()
+    mini_sql_features = sql_features[['question_id', 'sql_tables_count', 'sql_join_count', 
+                                     'sql_agg_function_count']].copy()
     
-    categories = {
-        'counting': ['how many', 'count', 'number of'],
-        'comparison': ['more than', 'less than', 'greater', 'highest', 'lowest', 'maximum', 'minimum'],
-        'aggregation': ['average', 'mean', 'total', 'sum'],
-        'filtering': ['where', 'which', 'find', 'list'],
-        'grouping': ['group', 'by each', 'for each'],
-        'sorting': ['order', 'sort', 'rank']
-    }
+    # Merge to create a smaller analysis DataFrame
+    # This is much smaller than the full combined DataFrame
+    mini_analysis = pd.merge(mini_q_features, mini_sql_features, on='question_id')
     
-    for category, keywords in categories.items():
-        if any(keyword in question for keyword in keywords):
-            return category
-    
-    return 'other'
-
-# Categorize questions if we have the text
-if combined_features is not None and 'question' in combined_features.columns:
-    combined_features['question_category'] = combined_features['question'].apply(categorize_question)
-    
-    # Count by category
-    category_counts = combined_features['question_category'].value_counts()
-    
-    plt.figure(figsize=(12, 6))
-    category_counts.plot(kind='bar')
-    plt.title('Questions by Category')
-    plt.xlabel('Category')
-    plt.ylabel('Count')
-    plt.xticks(rotation=45)
-    
-    # Add count labels
-    for i, v in enumerate(category_counts):
-        plt.text(i, v + 0.5, str(v), ha='center')
-    
+    # Calculate correlation between question length and SQL complexity
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(data=mini_analysis, x='q_word_length', y='sql_tables_count', 
+                    hue='dataset', alpha=0.6)
+    plt.title('Question Length vs. Tables Used in SQL')
+    plt.xlabel('Question Word Length')
+    plt.ylabel('Number of Tables in SQL')
     plt.tight_layout()
     plt.show()
     
-    # SQL characteristics by question category
-    sql_by_category_cols = [
-        'sql_tables_count', 'sql_join_count', 'sql_where_conditions',
-        'sql_has_group_by', 'sql_has_order_by', 'sql_agg_function_count'
-    ]
+    # Calculate correlations for this mini dataset
+    corr = mini_analysis.drop(['question_id', 'dataset'], axis=1).corr()
     
-    # Make sure all columns exist
-    sql_by_category_cols = [col for col in sql_by_category_cols if col in combined_features.columns]
+    # Plot correlation heatmap
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
+    plt.title('Correlation Between Question and SQL Features')
+    plt.tight_layout()
+    plt.show()
+
+# Analyze SQL clause usage
+if sql_features is not None:
+    # SQL clause usage
+    sql_clause_cols = [col for col in sql_features.columns if col.startswith('sql_has_')]
     
-    if sql_by_category_cols:
-        # Calculate mean values by category
-        sql_by_category = combined_features.groupby('question_category')[sql_by_category_cols].mean()
-        
-        # Convert boolean columns to percentages
-        bool_cols = [col for col in sql_by_category_cols if combined_features[col].dtype == 'bool']
-        if bool_cols:
-            sql_by_category[bool_cols] = sql_by_category[bool_cols] * 100
+    if sql_clause_cols:
+        # Calculate percentage of queries with each clause
+        clause_pcts = sql_features[sql_clause_cols].mean() * 100
         
         # Plot
-        plt.figure(figsize=(14, 8))
-        sql_by_category.plot(kind='bar')
-        plt.title('SQL Characteristics by Question Category')
-        plt.xlabel('Question Category')
-        plt.ylabel('Average Value')
+        plt.figure(figsize=(12, 6))
+        clause_pcts.sort_values(ascending=False).plot(kind='bar')
+        plt.title('Percentage of Queries with Different SQL Clauses')
+        plt.xlabel('SQL Clause')
+        plt.ylabel('Percentage of Queries')
         plt.xticks(rotation=45)
-        plt.legend(title='SQL Feature', bbox_to_anchor=(1.05, 1), loc='upper left')
+        
+        # Add percentage labels
+        for i, v in enumerate(clause_pcts.sort_values(ascending=False)):
+            plt.text(i, v + 0.5, f'{v:.1f}%', ha='center')
+            
+        plt.tight_layout()
+        plt.show()
+
+    # Plot distribution of tables used
+    if 'sql_tables_count' in sql_features.columns:
+        plt.figure(figsize=(10, 6))
+        
+        # Create a histogram with KDE
+        sns.histplot(data=sql_features, x='sql_tables_count', hue='dataset', kde=True,
+                     element='step', bins=max(5, sql_features['sql_tables_count'].max()))
+        
+        plt.title('Distribution of Tables Used in SQL Queries')
+        plt.xlabel('Number of Tables')
+        plt.ylabel('Count')
         plt.tight_layout()
         plt.show()
 
 # %% [markdown]
 # ## 8. Correlation Analysis
 # 
-# Let's analyze correlations between different features to understand relationships.
+# Let's analyze correlations within each feature set separately.
 
 # %%
-# Correlation analysis
-if combined_features is not None:
-    # Select important features for correlation
-    corr_cols = [
-        'q_word_length', 'q_entity_count', 'q_number_count', 
-        'sql_tables_count', 'sql_join_count', 'sql_where_conditions',
-        'sql_subquery_count', 'sql_clauses_count', 'sql_agg_function_count',
-        'sql_select_columns', 'sql_char_length'
-    ]
+# Question feature correlations
+if question_features is not None:
+    # Select important numeric features for correlation
+    q_corr_cols = [col for col in question_features.columns 
+                  if col.startswith('q_') and 
+                  question_features[col].dtype in ['int64', 'float64']]
     
-    # Make sure all columns exist
-    corr_cols = [col for col in corr_cols if col in combined_features.columns]
-    
-    if corr_cols:
+    if len(q_corr_cols) > 1:  # Need at least 2 columns for correlation
         # Calculate correlation
-        correlation = combined_features[corr_cols].corr()
+        q_correlation = question_features[q_corr_cols].corr()
         
         # Plot correlation heatmap
-        plt.figure(figsize=(12, 10))
-        mask = np.triu(correlation)
-        sns.heatmap(correlation, annot=True, fmt='.2f', cmap='coolwarm', mask=mask, vmin=-1, vmax=1)
-        plt.title('Feature Correlation Matrix')
+        plt.figure(figsize=(10, 8))
+        mask = np.triu(q_correlation)
+        sns.heatmap(q_correlation, annot=True, fmt='.2f', cmap='coolwarm', 
+                   mask=mask, vmin=-1, vmax=1)
+        plt.title('Question Feature Correlation Matrix')
         plt.tight_layout()
         plt.show()
+
+# SQL feature correlations
+if sql_features is not None:
+    # Select important numeric features for correlation
+    sql_corr_cols = [col for col in sql_features.columns 
+                    if col.startswith('sql_') and 
+                    sql_features[col].dtype in ['int64', 'float64']]
+    
+    if len(sql_corr_cols) > 1:  # Need at least 2 columns for correlation
+        # Calculate correlation
+        sql_correlation = sql_features[sql_corr_cols].corr()
+        
+        # Plot correlation heatmap
+        plt.figure(figsize=(10, 8))
+        mask = np.triu(sql_correlation)
+        sns.heatmap(sql_correlation, annot=True, fmt='.2f', cmap='coolwarm', 
+                   mask=mask, vmin=-1, vmax=1)
+        plt.title('SQL Feature Correlation Matrix')
+        plt.tight_layout()
+        plt.show()
+
+# Cross-feature correlations using mini-merged dataset
+if question_features is not None and sql_features is not None:
+    # Create mini dataset with key features for correlation analysis
+    q_mini = question_features[['question_id', 'q_word_length', 'q_entity_count']].copy()
+    sql_mini = sql_features[['question_id', 'sql_tables_count', 'sql_join_count', 
+                            'sql_where_conditions']].copy()
+    
+    # Merge on question_id
+    mini_corr_df = pd.merge(q_mini, sql_mini, on='question_id')
+    
+    # Drop the ID column for correlation
+    mini_corr_df = mini_corr_df.drop('question_id', axis=1)
+    
+    # Calculate correlation
+    cross_correlation = mini_corr_df.corr()
+    
+    # Plot correlation heatmap
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cross_correlation, annot=True, fmt='.2f', cmap='coolwarm', vmin=-1, vmax=1)
+    plt.title('Cross-Feature Correlation Matrix')
+    plt.tight_layout()
+    plt.show()
 
 # %% [markdown]
 # ## 9. Sample Analysis
 # 
-# Let's examine some examples from each dataset.
+# Let's examine some examples from each dataset using lightweight selections.
 
 # %%
-# Sample analysis
-if combined_features is not None:
+# Sample analysis using separate feature DataFrames
+if question_features is not None:
     # Function to get sample questions
     def get_samples(df, dataset, n=5):
         samples = df[df['dataset'] == dataset].sample(min(n, df[df['dataset'] == dataset].shape[0]))
         return samples
     
     # Get samples from each dataset
-    datasets = combined_features['dataset'].unique()
+    datasets = question_features['dataset'].unique()
     
     for dataset in datasets:
-        print(f"\n=== Sample Questions from {dataset.upper()} ===")
-        samples = get_samples(combined_features, dataset)
+        print(f"\n=== Sample Questions from {dataset.upper()} (Question Features) ===")
+        q_samples = get_samples(question_features, dataset)
         
         # Select columns to display
-        display_cols = ['question_id', 'difficulty', 'q_word_length', 
-                        'sql_tables_count', 'sql_join_count']
+        q_display_cols = ['question_id', 'difficulty', 'q_word_length', 'q_entity_count']
         
         # Make sure all columns exist
-        display_cols = [col for col in display_cols if col in samples.columns]
+        q_display_cols = [col for col in q_display_cols if col in q_samples.columns]
         
-        if display_cols:
-            print(samples[display_cols])
+        if q_display_cols:
+            display_df = q_samples[q_display_cols].reset_index(drop=True)
+            print(display_df)
 
-# %% [markdown]
-# ## 10. Key Findings
-# 
-# Based on our analysis, here are some key observations about the Text2SQL datasets:
-# 
-# 1. **Dataset Composition**:
-#    - Distribution between BIRD and Spider datasets
-#    - BIRD provides difficulty labels while Spider does not
-# 
-# 2. **Question Characteristics**:
-#    - Average question length in each dataset
-#    - Most common entity types across datasets
-#    - Question complexity patterns
-# 
-# 3. **SQL Query Patterns**:
-#    - Most commonly used SQL clauses
-#    - Join and table usage differences between datasets
-#    - Correlation between question features and SQL complexity
-# 
-# 4. **NL-to-SQL Relationship**:
-#    - How question types correlate with SQL structure
-#    - Entity presence and its relationship with WHERE clauses
-#    - Table/column mentions in natural language questions
-# 
-# 5. **Schema Interaction**:
-#    - How questions relate to database schemas
-#    - Overlap between question terms and schema elements
-
-# %%
+if sql_features is not None:
+    # Get the same question_ids from sql features
+    for dataset in datasets:
+        print(f"\n=== Sample Questions from {dataset.upper()} (SQL Features) ===")
+        sql_samples = get_samples(sql_features, dataset)
+        
+        # Select columns to display
+        sql_display_cols = ['question_id', 'sql_tables_count', 'sql_join_count']
+        
+        # Make sure all columns exist
+        sql_display_cols = [col for col in sql_display_cols if col in sql_samples.columns]
+        
+        if sql_display_cols:
+            display_df = sql_samples[sql_display_cols].reset_index(drop=True)
+            print(display_df)
