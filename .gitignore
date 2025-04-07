@@ -65,7 +65,7 @@ related_works/
 
 # add outputs 
 outputs/
-
+output/
 # Add all MACOSX
 *.DS_Store
 __MACOSX
