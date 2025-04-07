@@ -3,6 +3,7 @@ import json
 import sqlite3
 from typing import Dict, List, Tuple, Optional, Union, Any
 import pandas as pd
+import argparse
 
 
 class BaseDataset:
@@ -866,16 +867,32 @@ class DataLoader:
 
 # Usage example
 if __name__ == "__main__":
-    # Example of loading the Bird dataset
-    Bird_dataset_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Bird/dev_20240627"
-
-    bird_dataset = DataLoader.get_dataset('bird', base_dir=Bird_dataset_path, split='dev')
+    # Create argument parser
+    parser = argparse.ArgumentParser(description='Load and process Text2SQL datasets')
+    parser.add_argument('--dataset', type=str, choices=['bird', 'spider'], required=True,
+                        help='Dataset type to load (bird or spider)')
+    parser.add_argument('--base-dir', type=str, required=True,
+                        help='Base directory containing the dataset')
+    parser.add_argument('--split', type=str, default='dev', choices=['train', 'dev', 'test'],
+                        help='Dataset split to load (train/dev/test)')
+    parser.add_argument('--output', type=str, default='outputs/schema.json',
+                        help='Output file path for schema information')
+    
+    args = parser.parse_args()
+    
+    # Create output directory if it doesn't exist
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    
+    # Load the dataset based on command-line arguments
+    dataset = DataLoader.get_dataset(args.dataset, base_dir=args.base_dir, split=args.split)
     
     # Load data and schemas
-    bird_dataset.load_data()
-    schema = bird_dataset.load_schemas()
+    dataset.load_data()
+    schema = dataset.load_schemas()
     
     # save the loaded schema to a json file
-    with open('outputs/bird_schema.json', 'w') as f:
+    with open(args.output, 'w') as f:
         json.dump(schema, f, indent=4)
     
+    print(f"Saved schema for {args.dataset} to {args.output}")
+

@@ -4,6 +4,7 @@ import re
 import sqlparse
 import spacy
 import pandas as pd
+import argparse
 from typing import Dict, List, Tuple, Optional, Union, Any
 
 from tqdm.auto import tqdm
@@ -807,25 +808,32 @@ class DataProcessor:
 if __name__ == "__main__":
     from data_loader import DataLoader
     
-    # Example for BIRD dataset
-    bird_dataset_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Bird/dev_20240627"
-    bird_dataset = DataLoader.get_dataset('bird', base_dir=bird_dataset_path, split='dev')
+    # Create argument parser
+    parser = argparse.ArgumentParser(description='Process Text2SQL datasets for analysis')
+    parser.add_argument('--dataset', type=str, choices=['bird', 'spider'], required=True,
+                        help='Dataset type to process (bird or spider)')
+    parser.add_argument('--base-dir', type=str, required=True,
+                        help='Base directory containing the dataset')
+    parser.add_argument('--split', type=str, default='dev', choices=['train', 'dev', 'test'],
+                        help='Dataset split to process (train/dev/test)')
+    parser.add_argument('--output', type=str, required=True,
+                        help='Output file path for processed data')
+    parser.add_argument('--limit', type=int, default=None,
+                        help='Maximum number of instances to process (optional)')
     
-    # Create processor with BIRD dataset
-    bird_processor = DataProcessor(bird_dataset, 'bird')
+    args = parser.parse_args()
     
-    # Process a batch of instances
-    bird_results = bird_processor.batch_process(limit=2)
-    bird_processor.save_processed_data("outputs/test_multi/processed_bird_data.json", bird_results)
-
+    # Load the dataset based on command-line arguments
+    dataset = DataLoader.get_dataset(args.dataset, base_dir=args.base_dir, split=args.split)
     
-    # Example for Spider dataset
-    spider_dataset_path = "/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/spider_data"
-    spider_dataset = DataLoader.get_dataset('spider', base_dir=spider_dataset_path, split='dev')
+    # Create processor
+    processor = DataProcessor(dataset, args.dataset)
     
-    # Create processor with Spider dataset
-    spider_processor = DataProcessor(spider_dataset, 'spider')
+    # Process instances
+    print(f"Processing {args.dataset.upper()} dataset ({args.split} split)...")
+    results = processor.batch_process(limit=args.limit)
     
-    # Process a batch of instances
-    spider_results = spider_processor.batch_process(limit=2)
-    spider_processor.save_processed_data("outputs/test_multi/processed_spider_data.json", spider_results)
+    # Save results
+    processor.save_processed_data(args.output, results)
+    print(f"Processing complete! Saved {len(results)} instances to {args.output}")
+    
