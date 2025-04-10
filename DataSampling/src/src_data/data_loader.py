@@ -849,8 +849,10 @@ class Spider2Dataset(BaseDataset):
         self.data_directory = None
         if self.is_snow:
             self.db_dir = os.path.join(base_dir, 'spider2-snow', 'resource','databases')
+            self.external_know_dir = os.path.join(base_dir, 'spider2-snow', 'resource','documents')
         else:
             self.db_dir = os.path.join(base_dir, 'spider2', 'resource','databases')
+            # self.external_know_dir = os.path.join(base_dir, 'spider2', 'resource','documents')
 
     def load_data(self) -> List[Dict]:
         """
@@ -1001,7 +1003,32 @@ class Spider2Dataset(BaseDataset):
         self.db_schemas = db_schemas
         print(f"Loaded {len(self.db_schemas)} schemas from Spider2 dataset")
         return self.db_schemas
+
+    def get_external_knowledge(self, data: Dict) -> Optional[str]:
+        """
+        Get external knowledge from the Spider2 dataset.
+
+        Args:
+            data: Example data containing external knowledge information
+        Returns:
+            External knowledge text
+        """
+        external_knowledge = data.get('external_knowledge', None)   
+
+        if external_knowledge is not None and (external_knowledge != '' or external_knowledge != []):
+            # Load the external knowledge from the directory
+            external_knowledge_path = os.path.join(self.external_know_dir, external_knowledge)
+            if not os.path.exists(external_knowledge_path):
+                raise FileNotFoundError(f"External knowledge file not found: {external_knowledge_path}")
+
+            # IT is a .md file 
+            with open(external_knowledge_path, 'r', encoding='utf-8') as f:
+                external_knowledge_data = f.read()
             
+            return external_knowledge_data  
+
+        return None          
+
 
 class DataLoader:
     """
