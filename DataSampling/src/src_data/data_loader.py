@@ -849,6 +849,9 @@ class Spider2Dataset(BaseDataset):
         self.data_directory = None
         if self.is_snow:
             self.db_dir = os.path.join(base_dir, 'spider2-snow', 'resource','databases')
+            # base_dir/spider2-snow/evaluation_suite/gold/sql
+            self.quires_dir = os.path.join(base_dir, 'spider2-snow', 'evaluation_suite','gold','sql')
+            # base_dir/spider2-snow/resource/documents
             self.external_know_dir = os.path.join(base_dir, 'spider2-snow', 'resource','documents')
         else:
             self.db_dir = os.path.join(base_dir, 'spider2', 'resource','databases')
@@ -887,13 +890,33 @@ class Spider2Dataset(BaseDataset):
             
             with open(file_path, 'r', encoding='utf-8') as f:
                 for line in f:
-                    all_data.append(json.loads(line))   
+                    all_data.append(json.loads(line))  
 
         # Apply limit if specified
         if self.limit is not None:
             all_data = all_data[:self.limit]
+        
+        for instance in all_data:
 
-        self.data = all_data
+            instance_id = instance.get('instance_id')
+
+            query = self.get_sql_query_per_instance(instance_id)
+
+            if query is None:
+                print(f"Warning: No SQL query found for instance {instance_id}")
+                continue
+            # Add the SQL query to the instance
+            instance['sql'] = query
+
+            external_knowledge = instance.get('external_knowledge', None)
+
+            instance['external_knowledge'] = self.get_external_knowledge_instance(external_knowledge)
+            
+            self.data.append(instance)
+
+        print(f"Loaded {len(self.data)} examples from Spider2 dataset")
+        
+        print("IF the number of loaded Data are less than what you expected, is because of the missing SQL queries in GOLD Directory")
         return self.data
 
     def load_schemas(self) -> Dict:
@@ -1004,30 +1027,40 @@ class Spider2Dataset(BaseDataset):
         print(f"Loaded {len(self.db_schemas)} schemas from Spider2 dataset")
         return self.db_schemas
 
-    def get_external_knowledge(self, data: Dict) -> Optional[str]:
+    def get_sql_query_per_instance(self, instance_id : str) -> Optional[str]:
+        """  
         """
-        Get external knowledge from the Spider2 dataset.
+        if self.quires_dir is not None:
+            # Get the path to the SQL file
+            sql_file_path = os.path.join(self.quires_dir, f"{instance_id}.sql")
+            if not os.path.exists(sql_file_path):
+                # print(f"Warning: SQL file not found for instance {instance_id}: {sql_file_path}")
+                return None
 
-        Args:
-            data: Example data containing external knowledge information
-        Returns:
-            External knowledge text
-        """
-        external_knowledge = data.get('external_knowledge', None)   
+            # Read the SQL query from the file
+            with open(sql_file_path, 'r', encoding='utf-8') as f:
+                sql_query = f.read()
+            
+            return sql_query.strip()
+        else:
+            print(f"Warning: No queries directory specified for instance {instance_id}")
 
-        if external_knowledge is not None and (external_knowledge != '' or external_knowledge != []):
+        return None
+    
+    def get_external_knowledge_instance(self, external_knowledge_file: str) -> Optional[str]:
+
+        if external_knowledge_file is not None and (external_knowledge_file != '' or external_knowledge_file != []):
             # Load the external knowledge from the directory
-            external_knowledge_path = os.path.join(self.external_know_dir, external_knowledge)
+            external_knowledge_path = os.path.join(self.external_know_dir, external_knowledge_file)
             if not os.path.exists(external_knowledge_path):
                 raise FileNotFoundError(f"External knowledge file not found: {external_knowledge_path}")
-
             # IT is a .md file 
             with open(external_knowledge_path, 'r', encoding='utf-8') as f:
                 external_knowledge_data = f.read()
             
-            return external_knowledge_data  
-
-        return None          
+            return external_knowledge_data.strip()
+        else:
+            return None
 
 
 class DataLoader:

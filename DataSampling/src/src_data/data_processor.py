@@ -9,6 +9,7 @@ from typing import Dict, List, Tuple, Optional, Union, Any
 
 from tqdm.auto import tqdm
 
+from data_loader import Spider2Dataset
 # Load spaCy model for NLP analysis - same as before
 try:
     nlp = spacy.load("en_core_web_lg")
@@ -35,6 +36,8 @@ class SchemaAdapter:
             Standardized schema dictionary
         """
         if dataset_name.lower() == 'spider':
+            return SpiderSchemaAdapter.adapt(schema)
+        elif dataset_name.lower() == 'spider2':
             return SpiderSchemaAdapter.adapt(schema)
         elif dataset_name.lower() == 'bird':
             return BirdSchemaAdapter.adapt(schema)
@@ -88,6 +91,26 @@ class SpiderSchemaAdapter:
             
         return adapted_schema
 
+class Spider2SchemaAdapter:
+    """Spider2-specific schema adapter"""
+    
+    @staticmethod
+    def adapt(schema: Dict) -> Dict:
+        """
+        Adapt Spider2 schema to standardized format.
+        
+        Args:
+            schema: The Spider2 schema
+            
+        Returns:
+            Standardized schema dictionary
+        """
+        # Spider2 schemas are similar to Spider, but may have some differences
+        adapted_schema = SpiderSchemaAdapter.adapt(schema)
+        
+        # Additional processing for Spider2 if needed
+        
+        return adapted_schema
 
 class BirdSchemaAdapter:
     """Bird-specific schema adapter"""
@@ -220,6 +243,37 @@ class SpiderDataAdapter(DataAdapter):
             'orig_instance': instance  # Keep original for reference
         }
 
+class Spider2DataAdapter(DataAdapter):
+    """Adapter for Spider2 dataset."""
+
+    def __init__(self,spider2_data_loader : Spider2Dataset):
+        super().__init__()
+        self.spider2_data_loader = spider2_data_loader
+    
+    def get_sql(self, instance: Dict) -> str:
+        return self.spider2_data_loader.get_sql(instance)
+    
+    def get_question(self, instance):
+        return instance.get('instruction', '')
+    
+    def get_question_id(self, instance: Dict) -> str:
+        # instance_id
+        if 'instance_id' in instance:
+            return str(instance.get('instance_id', ''))
+        
+    def get_external_knowledge(self, instance: Dict) -> str:
+        # Spider2 may have external knowledge
+        return self.spider2_data_loader.get_external_knowledge(instance)
+    
+    def create_standardized_instance(self, instance: Dict) -> Dict:
+        """Convert Spider2 instance to standardized format."""
+        return {
+            'db_id': self.get_db_id(instance),
+            'question': self.get_question(instance),
+            'sql': self.get_sql(instance),
+            'question_id': self.get_question_id(instance),
+            'orig_instance': instance  # Keep original for reference
+        }
 
 class AdapterFactory:
     """Factory for creating dataset-specific adapters."""
