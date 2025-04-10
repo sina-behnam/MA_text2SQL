@@ -4,7 +4,7 @@ import sqlite3
 from typing import Dict, List, Tuple, Optional, Union, Any
 import pandas as pd
 import argparse
-
+import glob
 
 class BaseDataset:
     """
@@ -840,6 +840,169 @@ class BirdDataset(BaseDataset):
         
         return analysis
 
+class Spider2Dataset(BaseDataset):
+
+    def __init__(self, base_dir, dataset_name, split = 'train', limit = None, is_snow :bool = True):
+        super().__init__(base_dir, dataset_name, split, limit)
+
+        self.is_snow = is_snow
+        self.data_directory = None
+        if self.is_snow:
+            self.db_dir = os.path.join(base_dir, 'spider2-snow', 'resource','databases')
+        else:
+            self.db_dir = os.path.join(base_dir, 'spider2', 'resource','databases')
+
+    def load_data(self) -> List[Dict]:
+        """
+        Load the Spider2 dataset.
+
+        Returns:
+            List of examples
+        """
+
+        if self.data:
+            return self.data
+        
+        files_to_load = []
+        if self.split == 'train':
+            # Adding the spider2-snow as subdirectory of the our train split
+            # It is important to say that the actuall train is in spider2 directory NOT in spider2-snow
+            # In Future we will switch to spider2 as the train set.
+            if self.is_snow:
+                # base_dir/spider2-snow/spider2-snow.jsonl
+                self.data_directory = os.path.join(self.base_dir, 'spider2-snow')
+                # * Attention the original file format is not JSON but JSONL
+                files_to_load.append(os.path.join(self.data_directory, 'spider2-snow.jsonl'))
+            else:
+                # ! Some of the dataset structure between train set of spider2 and spider2-snow is different !
+                self.data_directory = os.path.join(self.base_dir, 'spider2')
+                
+        # Load data from files
+        all_data = []
+        for file_path in files_to_load:
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"File not found: {file_path}")
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    all_data.append(json.loads(line))   
+
+        # Apply limit if specified
+        if self.limit is not None:
+            all_data = all_data[:self.limit]
+
+        self.data = all_data
+        return self.data
+
+    def load_schemas(self) -> Dict:
+        """
+        Load database schemas for Spider2 dataset from individual JSON files.
+
+        Returns:
+            Dictionary mapping database names to schema information
+        """
+        if self.db_schemas:
+            return self.db_schemas
+
+        if not os.path.exists(self.db_dir):
+            raise FileNotFoundError(f"Database directory not found: {self.db_dir}")
+
+        db_schemas = {}
+
+        # Get all database directories
+        db_dirs = [d for d in os.listdir(self.db_dir) if os.path.isdir(os.path.join(self.db_dir, d))]
+
+        for db_name in db_dirs:
+            db_path = os.path.join(self.db_dir, db_name)
+            # Find all JSON files containing table schemas. The JSON files might inside a subdirectory to iterate recursively
+            schema_files = []
+            for root, _, files in os.walk(db_path):
+                for file in files:
+                    if file.endswith('.json'):
+                        schema_files.append(os.path.join(root, file))  
+            
+            if not schema_files:
+                print(f"Warning: No schema files found for database {db_name}")
+                continue
+            
+            # Initialize schema structure
+            tables = []
+            columns = []
+            table_to_columns = {}
+
+            # Process each schema file (each file represents one table)
+            for schema_file in schema_files:
+                schema_path = os.path.join(db_path, schema_file)
+
+                try:
+                    with open(schema_path, 'r', encoding='utf-8') as f:
+                        table_schema = json.load(f)
+
+                    # Extract table information
+                    table_full_name = table_schema.get('table_fullname', '')
+                    # Extract just the last part if it contains dots
+                    if '.' in table_full_name:
+                        table_name = table_full_name.split('.')[-1]
+                    else:
+                        table_name = table_full_name
+
+                    table_idx = len(tables)
+                    tables.append({
+                        'id': table_idx,
+                        'name': table_name.lower(),
+                        'original_name': table_full_name # This one should be use for tracking later on.
+                    })
+
+                    # Initialize column mapping for this table
+                    table_to_columns[table_idx] = []
+
+                    # Extract column information
+                    column_names = table_schema.get('column_names', [])
+                    column_types = table_schema.get('column_types', [])
+                    descriptions = table_schema.get('description', [])
+
+                    # Ensure lists have the same length
+                    max_len = max(len(column_names), len(column_types), len(descriptions) if descriptions else 0)
+                    column_names = column_names + [''] * (max_len - len(column_names))
+                    column_types = column_types + ['TEXT'] * (max_len - len(column_types))
+                    if descriptions:
+                        descriptions = descriptions + [None] * (max_len - len(descriptions))
+                    else:
+                        descriptions = [None] * max_len
+
+                    # Process columns
+                    for i, (col_name, col_type, description) in enumerate(zip(column_names, column_types, descriptions)):
+                        col_id = len(columns)
+                        columns.append({
+                            'id': col_id,
+                            'name': col_name if col_name else '',
+                            'table_idx': table_idx,
+                            'table': table_name,
+                            'type': col_type if col_type else 'ERROR',
+                            'description': description
+                        })
+
+                        table_to_columns[table_idx].append(col_id)
+
+                except Exception as e:
+                    print(f"Error processing schema file {schema_file} for database {db_name}: {e}")
+                    continue
+                
+            # Create the schema entry for this database
+            db_schemas[db_name] = {
+                'db_id': db_name,
+                'tables': tables,
+                'columns': columns,
+                'table_to_columns': table_to_columns,
+                'foreign_keys': [],  # ! Empty list as we don't have FK info
+                'primary_keys': []   # ! Empty list as we don't have PK info
+            }
+
+        self.db_schemas = db_schemas
+        print(f"Loaded {len(self.db_schemas)} schemas from Spider2 dataset")
+        return self.db_schemas
+            
+
 class DataLoader:
     """
     Data loader for Text2SQL tasks.
@@ -859,6 +1022,8 @@ class DataLoader:
         """
         if dataset_name.lower() == 'spider':
             return SpiderDataset(**kwargs)
+        elif dataset_name.lower() == 'spider2':
+            return Spider2Dataset(**kwargs)
         elif dataset_name.lower() == 'bird':
             return BirdDataset(**kwargs)
         else:
@@ -869,7 +1034,7 @@ class DataLoader:
 if __name__ == "__main__":
     # Create argument parser
     parser = argparse.ArgumentParser(description='Load and process Text2SQL datasets')
-    parser.add_argument('--dataset', type=str, choices=['bird', 'spider'], required=True,
+    parser.add_argument('--dataset', type=str, choices=['bird', 'spider','spider2'], required=True,
                         help='Dataset type to load (bird or spider)')
     parser.add_argument('--base-dir', type=str, required=True,
                         help='Base directory containing the dataset')
