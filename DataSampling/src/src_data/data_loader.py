@@ -1038,31 +1038,38 @@ class Spider2Dataset(BaseDataset):
 
         db_schemas = {}
 
-        # Get all database directories
-        db_dirs = [d for d in os.listdir(self.db_dir) if os.path.isdir(os.path.join(self.db_dir, d))]
+        # Get all schema files and group by database name (determined from directory path)
+        schema_files_by_db = {}
+        for root, _, files in os.walk(self.db_dir):
+            for file in files:
+                if file.endswith('.json'):
+                    file_path = os.path.join(root, file)
+                    # Extract path components
+                    path_parts = os.path.normpath(file_path).split(os.sep)
+                    # Ensure we have enough parts to extract second-to-last directory
+                    if len(path_parts) >= 3:
+                        # Use second-to-last directory as database name
+                        db_name = path_parts[-3]
+                        if db_name not in schema_files_by_db:
+                            schema_files_by_db[db_name] = []
+                        schema_files_by_db[db_name].append(file_path)
+                    else:
+                        logger.warning(f"Path too short to extract database name: {file_path}")
 
-        for db_name in db_dirs:
-            db_path = os.path.join(self.db_dir, db_name)
-            # Find all JSON files containing table schemas. The JSON files might inside a subdirectory to iterate recursively
-            schema_files = []
-            for root, _, files in os.walk(db_path):
-                for file in files:
-                    if file.endswith('.json'):
-                        schema_files.append(os.path.join(root, file))  
-            
-            if not schema_files:
-                logger.warning(f"No schema files found for database {db_name}")
-                continue
-            
+        # Process schema files for each database
+        for db_name, schema_files in schema_files_by_db.items():
             # Initialize schema structure
             tables = []
             columns = []
             table_to_columns = {}
 
-            # Process each schema file (each file represents one table)
-            for schema_file in schema_files:
-                schema_path = os.path.join(db_path, schema_file)
+            logger.info(f"Processing database {db_name} with {len(schema_files)} schema files")
 
+            for schema_file in schema_files:
+                schema_path = os.path.join(self.db_dir, db_name, schema_file)
+                if not os.path.exists(schema_path):
+                    logger.info(f"Schema file not found: {schema_path}")
+                    continue
                 try:
                     with open(schema_path, 'r', encoding='utf-8') as f:
                         table_schema = json.load(f)
@@ -1155,7 +1162,13 @@ class Spider2Dataset(BaseDataset):
         return instance        
 
     def get_sql_query_per_instance(self, instance_id : str) -> Optional[str]:
-        """  
+        """
+        Get the SQL query for a specific instance ID.
+
+        Args:
+            instance_id: ID of the instance
+        Returns:
+            SQL query string or None if not found  
         """
         if self.quires_dir is not None:
             # Get the path to the SQL file
@@ -1175,6 +1188,15 @@ class Spider2Dataset(BaseDataset):
         return None
     
     def get_external_knowledge_instance(self, external_knowledge_file: str) -> Optional[str]:
+        """
+        Get external knowledge for a specific instance.
+
+        Args:
+            external_knowledge_file: Name of the external knowledge file
+        
+        Returns:
+            External knowledge string or None if not found
+        """
 
         if external_knowledge_file is not None and (external_knowledge_file != '' or external_knowledge_file != []):
             # Load the external knowledge from the directory
