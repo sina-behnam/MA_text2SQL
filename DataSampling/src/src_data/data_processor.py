@@ -9,8 +9,7 @@ from typing import Dict, List, Tuple, Optional, Union, Any
 
 from tqdm.auto import tqdm
 
-from data_loader import Spider2Dataset
-# Load spaCy model for NLP analysis - same as before
+# Load spaCy model for NLP analysis
 try:
     nlp = spacy.load("en_core_web_lg")
 except OSError:
@@ -18,283 +17,15 @@ except OSError:
     spacy.cli.download("en_core_web_lg")
     nlp = spacy.load("en_core_web_lg")
 
-
-class SchemaAdapter:
-    """
-    Adapter class to standardize schema access across different dataset formats.
-    """
-    @staticmethod
-    def adapt_schema(schema: Dict, dataset_name: str) -> Dict:
-        """
-        Adapt a schema to a standardized format based on dataset type.
-        
-        Args:
-            schema: The original schema
-            dataset_name: Name of the dataset
-            
-        Returns:
-            Standardized schema dictionary
-        """
-        if dataset_name.lower() == 'spider':
-            return SpiderSchemaAdapter.adapt(schema)
-        elif dataset_name.lower() == 'spider2':
-            return SpiderSchemaAdapter.adapt(schema)
-        elif dataset_name.lower() == 'bird':
-            return BirdSchemaAdapter.adapt(schema)
-        else:
-            # Default - return schema as is
-            return schema
-
-
-class SpiderSchemaAdapter:
-    """Spider-specific schema adapter"""
-    
-    @staticmethod
-    def adapt(schema: Dict) -> Dict:
-        """
-        Adapt Spider schema to standardized format.
-        
-        Args:
-            schema: The Spider schema
-            
-        Returns:
-            Standardized schema dictionary
-        """
-        # Spider schemas are already in the expected format for most fields
-        # Just ensure all expected fields are present
-        adapted_schema = schema.copy()
-        
-        # Ensure all necessary fields are present
-        if 'tables' not in adapted_schema:
-            adapted_schema['tables'] = []
-            
-        if 'columns' not in adapted_schema:
-            adapted_schema['columns'] = []
-            
-        if 'table_to_columns' not in adapted_schema:
-            # Create table_to_columns mapping from columns if not present
-            table_to_columns = {}
-            for col in adapted_schema.get('columns', []):
-                table_idx = col.get('table_idx', -1)
-                if table_idx >= 0:
-                    if table_idx not in table_to_columns:
-                        table_to_columns[table_idx] = []
-                    table_to_columns[table_idx].append(col['id'])
-            
-            adapted_schema['table_to_columns'] = table_to_columns
-            
-        if 'foreign_keys' not in adapted_schema:
-            adapted_schema['foreign_keys'] = []
-            
-        if 'primary_keys' not in adapted_schema:
-            adapted_schema['primary_keys'] = []
-            
-        return adapted_schema
-
-class Spider2SchemaAdapter:
-    """Spider2-specific schema adapter"""
-    
-    @staticmethod
-    def adapt(schema: Dict) -> Dict:
-        """
-        Adapt Spider2 schema to standardized format.
-        
-        Args:
-            schema: The Spider2 schema
-            
-        Returns:
-            Standardized schema dictionary
-        """
-        # Spider2 schemas are similar to Spider, but may have some differences
-        adapted_schema = SpiderSchemaAdapter.adapt(schema)
-        
-        # Additional processing for Spider2 if needed
-        
-        return adapted_schema
-
-class BirdSchemaAdapter:
-    """Bird-specific schema adapter"""
-    
-    @staticmethod
-    def adapt(schema: Dict) -> Dict:
-        """
-        Adapt Bird schema to standardized format.
-        
-        Args:
-            schema: The Bird schema
-            
-        Returns:
-            Standardized schema dictionary
-        """
-        # Bird schemas are already close to the expected format
-        # Just ensure all expected fields are present
-        adapted_schema = schema.copy()
-        
-        # Ensure all necessary fields are present
-        if 'tables' not in adapted_schema:
-            adapted_schema['tables'] = []
-            
-        if 'columns' not in adapted_schema:
-            adapted_schema['columns'] = []
-            
-        if 'table_to_columns' not in adapted_schema:
-            # Create table_to_columns mapping from columns if not present
-            table_to_columns = {}
-            for col in adapted_schema.get('columns', []):
-                table_idx = col.get('table_idx', -1)
-                if table_idx >= 0:
-                    if table_idx not in table_to_columns:
-                        table_to_columns[table_idx] = []
-                    table_to_columns[table_idx].append(col['id'])
-            
-            adapted_schema['table_to_columns'] = table_to_columns
-            
-        if 'foreign_keys' not in adapted_schema:
-            adapted_schema['foreign_keys'] = []
-            
-        if 'primary_keys' not in adapted_schema:
-            adapted_schema['primary_keys'] = []
-            
-        return adapted_schema
-
-
-class DataAdapter:
-    """
-    Abstract adapter class to standardize dataset-specific fields
-    for the DataProcessor.
-    """
-    
-    def get_db_id(self, instance: Dict) -> str:
-        """Extract database ID from instance."""
-        return instance.get('db_id', '')
-    
-    def get_question(self, instance: Dict) -> str:
-        """Extract question text from instance."""
-        return instance.get('question', '')
-    
-    def get_sql(self, instance: Dict) -> str:
-        """Extract SQL query from instance."""
-        pass  # To be implemented by subclasses
-    
-    def get_evidence(self, instance: Dict) -> str:
-        """Extract evidence text from instance (if available)."""
-        return ''  # Default implementation returns empty string
-    
-    def get_question_id(self, instance: Dict) -> str:
-        """Extract question ID from instance."""
-        pass  # To be implemented by subclasses
-    
-    def create_standardized_instance(self, instance: Dict) -> Dict:
-        """Convert dataset-specific instance to standardized format."""
-        pass  # To be implemented by subclasses
-
-
-class BirdDataAdapter(DataAdapter):
-    """Adapter for BIRD dataset."""
-    
-    def get_sql(self, instance: Dict) -> str:
-        return instance.get('SQL', '')
-    
-    def get_evidence(self, instance: Dict) -> str:
-        return instance.get('evidence', '')
-    
-    def get_question_id(self, instance: Dict) -> str:
-        return instance.get('question_id', '')
-    
-    def create_standardized_instance(self, instance: Dict) -> Dict:
-        """Convert BIRD instance to standardized format."""
-        return {
-            'db_id': self.get_db_id(instance),
-            'question': self.get_question(instance),
-            'sql': self.get_sql(instance),
-            'evidence': self.get_evidence(instance),
-            'question_id': self.get_question_id(instance),
-            'difficulty': instance.get('difficulty', 'unknown'),
-            'orig_instance': instance  # Keep original for reference
-        }
-
-
-class SpiderDataAdapter(DataAdapter):
-    """Adapter for Spider dataset."""
-    
-    def get_sql(self, instance: Dict) -> str:
-        return instance.get('query', '')  # Different field name in Spider
-    
-    def get_evidence(self, instance: Dict) -> str:
-        # Spider doesn't have evidence
-        return ''
-    
-    def get_question_id(self, instance: Dict) -> str:
-        # Spider might have different ID field or format
-        if 'id' in instance:
-            return str(instance.get('id', ''))
-        else:
-            return str(instance.get('question_index', ''))
-    
-    def create_standardized_instance(self, instance: Dict) -> Dict:
-        """Convert Spider instance to standardized format."""
-        return {
-            'db_id': self.get_db_id(instance),
-            'question': self.get_question(instance),
-            'sql': self.get_sql(instance),
-            'evidence': self.get_evidence(instance),
-            'question_id': self.get_question_id(instance),
-            'difficulty': 'unknown',  # Spider doesn't have difficulty
-            'orig_instance': instance  # Keep original for reference
-        }
-
-class Spider2DataAdapter(DataAdapter):
-    """Adapter for Spider2 dataset."""
-
-    def __init__(self,spider2_data_loader : Spider2Dataset):
-        super().__init__()
-        self.spider2_data_loader = spider2_data_loader
-    
-    def get_sql(self, instance: Dict) -> str:
-        return self.spider2_data_loader.get_sql(instance)
-    
-    def get_question(self, instance):
-        return instance.get('instruction', '')
-    
-    def get_question_id(self, instance: Dict) -> str:
-        # instance_id
-        if 'instance_id' in instance:
-            return str(instance.get('instance_id', ''))
-        
-    def get_external_knowledge(self, instance: Dict) -> str:
-        # Spider2 may have external knowledge
-        return self.spider2_data_loader.get_external_knowledge(instance)
-    
-    def create_standardized_instance(self, instance: Dict) -> Dict:
-        """Convert Spider2 instance to standardized format."""
-        return {
-            'db_id': self.get_db_id(instance),
-            'question': self.get_question(instance),
-            'sql': self.get_sql(instance),
-            'question_id': self.get_question_id(instance),
-            'orig_instance': instance  # Keep original for reference
-        }
-
-class AdapterFactory:
-    """Factory for creating dataset-specific adapters."""
-    
-    @staticmethod
-    def get_adapter(dataset_name: str) -> DataAdapter:
-        """Get adapter for specified dataset."""
-        if dataset_name.lower() == 'bird':
-            return BirdDataAdapter()
-        elif dataset_name.lower() == 'spider':
-            return SpiderDataAdapter()
-        else:
-            raise ValueError(f"Unsupported dataset: {dataset_name}")
-
+from data_adapters import AdapterFactory, SchemaAdapter
+from data_loader import BaseDataset
 
 class DataProcessor:
     """
     Generalized processor for Text2SQL dataset instances.
     """
     
-    def __init__(self, dataset, dataset_name=None):
+    def __init__(self, dataset : BaseDataset, dataset_name=None):
         """
         Initialize data processor.
         
@@ -656,20 +387,18 @@ class DataProcessor:
         
         return result
     
-    def analyze_schema(self, db_name):
+    def analyze_schema(self, schema, db_name=None):
         """
         Analyze database schema.
         
         Args:
-            db_name: Name of the database to analyze
+            schema: The database schema to analyze.
+            db_name: Optional database name for identification
             
         Returns:
             Dictionary with schema analysis
         """
         try:
-            # Get schema information
-            schema = self.dataset.get_schema_by_db_name(db_name)
-            
             # Apply schema adapter to ensure consistent structure
             adapted_schema = SchemaAdapter.adapt_schema(schema, self.dataset_name)
             
@@ -789,7 +518,7 @@ class DataProcessor:
         
         # Check if we already analyzed this schema
         if db_id not in self.schema_analyses:
-            self.schema_analyses[db_id] = self.analyze_schema(db_id)
+            self.schema_analyses[db_id] = self.analyze_schema(schema,db_id)
         
         # Analyze components (excluding schema analysis)
         question_analysis = self.analyze_question(question, schema)
@@ -868,7 +597,7 @@ if __name__ == "__main__":
     
     # Create argument parser
     parser = argparse.ArgumentParser(description='Process Text2SQL datasets for analysis')
-    parser.add_argument('--dataset', type=str, choices=['bird', 'spider'], required=True,
+    parser.add_argument('--dataset', type=str, choices=['bird', 'spider', 'spider2'], required=True,
                         help='Dataset type to process (bird or spider)')
     parser.add_argument('--base-dir', type=str, required=True,
                         help='Base directory containing the dataset')

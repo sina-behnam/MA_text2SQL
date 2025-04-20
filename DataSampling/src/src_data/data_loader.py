@@ -911,11 +911,11 @@ class BirdDataset(BaseDataset):
 
 class Spider2Dataset(BaseDataset):
 
-    def __init__(self, base_dir, dataset_name, split = 'train',
+    def __init__(self, base_dir, split = 'train',
                   limit = None, is_snow :bool = False,
                   is_lite : bool = False,
                   ):
-        super().__init__(base_dir, dataset_name, split, limit)
+        super().__init__(base_dir, 'spider2', split, limit)
 
         self.data_directory = None
 
@@ -1112,6 +1112,7 @@ class Spider2Dataset(BaseDataset):
                         columns.append({
                             'id': col_id,
                             'name': col_name if col_name else '',
+                            'original_name': col_name if col_name else '',
                             'table_idx': table_idx,
                             'table': table_name,
                             'type': col_type if col_type else 'ERROR',
@@ -1232,11 +1233,26 @@ class DataLoader:
         if dataset_name.lower() == 'spider':
             return SpiderDataset(**kwargs)
         elif dataset_name.lower() == 'spider2':
-            return Spider2Dataset(**kwargs)
+            return Spider2Dataset(**kwargs,is_lite=True)
         elif dataset_name.lower() == 'bird':
             return BirdDataset(**kwargs)
         else:
             raise ValueError(f"Unknown dataset: {dataset_name}")
+
+
+def test_spider2_dataset():
+    """
+    Test function for Spider2 dataset.
+    """
+
+    dataset = DataLoader.get_dataset('spider2',
+                            base_dir='Data/Spider2',
+                            split='train',
+                            is_snow=False, is_lite=True)
+    
+    # Load the dataset
+    data = dataset.load_data()
+    print(f"Loaded {len(data)} examples from Spider2 dataset")
 
 
 # Usage example
@@ -1276,7 +1292,7 @@ if __name__ == "__main__":
     dataset = DataLoader.get_dataset(args.dataset, base_dir=args.base_dir, split=args.split)
     
     # Load data and schemas
-    dataset.load_data()
+    data = dataset.load_data()
     schema = dataset.load_schemas()
     
     # save the loaded schema to a json file
