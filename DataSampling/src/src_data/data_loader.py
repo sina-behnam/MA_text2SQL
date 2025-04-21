@@ -1093,8 +1093,8 @@ class Spider2Dataset(BaseDataset):
                     table_to_columns[table_idx] = []
 
                     # Extract column information
-                    column_names = table_schema.get('column_names', [])
-                    column_types = table_schema.get('column_types', [])
+                    column_names = table_schema.get('nested_column_names', [])
+                    column_types = table_schema.get('nested_column_types', [])
                     descriptions = table_schema.get('description', [])
 
                     # Ensure lists have the same length

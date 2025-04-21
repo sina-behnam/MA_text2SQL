@@ -11,11 +11,11 @@ from tqdm.auto import tqdm
 
 # Load spaCy model for NLP analysis
 try:
-    nlp = spacy.load("en_core_web_lg")
+    nlp = spacy.load("en_core_web_trf")
 except OSError:
     print("Downloading spaCy model...")
-    spacy.cli.download("en_core_web_lg")
-    nlp = spacy.load("en_core_web_lg")
+    spacy.cli.download("en_core_web_trf")
+    nlp = spacy.load("en_core_web_trf")
 
 from data_adapters import AdapterFactory, SchemaAdapter
 from data_loader import BaseDataset
@@ -121,7 +121,7 @@ class DataProcessor:
             
         return result
     
-    def _compute_schema_overlap(self, doc, schema):
+    def _compute_schema_overlap(self, doc, schema,with_description=False):
         """
         Compute overlap between question and schema.
         
@@ -148,20 +148,21 @@ class DataProcessor:
         column_descriptions = set()
         value_descriptions = set()
         
-        for col in columns:
-            if 'description' in col and col['description']:
-                # Add individual words from description
-                desc_doc = nlp(col['description'])
-                for token in desc_doc:
-                    if not token.is_stop and not token.is_punct and token.is_alpha:
-                        column_descriptions.add(token.lemma_.lower())
-            
-            if 'value_description' in col and col['value_description']:
-                # Add individual words from value description
-                val_desc_doc = nlp(col['value_description'])
-                for token in val_desc_doc:
-                    if not token.is_stop and not token.is_punct and token.is_alpha:
-                        value_descriptions.add(token.lemma_.lower())
+        if with_description:
+            for col in columns:
+                if 'description' in col and col['description']:
+                    # Add individual words from description
+                    desc_doc = nlp(col['description'])
+                    for token in desc_doc:
+                        if not token.is_stop and not token.is_punct and token.is_alpha:
+                            column_descriptions.add(token.lemma_.lower())
+                
+                if 'value_description' in col and col['value_description']:
+                    # Add individual words from value description
+                    val_desc_doc = nlp(col['value_description'])
+                    for token in val_desc_doc:
+                        if not token.is_stop and not token.is_punct and token.is_alpha:
+                            value_descriptions.add(token.lemma_.lower())
         
         # Extract question terms (lowercased lemmas for better matching)
         question_terms = set()
