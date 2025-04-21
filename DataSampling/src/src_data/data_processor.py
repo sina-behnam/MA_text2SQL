@@ -8,13 +8,29 @@ import argparse
 from typing import Dict, List, Tuple, Optional, Union, Any
 
 from tqdm.auto import tqdm
+import subprocess
 
+def download_spacy_model(model_name="en_core_web_trf"):
+    try:
+        # First it need to check if the spacy-transformers package is installed
+        import spacy_transformers # ! ATTENTION [Based on current version of spacy this is the solution otherwise it will run into some missing packages when the trf model need to be downloaded ! 21April of 2025]
+    except ImportError:
+        print("spacy-transformers package is not installed. Installing...")
+        subprocess.check_call(["pip", "install", "spacy-transformers"])
+    try:
+        # Download the spaCy model
+        print(f"Downloading spaCy model '{model_name}'...")
+        subprocess.check_call(["python", "-m", "spacy", "download", model_name])
+        print(f"spaCy model '{model_name}' downloaded successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to download spaCy model '{model_name}'.")
+        print(e)
 # Load spaCy model for NLP analysis
 try:
     nlp = spacy.load("en_core_web_trf")
 except OSError:
     print("Downloading spaCy model...")
-    spacy.cli.download("en_core_web_trf")
+    download_spacy_model("en_core_web_trf")
     nlp = spacy.load("en_core_web_trf")
 
 from data_adapters import AdapterFactory, SchemaAdapter
@@ -156,7 +172,7 @@ class DataProcessor:
                     for token in desc_doc:
                         if not token.is_stop and not token.is_punct and token.is_alpha:
                             column_descriptions.add(token.lemma_.lower())
-                
+
                 if 'value_description' in col and col['value_description']:
                     # Add individual words from value description
                     val_desc_doc = nlp(col['value_description'])
