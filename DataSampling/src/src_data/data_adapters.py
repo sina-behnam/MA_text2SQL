@@ -1,6 +1,8 @@
 
 from typing import Dict, List, Tuple, Optional, Union, Any
 import sqlparse
+import hashlib
+import base64
 
 class SchemaAdapter:
     """
@@ -162,10 +164,37 @@ class DataAdapter:
         """Extract evidence text from instance (if available)."""
         return ''  # Default implementation returns empty string
     
-    def get_question_id(self, instance: Dict) -> str:
+    def get_question_id(self, instance: Dict, dataset_name : str = None) -> str:
         """Extract question ID from instance."""
-        pass  # To be implemented by subclasses
-    
+        if dataset_name is None:
+            dataset_name = instance.get('dataset_name', '')
+
+        if 'id' in instance:
+            original_id = str(instance.get('id', ''))
+        elif 'question_index' in instance:
+            original_id = str(instance.get('question_index', ''))
+        elif 'question_id' in instance:
+            original_id = str(instance.get('question_id', ''))
+        elif 'instance_id' in instance:
+            original_id = str(instance.get('instance_id', ''))
+        else:
+            original_id = 'NO'
+        
+        # Generate a unique ID based on question content
+        question = self.get_question(instance)
+        db_id = self.get_db_id(instance)
+        sql = self.get_sql(instance)
+        # Create a unique string based on the dataset name, question, and db_id
+        unique_str = f"{dataset_name}_{question}_{db_id}_{sql}"
+        # Use SHA-256 for collision resistance
+        hash_bytes = hashlib.sha256(unique_str.encode()).digest()
+        # Convert to base64 for a more compact representation
+        b64_hash = base64.urlsafe_b64encode(hash_bytes).decode().rstrip('=')
+        # Take first 8 characters for reasonable uniqueness
+        generated_id = f"g_{b64_hash[:8]}"
+
+        return f"{dataset_name}_{original_id}_{generated_id}"
+
     def create_standardized_instance(self, instance: Dict) -> Dict:
         """Convert dataset-specific instance to standardized format."""
         pass  # To be implemented by subclasses
@@ -179,10 +208,7 @@ class BirdDataAdapter(DataAdapter):
     
     def get_evidence(self, instance: Dict) -> str:
         return instance.get('evidence', '')
-    
-    def get_question_id(self, instance: Dict) -> str:
-        return instance.get('question_id', '')
-    
+        
     def create_standardized_instance(self, instance: Dict) -> Dict:
         """Convert BIRD instance to standardized format."""
         return {
@@ -190,7 +216,7 @@ class BirdDataAdapter(DataAdapter):
             'question': self.get_question(instance),
             'sql': self.get_sql(instance),
             'evidence': self.get_evidence(instance),
-            'question_id': self.get_question_id(instance),
+            'question_id': self.get_question_id(instance, 'bird'),
             'difficulty': instance.get('difficulty', 'unknown'),
             'orig_instance': instance  # Keep original for reference
         }
@@ -204,20 +230,13 @@ class SpiderDataAdapter(DataAdapter):
     def get_evidence(self, instance: Dict) -> str:
         # Spider doesn't have evidence
         return ''
-    
-    def get_question_id(self, instance: Dict) -> str:
-        # Spider might have different ID field or format
-        if 'id' in instance:
-            return str(instance.get('id', ''))
-        else:
-            return str(instance.get('question_index', ''))
         
     def get_difficulty(self, instance: Dict) -> str:
         '''
         This is Spider2 method of difficulty calculation !! 
         '''
         # if the the number of sql tokens are higher than 50, then it is moderate, and if the number of sql tokens are higher than 100, then it is hard
-        sql = instance.get('sql', '')
+        sql = self.get_sql(instance)
         # Parse the SQL and get all non-whitespace tokens
         sql_tokens = []
         for statement in sqlparse.parse(sql):
@@ -236,7 +255,7 @@ class SpiderDataAdapter(DataAdapter):
             'question': self.get_question(instance),
             'sql': self.get_sql(instance),
             'evidence': self.get_evidence(instance),
-            'question_id': self.get_question_id(instance),
+            'question_id': self.get_question_id(instance, 'spider'),
             'difficulty': self.get_difficulty(instance),  # ! Spider 2 method of difficulty calculation
             'orig_instance': instance  # Keep original for reference
         }
@@ -249,10 +268,6 @@ class Spider2DataAdapter(DataAdapter):
 
     def get_sql(self, instance: Dict) -> str:
         return instance.get('sql', '')  # Different field name in Spider2
-    
-    def get_question_id(self, instance: Dict) -> str:
-        if 'instance_id' in instance:
-            return str(instance.get('instance_id', ''))
         
     def get_external_knowledge(self, instance: Dict) -> str:
         # Spider2 may have external knowledge
@@ -260,7 +275,7 @@ class Spider2DataAdapter(DataAdapter):
     
     def get_difficulty(self, instance: Dict) -> str:
         # if the the number of sql tokens are higher than 50, then it is moderate, and if the number of sql tokens are higher than 100, then it is hard
-        sql = instance.get('sql', '')
+        sql = self.get_sql(instance)
         # Parse the SQL and get all non-whitespace tokens
         sql_tokens = []
         for statement in sqlparse.parse(sql):
@@ -280,7 +295,7 @@ class Spider2DataAdapter(DataAdapter):
             'sql': self.get_sql(instance),
             'evidence': self.get_external_knowledge(instance),
             'difficulty': self.get_difficulty(instance),
-            'question_id': self.get_question_id(instance),
+            'question_id': self.get_question_id(instance, 'spider2'),
             'orig_instance': instance  # Keep original for reference
         }
 
