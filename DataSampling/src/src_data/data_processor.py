@@ -756,6 +756,11 @@ if __name__ == "__main__":
                         help='Dataset split to process (train/dev/test)')
     parser.add_argument('--output', type=str, required=True,
                         help='Output file path for processed data')
+    parser.add_argument('--batch-size', type=int, default=50,
+                        help='Number of instances to process in each batch')
+    # a flag thread saving to save the instances in a separate thread
+    parser.add_argument('--thread-saving', action='store_true',
+                        help='Use a separate thread for saving instances')
     parser.add_argument('--limit', type=int, default=None,
                         help='Maximum number of instances to process (optional)')
     
@@ -773,8 +778,8 @@ if __name__ == "__main__":
     processor.batch_process(
         output_dir=args.output,
         limit=args.limit,             # Optional: limit number of instances
-        batch_size=10,          # Instances per batch
-        thread_saving=True      # Enable/disable multithreaded saving
+        batch_size=args.batch_size,          # Instances per batch
+        thread_saving=args.thread_saving      # Enable/disable multithreaded saving
     )
     
     # # Save results
