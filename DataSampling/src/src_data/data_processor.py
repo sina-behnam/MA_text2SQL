@@ -6,6 +6,10 @@ import spacy
 import pandas as pd
 import argparse
 from typing import Dict, List, Tuple, Optional, Union, Any
+import re
+import datetime
+import threading
+import queue
 
 from tqdm.auto import tqdm
 import subprocess
@@ -556,17 +560,29 @@ class DataProcessor:
         
         return analysis
     
-    def batch_process(self, limit=None):
+    def batch_process(self, output_dir, limit=None, batch_size=50, thread_saving=True):
         """
-        Process multiple dataset instances.
+        Process multiple dataset instances and save in batches, using a separate thread for saving.
         
         Args:
+            output_dir: Directory path to save the results
             limit: Maximum number of instances to process
+            batch_size: Number of instances to process before queuing for saving
+            thread_saving: Whether to use a separate thread for saving operations
             
         Returns:
-            List of processed instances and dictionary of schema analyses
+            Summary statistics about processing
         """
-        results = []
+        # Create main directory if it doesn't exist
+        instances_dir = os.path.join(output_dir, "instances")
+        schemas_dir = os.path.join(output_dir, "schemas")
+        
+        os.makedirs(instances_dir, exist_ok=True)
+        os.makedirs(schemas_dir, exist_ok=True)
+        
+        # Track statistics
+        total_instances_processed = 0
+        db_instance_counts = {}  # Track how many instances per database
         
         # Get all instances
         instances = self.dataset.load_data()
@@ -575,37 +591,155 @@ class DataProcessor:
         if limit is not None:
             instances = instances[:limit]
         
-        # Process each instance
-        for instance in tqdm(instances, desc="Processing instances", unit="instance"):
-            result = self.process_dataset_instance(instance)
-            results.append(result)
+        # Initialize thread-safe queue and tracking for saved schemas
+        if not hasattr(self, '_saved_schemas'):
+            self._saved_schemas = set()
         
-        return results
-    
-    def save_processed_data(self, output_path, results):
-        """
-        Save processed data to a file.
+        # Setup for threaded saving if enabled
+        save_queue = queue.Queue()
+        saving_active = threading.Event()
+        saving_active.set()  # Start as active
         
-        Args:
-            output_path: Path to save the results
-            results: The results to save
-        """
-        # Create directory if it doesn't exist
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        if thread_saving:
+            # Define the saver thread function
+            def saver_thread():
+                while saving_active.is_set() or not save_queue.empty():
+                    try:
+                        # Get the next batch with a timeout
+                        task = save_queue.get(timeout=1.0)
+                        
+                        if task['type'] == 'batch':
+                            self._save_instance_batch(instances_dir, task['data'])
+                            save_queue.task_done()
+                        elif task['type'] == 'schemas':
+                            self._save_schemas(schemas_dir)
+                            save_queue.task_done()
+                        
+                    except queue.Empty:
+                        # No items available, just continue waiting
+                        continue
+                    except Exception as e:
+                        print(f"Error in saver thread: {e}")
+            
+            # Start the saver thread
+            saver = threading.Thread(target=saver_thread, daemon=True)
+            saver.start()
+            print("Started background saving thread")
         
-        # Create output structure with instances and schemas
-        output_data = {
-            'instances': results,
-            'schemas': self.schema_analyses
+        # Process instances in batches
+        current_batch = []
+        
+        try:
+            for idx, instance in enumerate(tqdm(instances, desc="Processing instances", unit="instance")):
+                result = self.process_dataset_instance(instance)
+                current_batch.append(result)
+                db_id = result.get('db_id', 'unknown')
+                
+                # Update database instance count
+                if db_id in db_instance_counts:
+                    db_instance_counts[db_id] += 1
+                else:
+                    db_instance_counts[db_id] = 1
+                
+                # Queue batch for saving if we've reached batch_size or it's the last instance
+                if len(current_batch) >= batch_size or idx == len(instances) - 1:
+                    if thread_saving:
+                        # Queue batch for saving in background thread
+                        save_queue.put({'type': 'batch', 'data': current_batch.copy()})
+                        save_queue.put({'type': 'schemas', 'data': None})
+                    else:
+                        # Save directly in the main thread
+                        self._save_instance_batch(instances_dir, current_batch)
+                        self._save_schemas(schemas_dir)
+                    
+                    total_instances_processed += len(current_batch)
+                    print(f"Processed batch: {total_instances_processed}/{len(instances)} instances")
+                    current_batch = []  # Reset batch
+        
+        finally:
+            if thread_saving:
+                # Wait for all saving tasks to complete
+                print("Waiting for final saves to complete...")
+                saving_active.clear()  # Signal thread to exit after queue is empty
+                save_queue.join()      # Wait for all tasks to be processed
+                saver.join(timeout=30) # Wait for thread to finish, with timeout
+                
+                if saver.is_alive():
+                    print("Warning: Saver thread didn't exit cleanly")
+        
+        # Save metadata with database statistics
+        metadata = {
+            "total_instances": total_instances_processed,
+            "total_schemas": len(self.schema_analyses),
+            "dataset_name": self.dataset_name,
+            "processed_date": str(datetime.datetime.now()),
+            "database_instance_counts": db_instance_counts,
+            "total_unique_databases": len(db_instance_counts)
         }
         
-        # Save to file
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(output_data, f, indent=2)
+        metadata_path = os.path.join(output_dir, "metadata.json")
+        with open(metadata_path, 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, indent=2)
         
-        print(f"Saved processed data to {output_path}")
-        print(f"- {len(results)} instances")
-        print(f"- {len(self.schema_analyses)} database schemas")
+        print(f"Processing complete!")
+        print(f"- {total_instances_processed} instances saved to {instances_dir}")
+        print(f"- {len(self.schema_analyses)} database schemas saved to {schemas_dir}")
+        print(f"- Metadata saved to {metadata_path}")
+        
+        return {
+            "total_instances": total_instances_processed,
+            "total_schemas": len(self.schema_analyses),
+            "db_instance_counts": db_instance_counts
+        }
+    
+    def _save_instance_batch(self, instances_dir, batch):
+        """
+        Save a batch of processed instances to individual files.
+        
+        Args:
+            instances_dir: Directory to save instance files
+            batch: List of instance results to save
+        """
+        for instance in batch:
+            question_id = instance.get("question_id", "unknown")
+            
+            # Create a safe filename
+            safe_question_id = re.sub(r'[^\w\-_]', '_', str(question_id))
+            
+            # Save the instance
+            instance_path = os.path.join(instances_dir, f"{safe_question_id}.json")
+            with open(instance_path, 'w', encoding='utf-8') as f:
+                json.dump(instance, f, indent=2)
+    
+    def _save_schemas(self, schemas_dir):
+        """
+        Save current schema analyses to individual files.
+        Only saves schemas that haven't been saved yet.
+        
+        Args:
+            schemas_dir: Directory to save schema files
+        """
+        # Track which schemas we've already saved
+        if not hasattr(self, '_saved_schemas'):
+            self._saved_schemas = set()
+        
+        # Find schemas that haven't been saved yet
+        new_schemas = set(self.schema_analyses.keys()) - self._saved_schemas
+        
+        # Save each new schema
+        for db_id in new_schemas:
+            schema_analysis = self.schema_analyses[db_id]
+            
+            # Create a safe filename
+            safe_db_id = re.sub(r'[^\w\-_]', '_', str(db_id))
+            
+            # Save the schema
+            schema_path = os.path.join(schemas_dir, f"{safe_db_id}.json")
+            with open(schema_path, 'w', encoding='utf-8') as f:
+                json.dump(schema_analysis, f, indent=2)
+            
+            # Mark this schema as saved
+            self._saved_schemas.add(db_id)
 
 
 # Example usage for testing
@@ -615,7 +749,7 @@ if __name__ == "__main__":
     # Create argument parser
     parser = argparse.ArgumentParser(description='Process Text2SQL datasets for analysis')
     parser.add_argument('--dataset', type=str, choices=['bird', 'spider', 'spider2'], required=True,
-                        help='Dataset type to process (bird or spider)')
+                        help='Dataset type to process (bird or spider or spider2)')
     parser.add_argument('--base-dir', type=str, required=True,
                         help='Base directory containing the dataset')
     parser.add_argument('--split', type=str, default='dev', choices=['train', 'dev', 'test'],
@@ -635,8 +769,14 @@ if __name__ == "__main__":
     
     # Process instances
     print(f"Processing {args.dataset.upper()} dataset ({args.split} split)...")
-    results = processor.batch_process(limit=args.limit)
+
+    processor.batch_process(
+        output_dir=args.output,
+        limit=args.limit,             # Optional: limit number of instances
+        batch_size=10,          # Instances per batch
+        thread_saving=True      # Enable/disable multithreaded saving
+    )
     
-    # Save results
-    processor.save_processed_data(args.output, results)
-    print(f"Processing complete! Saved {len(results)} instances to {args.output}")
+    # # Save results
+    # processor.save_processed_data(args.output, results)
+    # print(f"Processing complete! Saved {len(results)} instances to {args.output}")
