@@ -4,13 +4,82 @@ import sqlite3
 from typing import Dict, List, Tuple, Optional, Union, Any
 import pandas as pd
 import argparse
+import glob
+import logging
 
+# Configure logger
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('text2sql_dataloader')
+
+# Custom filter to only allow specific log levels
+class CustomLevelFilter(logging.Filter):
+    def __init__(self, allowed_levels):
+        super().__init__()
+        self.allowed_levels = allowed_levels
+
+    def filter(self, record):
+        # Only allow messages whose level is exactly in the allowed_levels list.
+        return record.levelno in self.allowed_levels
 
 class BaseDataset:
     """
     Base dataset class for Text2SQL tasks.
     This class provides the common functionality for all dataset implementations.
     """
+    
+    @staticmethod
+    def configure_logger(levels=None):
+        """
+        Configure the logger to show only messages whose level is exactly in the levels list.
+        
+        Args:
+            levels: List of logging levels to display (e.g., [logging.INFO]) 
+                    If None, the logger is reset to default behavior.
+        
+        Example:
+            # Only INFO messages will be shown (WARNING and ERROR are ignored)
+            Spider2Dataset.configure_logger([logging.INFO])
+            
+            # Only INFO and ERROR messages will be shown (WARNING messages are filtered out)
+            Spider2Dataset.configure_logger([logging.INFO, logging.ERROR])
+        """
+        logger = logging.getLogger('text2sql_dataloader')
+        
+        # Remove all existing handlers and filters
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+        
+        # Create a new StreamHandler for console output
+        console_handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+        
+        # Configure logger level and filters
+        if levels:
+            # Set logger to the minimum level to capture all desired logs
+            logger.setLevel(min(levels))
+            
+            # Create and add level filter to the handler (not the logger)
+            custom_filter = CustomLevelFilter(levels)
+            console_handler.addFilter(custom_filter)
+            
+            # Ensure logs aren't duplicated through parent loggers
+            logger.propagate = False
+            
+            # Test log to confirm configuration
+            logger.info(f"Logger configured to show these levels: {[logging.getLevelName(lvl) for lvl in levels]}")
+        else:
+            # Default behavior - show INFO and above
+            logger.setLevel(logging.INFO)
+            logger.propagate = False
+            logger.info("Logger reset to default behavior (showing INFO and above)")
     
     def __init__(self, 
                  base_dir: str,
@@ -267,12 +336,12 @@ class SpiderDataset(BaseDataset):
                 
                 db_schemas[db_id] = schema
             except Exception as e:
-                print(f"Error processing schema for database {entry.get('db_id', 'unknown')}: {str(e)}")
+                logger.error(f"Error processing schema for database {entry.get('db_id', 'unknown')}: {str(e)}")
                 # Continue to next schema instead of failing completely
                 continue
             
         self.db_schemas = db_schemas
-        print(f"Loaded {len(self.db_schemas)} schemas from Spider dataset")
+        logger.info(f"Loaded {len(self.db_schemas)} schemas from Spider dataset")
         return self.db_schemas
     
     def get_db_connection(self, db_name: str) -> sqlite3.Connection:
@@ -313,7 +382,7 @@ class SpiderDataset(BaseDataset):
                 query = f"SELECT * FROM {table_name} LIMIT 5;"
                 tables[table_name] = pd.read_sql_query(query, conn)
             except Exception as e:
-                print(f"Warning: Could not read table {table_name}: {e}")
+                logger.warning(f"Warning: Could not read table {table_name}: {e}")
                 tables[table_name] = pd.DataFrame()
         
         conn.close()
@@ -488,7 +557,7 @@ class BirdDataset(BaseDataset):
                             cursor.execute(f"PRAGMA table_info([{table_name}]);")
                             cols = cursor.fetchall()
                         except sqlite3.OperationalError as e:
-                            print(f"Could not get columns for table {table_name}: {e}")
+                            logger.error(f"Could not get columns for table {table_name}: {e}")
                             cols = []
                     
                     for col in cols:
@@ -521,7 +590,7 @@ class BirdDataset(BaseDataset):
                             cursor.execute(f"PRAGMA foreign_key_list([{table_name}]);")
                             fks = cursor.fetchall()
                         except sqlite3.OperationalError as e:
-                            print(f"Could not get foreign keys for table {table_name}: {e}")
+                            logger.error(f"Could not get foreign keys for table {table_name}: {e}")
                             fks = []
                     
                     if fks:
@@ -542,7 +611,7 @@ class BirdDataset(BaseDataset):
                 
                 conn.close()
             except Exception as e:
-                print(f"Error extracting schema for {db_id}: {e}")
+                logger.error(f"Error extracting schema for {db_id}: {e}")
                 # Continue to next database instead of stopping completely
                 continue
             
@@ -567,11 +636,11 @@ class BirdDataset(BaseDataset):
                             except UnicodeDecodeError:
                                 continue
                             except Exception as e:
-                                print(f"Error with encoding {encoding} for {csv_file}: {e}")
+                                logger.error(f"Error with encoding {encoding} for {csv_file}: {e}")
                                 continue
                         
                         if desc_df is None:
-                            print(f"Could not read CSV file {csv_file} with any encoding")
+                            logger.error(f"Could not read CSV file {csv_file} with any encoding")
                             continue
                             
                         # Find the table index
@@ -601,7 +670,7 @@ class BirdDataset(BaseDataset):
                                             columns[col_id]['value_description'] = col_desc.get('value_description', '')
                                             break
                     except Exception as e:
-                        print(f"Error processing description CSV for {table_name}: {e}")
+                        logger.error(f"Error processing description CSV for {table_name}: {e}")
             
             # Build schema
             schema = {
@@ -676,7 +745,7 @@ class BirdDataset(BaseDataset):
                     query = f"SELECT * FROM [{table_name}] LIMIT 5;"
                     tables[table_name] = pd.read_sql_query(query, conn)
                 except Exception as e2:
-                    print(f"Warning: Could not read table {table_name}: {e2}")
+                    logger.warning(f"Warning: Could not read table {table_name}: {e2}")
                     tables[table_name] = pd.DataFrame()
         
         conn.close()
@@ -711,7 +780,7 @@ class BirdDataset(BaseDataset):
         try:
             schema = self.get_schema_by_db_name(db_name)
         except Exception as e:
-            print(f"Warning: Could not load schema for {db_name}: {e}")
+            logger.warning(f"Warning: Could not load schema for {db_name}: {e}")
             schema = {"error": str(e)}
         
         return {
@@ -840,6 +909,310 @@ class BirdDataset(BaseDataset):
         
         return analysis
 
+class Spider2Dataset(BaseDataset):
+
+    def __init__(self, base_dir, split = 'train',
+                  limit = None, is_snow :bool = False,
+                  is_lite : bool = False,
+                  ):
+        super().__init__(base_dir, 'spider2', split, limit)
+
+        self.data_directory = None
+
+        self.data_to_load = self._init_file_paths_(base_dir,is_snow,is_lite)
+
+    def _init_file_paths_(self, base_dir,is_snow,is_lite) -> str:
+        """
+        Initialize file paths for Spider2 dataset.
+
+        Args:
+            base_dir: Base directory containing the Spider2 data
+            is_snow: Whether to use the Spider2-Snow dataset
+            is_lite: Whether to use the Spider2-Lite dataset
+        Returns:
+            Path to the data file
+        """
+        if is_snow:
+            # data
+            # base_dir/spider2-snow/spider2-snow.jsonl
+            self.data_directory = os.path.join(self.base_dir, 'spider2-snow')
+            # base_dir/spider2-snow/resource/databases
+            self.db_dir = os.path.join(base_dir, 'spider2-snow', 'resource','databases')
+            # base_dir/spider2-snow/evaluation_suite/gold/sql
+            self.quires_dir = os.path.join(base_dir, 'spider2-snow', 'evaluation_suite','gold','sql')
+            # base_dir/spider2-snow/resource/documents
+            self.external_know_dir = os.path.join(base_dir, 'spider2-snow', 'resource','documents')
+
+            return os.path.join(self.data_directory, 'spider2-snow.jsonl')
+        
+        elif not is_snow and is_lite:
+            # data
+            # base_dir/spider2-lite/spider2-lite.jsonl
+            self.data_directory = os.path.join(self.base_dir, 'spider2-lite')
+            # base_dir/spider2-lite/resource/databases
+            self.db_dir = os.path.join(base_dir, 'spider2-lite', 'resource','databases')
+            # base_dir/spider2-lite/resource/documents
+            self.external_know_dir = os.path.join(base_dir, 'spider2-lite', 'resource','documents')
+            # base_dir/spider2-lite/evaluation_suite/gold/sql
+            self.quires_dir = os.path.join(base_dir, 'spider2-lite', 'evaluation_suite','gold','sql')
+
+            return os.path.join(self.data_directory, 'spider2-lite.jsonl')
+        
+        else:
+            self.db_dir = os.path.join(base_dir, 'spider2', 'resource','databases')
+            # self.external_know_dir = os.path.join(base_dir, 'spider2', 'resource','documents') 
+            raise NotImplementedError("Spider2 dataset is not implemented for this configuration")
+
+    def load_data(self) -> List[Dict]:
+        """
+        Load the Spider2 dataset.
+
+        Returns:
+            List of examples
+        """
+
+        if self.data:
+            return self.data
+        
+        # Determine which files to load based on split
+        files_to_load = []
+        
+        files_to_load.append(self.data_to_load)
+
+        # Load data from files
+        all_data = []
+        for file_path in files_to_load:
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"File not found: {file_path}")
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    all_data.append(json.loads(line))  
+
+        # Apply limit if specified
+        if self.limit is not None:
+            all_data = all_data[:self.limit]
+        
+        for instance in all_data:
+
+            instance_id = instance.get('instance_id')
+
+            if instance_id is None:
+                logger.warning("No instance ID found for example")
+                continue
+
+            # Ensure the question key name is consistent
+            instance = self.sync_question_key_name(instance)
+
+            query = self.get_sql_query_per_instance(instance_id)
+
+            if query is None:
+                logger.warning(f"No SQL query found for instance {instance_id}")
+                continue
+            # Add the SQL query to the instance
+            instance['sql'] = query
+
+            external_knowledge = instance.get('external_knowledge', None)
+
+            instance['external_knowledge'] = self.get_external_knowledge_instance(external_knowledge)
+            
+            self.data.append(instance)
+
+        logger.info(f"Loaded {len(self.data)} examples from Spider2 dataset")
+        
+        logger.info("IF the number of loaded Data are less than what you expected, is because of the missing SQL queries in GOLD Directory")
+        return self.data
+
+    def load_schemas(self) -> Dict:
+        """
+        Load database schemas for Spider2 dataset from individual JSON files.
+
+        Returns:
+            Dictionary mapping database names to schema information
+        """
+        if self.db_schemas:
+            return self.db_schemas
+
+        if not os.path.exists(self.db_dir):
+            raise FileNotFoundError(f"Database directory not found: {self.db_dir}")
+
+        db_schemas = {}
+
+        # Get all schema files and group by database name (determined from directory path)
+        schema_files_by_db = {}
+        for root, _, files in os.walk(self.db_dir):
+            for file in files:
+                if file.endswith('.json'):
+                    file_path = os.path.join(root, file)
+                    # Extract path components
+                    path_parts = os.path.normpath(file_path).split(os.sep)
+                    # Ensure we have enough parts to extract second-to-last directory
+                    if len(path_parts) >= 3:
+                        # Use second-to-last directory as database name
+                        db_name = path_parts[-3]
+                        if db_name not in schema_files_by_db:
+                            schema_files_by_db[db_name] = []
+                        schema_files_by_db[db_name].append(file_path)
+                    else:
+                        logger.warning(f"Path too short to extract database name: {file_path}")
+
+        # Process schema files for each database
+        for db_name, schema_files in schema_files_by_db.items():
+            # Initialize schema structure
+            tables = []
+            columns = []
+            table_to_columns = {}
+
+            logger.info(f"Processing database {db_name} with {len(schema_files)} schema files")
+
+            for schema_file in schema_files:
+                schema_path = os.path.join(self.db_dir, db_name, schema_file)
+                if not os.path.exists(schema_path):
+                    logger.info(f"Schema file not found: {schema_path}")
+                    continue
+                try:
+                    with open(schema_path, 'r', encoding='utf-8') as f:
+                        table_schema = json.load(f)
+
+                    # Extract table information
+                    table_full_name = table_schema.get('table_fullname', '')
+                    # Extract just the last part if it contains dots
+                    if '.' in table_full_name:
+                        table_name = table_full_name.split('.')[-1]
+                    else:
+                        table_name = table_full_name
+
+                    table_idx = len(tables)
+                    tables.append({
+                        'id': table_idx,
+                        'name': table_name.lower(),
+                        'original_name': table_full_name # This one should be use for tracking later on.
+                    })
+
+                    # Initialize column mapping for this table
+                    table_to_columns[table_idx] = []
+
+                    # Extract column information
+                    column_names = table_schema.get('nested_column_names', [])
+                    column_types = table_schema.get('nested_column_types', [])
+                    descriptions = table_schema.get('description', [])
+
+                    # Ensure lists have the same length
+                    max_len = max(len(column_names), len(column_types), len(descriptions) if descriptions else 0)
+                    column_names = column_names + [''] * (max_len - len(column_names))
+                    column_types = column_types + ['TEXT'] * (max_len - len(column_types))
+                    if descriptions:
+                        descriptions = descriptions + [None] * (max_len - len(descriptions))
+                    else:
+                        descriptions = [None] * max_len
+
+                    # Process columns
+                    for i, (col_name, col_type, description) in enumerate(zip(column_names, column_types, descriptions)):
+                        col_id = len(columns)
+                        columns.append({
+                            'id': col_id,
+                            'name': col_name if col_name else '',
+                            'original_name': col_name if col_name else '',
+                            'table_idx': table_idx,
+                            'table': table_name,
+                            'type': col_type if col_type else 'ERROR',
+                            'description': description
+                        })
+
+                        table_to_columns[table_idx].append(col_id)
+
+                except Exception as e:
+                    logger.error(f"Error processing schema file {schema_file} for database {db_name}: {e}")
+                    continue
+                
+            # Create the schema entry for this database
+            db_schemas[db_name] = {
+                'db_id': db_name,
+                'tables': tables,
+                'columns': columns,
+                'table_to_columns': table_to_columns,
+                'foreign_keys': [],  # ! Empty list as we don't have FK info
+                'primary_keys': []   # ! Empty list as we don't have PK info
+            }
+
+        self.db_schemas = db_schemas
+        logger.info(f"Loaded {len(self.db_schemas)} schemas from Spider2 dataset")
+        return self.db_schemas
+
+    def sync_question_key_name(self,instance : Dict) -> Dict:
+
+        """
+        Ensure the question key name is consistent across instances.
+        This method checks if the instance has a 'question' key and renames it if necessary.
+        If the instance has a different key name for the question (e.g., 'instruction' or 'query'), it renames it to 'question'.
+        If no valid key is found, it raises a KeyError.
+        Args:
+            instance: Dictionary containing the original instance data
+        Returns:
+            Updated instance dictionary with the correct question key name
+        """
+        if 'question' in instance:
+            return instance
+        elif 'instruction' in instance:
+            instance['question'] = instance.pop('instruction')
+        elif 'query' in instance:
+            instance['question'] = instance.pop('query')
+        else:
+            # If no known key exists, raise an error
+            raise KeyError("No valid question key found in the instance.")
+        return instance        
+
+    def get_sql_query_per_instance(self, instance_id : str) -> Optional[str]:
+        """
+        Get the SQL query for a specific instance ID.
+
+        Args:
+            instance_id: ID of the instance
+        Returns:
+            SQL query string or None if not found  
+        """
+        if self.quires_dir is not None:
+            # Get the path to the SQL file
+            sql_file_path = os.path.join(self.quires_dir, f"{instance_id}.sql")
+            if not os.path.exists(sql_file_path):
+                # logger.debug(f"SQL file not found for instance {instance_id}: {sql_file_path}")
+                return None
+
+            # Read the SQL query from the file
+            with open(sql_file_path, 'r', encoding='utf-8') as f:
+                sql_query = f.read()
+            
+            return sql_query.strip()
+        else:
+            logger.warning(f"No queries directory specified for instance {instance_id}")
+
+        return None
+    
+    def get_external_knowledge_instance(self, external_knowledge_file: str) -> Optional[str]:
+        """
+        Get external knowledge for a specific instance.
+
+        Args:
+            external_knowledge_file: Name of the external knowledge file
+        
+        Returns:
+            External knowledge string or None if not found
+        """
+
+        if external_knowledge_file is not None and (external_knowledge_file != '' or external_knowledge_file != []):
+            # Load the external knowledge from the directory
+            external_knowledge_path = os.path.join(self.external_know_dir, external_knowledge_file)
+            if not os.path.exists(external_knowledge_path):
+                raise FileNotFoundError(f"External knowledge file not found: {external_knowledge_path}")
+            # IT is a .md file 
+            with open(external_knowledge_path, 'r', encoding='utf-8') as f:
+                external_knowledge_data = f.read()
+            
+            return external_knowledge_data.strip()
+        else:
+            return None
+
+
 class DataLoader:
     """
     Data loader for Text2SQL tasks.
@@ -859,17 +1232,34 @@ class DataLoader:
         """
         if dataset_name.lower() == 'spider':
             return SpiderDataset(**kwargs)
+        elif dataset_name.lower() == 'spider2':
+            return Spider2Dataset(**kwargs,is_lite=True)
         elif dataset_name.lower() == 'bird':
             return BirdDataset(**kwargs)
         else:
             raise ValueError(f"Unknown dataset: {dataset_name}")
 
 
+def test_spider2_dataset():
+    """
+    Test function for Spider2 dataset.
+    """
+
+    dataset = DataLoader.get_dataset('spider2',
+                            base_dir='Data/Spider2',
+                            split='train',
+                            is_snow=False, is_lite=True)
+    
+    # Load the dataset
+    data = dataset.load_data()
+    print(f"Loaded {len(data)} examples from Spider2 dataset")
+
+
 # Usage example
 if __name__ == "__main__":
     # Create argument parser
     parser = argparse.ArgumentParser(description='Load and process Text2SQL datasets')
-    parser.add_argument('--dataset', type=str, choices=['bird', 'spider'], required=True,
+    parser.add_argument('--dataset', type=str, choices=['bird', 'spider','spider2'], required=True,
                         help='Dataset type to load (bird or spider)')
     parser.add_argument('--base-dir', type=str, required=True,
                         help='Base directory containing the dataset')
@@ -877,8 +1267,23 @@ if __name__ == "__main__":
                         help='Dataset split to load (train/dev/test)')
     parser.add_argument('--output', type=str, default='outputs/schema.json',
                         help='Output file path for schema information')
+    parser.add_argument('--log-level', type=str, default='INFO', 
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                        help='Set the logging level')
     
     args = parser.parse_args()
+    
+    # Set the logging level based on command-line argument
+    logging_level = getattr(logging, args.log_level.upper())
+    logging.basicConfig(
+        level=logging_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[logging.StreamHandler()]
+    )
+    logger = logging.getLogger('text2sql_dataloader')
+    logger.setLevel(logging_level)
+    
+    logger.info(f"Logging level set to {args.log_level}")
     
     # Create output directory if it doesn't exist
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
@@ -887,12 +1292,12 @@ if __name__ == "__main__":
     dataset = DataLoader.get_dataset(args.dataset, base_dir=args.base_dir, split=args.split)
     
     # Load data and schemas
-    dataset.load_data()
+    data = dataset.load_data()
     schema = dataset.load_schemas()
     
     # save the loaded schema to a json file
     with open(args.output, 'w') as f:
         json.dump(schema, f, indent=4)
     
-    print(f"Saved schema for {args.dataset} to {args.output}")
+    logger.info(f"Saved schema for {args.dataset} to {args.output}")
 

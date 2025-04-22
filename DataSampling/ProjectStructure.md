@@ -28,6 +28,7 @@ text2sql-multi-agent/
 │   │   ├── __init__.py
 │   │   ├── data_loader.py
 │   │   └── data_processor.py
+│   |   ├── data_adapters.py
 │   ├── features/
 │   │   ├── __init__.py
 │   │   └── feature_engineering.py
