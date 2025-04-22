@@ -211,6 +211,23 @@ class SpiderDataAdapter(DataAdapter):
             return str(instance.get('id', ''))
         else:
             return str(instance.get('question_index', ''))
+        
+    def get_difficulty(self, instance: Dict) -> str:
+        '''
+        This is Spider2 method of difficulty calculation !! 
+        '''
+        # if the the number of sql tokens are higher than 50, then it is moderate, and if the number of sql tokens are higher than 100, then it is hard
+        sql = instance.get('sql', '')
+        # Parse the SQL and get all non-whitespace tokens
+        sql_tokens = []
+        for statement in sqlparse.parse(sql):
+            sql_tokens.extend([token for token in statement.flatten() if not token.is_whitespace])
+        if len(sql_tokens) > 160:
+            return 'challenging'
+        elif len(sql_tokens) > 80:
+            return 'moderate'
+        else:
+            return 'simple'
     
     def create_standardized_instance(self, instance: Dict) -> Dict:
         """Convert Spider instance to standardized format."""
@@ -220,7 +237,7 @@ class SpiderDataAdapter(DataAdapter):
             'sql': self.get_sql(instance),
             'evidence': self.get_evidence(instance),
             'question_id': self.get_question_id(instance),
-            'difficulty': 'unknown',  # Spider doesn't have difficulty
+            'difficulty': self.get_difficulty(instance),  # ! Spider 2 method of difficulty calculation
             'orig_instance': instance  # Keep original for reference
         }
 
