@@ -1042,7 +1042,7 @@ class Spider2Dataset(BaseDataset):
 
         # Get all schema files and group by database name (determined from directory path)
         schema_files_by_db = {}
-        database_cat_set = ['bigquery','snowflake','sqlite']
+        database_cat_set = ['snowflake','sqlite']
         my_separatetor = '_$_'
         for file in glob.glob(self.db_dir + '/**/*.json', recursive=True):
             # Get the category of the databases
