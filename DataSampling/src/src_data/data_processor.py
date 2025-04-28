@@ -559,16 +559,15 @@ class DataProcessor:
         }
         
         return analysis
-    
-    def batch_process(self, output_dir, limit=None, batch_size=50, thread_saving=True):
+      
+    def batch_process(self, output_dir, limit=None, batch_size=50):
         """
-        Process multiple dataset instances and save in batches, using a separate thread for saving.
+        Process dataset in two phases: first process all schemas, then process instances.
         
         Args:
             output_dir: Directory path to save the results
             limit: Maximum number of instances to process
-            batch_size: Number of instances to process before queuing for saving
-            thread_saving: Whether to use a separate thread for saving operations
+            batch_size: Number of instances to process before saving
             
         Returns:
             Summary statistics about processing
@@ -591,46 +590,48 @@ class DataProcessor:
         if limit is not None:
             instances = instances[:limit]
         
-        # Initialize thread-safe queue and tracking for saved schemas
-        if not hasattr(self, '_saved_schemas'):
-            self._saved_schemas = set()
+        # ----- PHASE 1: Process and save all schemas -----
+        print("PHASE 1: Processing and saving database schemas...")
         
-        # Setup for threaded saving if enabled
-        save_queue = queue.Queue()
-        saving_active = threading.Event()
-        saving_active.set()  # Start as active
+        # First, identify all unique database IDs
+        unique_db_ids = set()
+        for instance in instances:
+            # Use the adapter to get the database ID consistently
+            db_id = self.adapter.get_db_id(instance)
+            unique_db_ids.add(db_id)
         
-        if thread_saving:
-            # Define the saver thread function
-            def saver_thread():
-                while saving_active.is_set() or not save_queue.empty():
-                    try:
-                        # Get the next batch with a timeout
-                        task = save_queue.get(timeout=1.0)
-                        
-                        if task['type'] == 'batch':
-                            self._save_instance_batch(instances_dir, task['data'])
-                            save_queue.task_done()
-                        elif task['type'] == 'schemas':
-                            self._save_schemas(schemas_dir)
-                            save_queue.task_done()
-                        
-                    except queue.Empty:
-                        # No items available, just continue waiting
-                        continue
-                    except Exception as e:
-                        print(f"Error in saver thread: {e}")
-            
-            # Start the saver thread
-            saver = threading.Thread(target=saver_thread, daemon=True)
-            saver.start()
-            print("Started background saving thread")
+        print(f"Found {len(unique_db_ids)} unique databases")
+        
+        # Process and save each schema
+        for i, db_id in enumerate(tqdm(unique_db_ids, desc="Processing schemas", unit="schema")):
+            try:
+                # Load schema from dataset
+                schema = self.dataset.get_schema_by_db_name(db_id)
+                
+                # Analyze schema
+                schema_analysis = self.analyze_schema(schema, db_id)
+                
+                # Save schema to disk
+                self._save_schema(schemas_dir, db_id, schema_analysis)
+                
+                # Store in memory for instance processing
+                self.schema_analyses[db_id] = schema_analysis
+                
+                # Progress update every few schemas
+                if (i+1) % 10 == 0 or i+1 == len(unique_db_ids):
+                    print(f"Processed and saved {i+1}/{len(unique_db_ids)} schemas")
+                    
+            except Exception as e:
+                print(f"Error processing schema for {db_id}: {str(e)}")
+        
+        # ----- PHASE 2: Process and save all instances -----
+        print("\nPHASE 2: Processing and saving instances...")
         
         # Process instances in batches
         current_batch = []
         
-        try:
-            for idx, instance in enumerate(tqdm(instances, desc="Processing instances", unit="instance")):
+        for idx, instance in enumerate(tqdm(instances, desc="Processing instances", unit="instance")):
+            try:
                 result = self.process_dataset_instance(instance)
                 current_batch.append(result)
                 db_id = result.get('db_id', 'unknown')
@@ -641,31 +642,15 @@ class DataProcessor:
                 else:
                     db_instance_counts[db_id] = 1
                 
-                # Queue batch for saving if we've reached batch_size or it's the last instance
+                # Save batch if we've reached batch_size or it's the last instance
                 if len(current_batch) >= batch_size or idx == len(instances) - 1:
-                    if thread_saving:
-                        # Queue batch for saving in background thread
-                        save_queue.put({'type': 'batch', 'data': current_batch.copy()})
-                        save_queue.put({'type': 'schemas', 'data': None})
-                    else:
-                        # Save directly in the main thread
-                        self._save_instance_batch(instances_dir, current_batch)
-                        self._save_schemas(schemas_dir)
+                    self._save_instance_batch(instances_dir, current_batch)
                     
                     total_instances_processed += len(current_batch)
-                    print(f"Processed batch: {total_instances_processed}/{len(instances)} instances")
+                    print(f"Saved batch: {total_instances_processed}/{len(instances)} instances processed")
                     current_batch = []  # Reset batch
-        
-        finally:
-            if thread_saving:
-                # Wait for all saving tasks to complete
-                print("Waiting for final saves to complete...")
-                saving_active.clear()  # Signal thread to exit after queue is empty
-                save_queue.join()      # Wait for all tasks to be processed
-                saver.join(timeout=30) # Wait for thread to finish, with timeout
-                
-                if saver.is_alive():
-                    print("Warning: Saver thread didn't exit cleanly")
+            except Exception as e:
+                print(f"Error processing instance {idx}: {str(e)}")
         
         # Save metadata with database statistics
         metadata = {
@@ -682,8 +667,8 @@ class DataProcessor:
             json.dump(metadata, f, indent=2)
         
         print(f"Processing complete!")
-        print(f"- {total_instances_processed} instances saved to {instances_dir}")
         print(f"- {len(self.schema_analyses)} database schemas saved to {schemas_dir}")
+        print(f"- {total_instances_processed} instances saved to {instances_dir}")
         print(f"- Metadata saved to {metadata_path}")
         
         return {
@@ -711,35 +696,23 @@ class DataProcessor:
             with open(instance_path, 'w', encoding='utf-8') as f:
                 json.dump(instance, f, indent=2)
     
-    def _save_schemas(self, schemas_dir):
+    def _save_schema(self, schemas_dir, db_id, schema_analysis):
         """
-        Save current schema analyses to individual files.
-        Only saves schemas that haven't been saved yet.
+        Save a single schema analysis to a file.
         
         Args:
             schemas_dir: Directory to save schema files
+            db_id: Database ID
+            schema_analysis: Schema analysis to save
         """
-        # Track which schemas we've already saved
-        if not hasattr(self, '_saved_schemas'):
-            self._saved_schemas = set()
+        # Create a safe filename
+        safe_db_id = re.sub(r'[^\w\-_]', '_', str(db_id))
         
-        # Find schemas that haven't been saved yet
-        new_schemas = set(self.schema_analyses.keys()) - self._saved_schemas
-        
-        # Save each new schema
-        for db_id in new_schemas:
-            schema_analysis = self.schema_analyses[db_id]
-            
-            # Create a safe filename
-            safe_db_id = re.sub(r'[^\w\-_]', '_', str(db_id))
-            
-            # Save the schema
-            schema_path = os.path.join(schemas_dir, f"{safe_db_id}.json")
-            with open(schema_path, 'w', encoding='utf-8') as f:
-                json.dump(schema_analysis, f, indent=2)
-            
-            # Mark this schema as saved
-            self._saved_schemas.add(db_id)
+        # Save the schema
+        schema_path = os.path.join(schemas_dir, f"{safe_db_id}.json")
+        with open(schema_path, 'w', encoding='utf-8') as f:
+            json.dump(schema_analysis, f, indent=2)
+    
 
 
 # Example usage for testing
@@ -758,9 +731,6 @@ if __name__ == "__main__":
                         help='Output file path for processed data')
     parser.add_argument('--batch-size', type=int, default=50,
                         help='Number of instances to process in each batch')
-    # a flag thread saving to save the instances in a separate thread
-    parser.add_argument('--thread-saving', action='store_true',
-                        help='Use a separate thread for saving instances')
     parser.add_argument('--limit', type=int, default=None,
                         help='Maximum number of instances to process (optional)')
     
@@ -779,7 +749,6 @@ if __name__ == "__main__":
         output_dir=args.output,
         limit=args.limit,             # Optional: limit number of instances
         batch_size=args.batch_size,          # Instances per batch
-        thread_saving=args.thread_saving      # Enable/disable multithreaded saving
     )
     
     # # Save results
