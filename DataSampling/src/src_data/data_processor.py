@@ -536,6 +536,9 @@ class DataProcessor:
         
         # Load schema
         schema = self.dataset.get_schema_by_db_name(db_id)
+
+        if schema is None:
+            return None
         
         # Check if we already analyzed this schema
         if db_id not in self.schema_analyses:
@@ -607,7 +610,11 @@ class DataProcessor:
             try:
                 # Load schema from dataset
                 schema = self.dataset.get_schema_by_db_name(db_id)
-                
+
+                if schema is None:
+                    print(f"Schema for {db_id} not found, skipping...")
+                    continue
+
                 # Analyze schema
                 schema_analysis = self.analyze_schema(schema, db_id)
                 
@@ -633,6 +640,9 @@ class DataProcessor:
         for idx, instance in enumerate(tqdm(instances, desc="Processing instances", unit="instance")):
             try:
                 result = self.process_dataset_instance(instance)
+                if result is None:
+                    print(f"Instance {idx} returned None, skipping...")
+                    continue
                 current_batch.append(result)
                 db_id = result.get('db_id', 'unknown')
                 

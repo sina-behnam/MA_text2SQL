@@ -162,6 +162,8 @@ class BaseDataset:
         Returns:
             Schema information as a dictionary
         """
+        db_name = db_name.lower()
+
         if not self.db_schemas:
             self.load_schemas()
         
@@ -921,6 +923,9 @@ class Spider2Dataset(BaseDataset):
 
         self.data_to_load = self._init_file_paths_(base_dir,is_snow,is_lite)
 
+        # self.database_cat_set = ['bigquery','snowflake','sqlite']
+        self.database_cat_set = ['snowflake','sqlite']
+
     def _init_file_paths_(self, base_dir,is_snow,is_lite) -> str:
         """
         Initialize file paths for Spider2 dataset.
@@ -1041,15 +1046,12 @@ class Spider2Dataset(BaseDataset):
         db_schemas = {}
 
         # Get all schema files and group by database name (determined from directory path)
-        schema_files_by_db = {}
-        database_cat_set = ['snowflake','sqlite']
+        self.schema_files_by_db = {}
         my_separatetor = '_$_'
         for file in glob.glob(self.db_dir + '/**/*.json', recursive=True):
             # Get the category of the databases
             cat_path = file.split(self.db_dir + os.sep)[-1]
             cat_name_database = cat_path.split(os.sep)[0]
-            if cat_name_database not in database_cat_set:
-                continue
             # Get the len from the json file name up to the 
             if len(cat_path.split('/')) == 4:
                 # it means that that include schema file too
@@ -1065,13 +1067,19 @@ class Spider2Dataset(BaseDataset):
                 logger.warning('Error: the path is not correct')
 
             # appending the database name to the schema_files_by_db dictionary
-            if database_name not in schema_files_by_db:
-                schema_files_by_db[database_name] = []
+            if database_name not in self.schema_files_by_db:
+                self.schema_files_by_db[database_name] = []
             # appending the file to the schema_files_by_db dictionary
-            schema_files_by_db[database_name].append(file)
+            self.schema_files_by_db[database_name].append(file)
 
         # Process schema files for each database
-        for db_name, schema_files in schema_files_by_db.items():
+        for db_name, schema_files in self.schema_files_by_db.items():
+
+            cat_name = db_name.split(my_separatetor)[0]
+            # Check if the database category is in the allowed set
+            if cat_name not in self.database_cat_set:
+                continue
+
             # Initialize schema structure
             tables = []
             columns = []
@@ -1144,7 +1152,7 @@ class Spider2Dataset(BaseDataset):
                     continue
                 
             # Create the schema entry for this database
-            db_schemas[db_name_parts] = {
+            db_schemas[db_name_parts.lower()] = {
                 'db_id': db_name_parts,
                 'tables': tables,
                 'columns': columns,
@@ -1156,6 +1164,36 @@ class Spider2Dataset(BaseDataset):
         self.db_schemas = db_schemas
         logger.info(f"Loaded {len(self.db_schemas)} schemas from Spider2 dataset")
         return self.db_schemas
+
+    def get_schema_by_db_name(self, db_name: str) -> Optional[Dict]:
+        """
+        Get schema for a specific database in Spider2.
+        
+        Args:
+            db_name: Name of the database
+        
+        Returns:
+            Schema information as a dictionary
+        """
+        db_name = db_name.lower()
+
+        if not self.db_schemas:
+            self.load_schemas()
+        # Check if the database name is in the loaded schemas or either in the schema_files_by_db 
+        # IF The db_name even wouldn't be in the schema_files_by_db, then it means reading the schema has some issues
+        if db_name not in self.db_schemas:
+            is_missing = True    
+            for db_in_files in self.schema_files_by_db.keys():
+                if db_name in db_in_files.lower():
+                    is_missing = False
+                    break;
+            
+            if is_missing:
+                raise ValueError(f"Database '{db_name}' not found in schema files, it means reading the schema has some issues")
+            
+            return None
+        else:
+            return self.db_schemas[db_name]
 
     def sync_question_key_name(self,instance : Dict) -> Dict:
 
