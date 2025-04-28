@@ -933,6 +933,7 @@ class Spider2Dataset(BaseDataset):
             Path to the data file
         """
         if is_snow:
+            print("Loading Spider2-Snow dataset")
             # data
             # base_dir/spider2-snow/spider2-snow.jsonl
             self.data_directory = os.path.join(self.base_dir, 'spider2-snow')
@@ -946,6 +947,7 @@ class Spider2Dataset(BaseDataset):
             return os.path.join(self.data_directory, 'spider2-snow.jsonl')
         
         elif not is_snow and is_lite:
+            print("Loading Spider2-Lite dataset")
             # data
             # base_dir/spider2-lite/spider2-lite.jsonl
             self.data_directory = os.path.join(self.base_dir, 'spider2-lite')
@@ -1040,21 +1042,33 @@ class Spider2Dataset(BaseDataset):
 
         # Get all schema files and group by database name (determined from directory path)
         schema_files_by_db = {}
-        for root, _, files in os.walk(self.db_dir):
-            for file in files:
-                if file.endswith('.json'):
-                    file_path = os.path.join(root, file)
-                    # Extract path components
-                    path_parts = os.path.normpath(file_path).split(os.sep)
-                    # Ensure we have enough parts to extract second-to-last directory
-                    if len(path_parts) >= 3:
-                        # Use second-to-last directory as database name
-                        db_name = path_parts[-3]
-                        if db_name not in schema_files_by_db:
-                            schema_files_by_db[db_name] = []
-                        schema_files_by_db[db_name].append(file_path)
-                    else:
-                        logger.warning(f"Path too short to extract database name: {file_path}")
+        database_cat_set = ['bigquery','snowflake','sqlite']
+        my_separatetor = '_$_'
+        for file in glob.glob(self.db_dir + '/**/*.json', recursive=True):
+            # Get the category of the databases
+            cat_path = file.split(self.db_dir + os.sep)[-1]
+            cat_name_database = cat_path.split(os.sep)[0]
+            if cat_name_database not in database_cat_set:
+                continue
+            # Get the len from the json file name up to the 
+            if len(cat_path.split('/')) == 4:
+                # it means that that include schema file too
+                database_name = cat_path.split(os.sep)[1]
+                schema_file = cat_path.split(os.sep)[2]
+                database_name = cat_name_database + my_separatetor + database_name + my_separatetor + schema_file
+            elif len(cat_path.split('/')) == 3:
+                # it means that that there is no schema file
+                database_name = cat_path.split(os.sep)[1]
+                database_name = cat_name_database + my_separatetor + database_name 
+            else:
+                logger.warning(len(cat_path.split(os.sep)))
+                logger.warning('Error: the path is not correct')
+
+            # appending the database name to the schema_files_by_db dictionary
+            if database_name not in schema_files_by_db:
+                schema_files_by_db[database_name] = []
+            # appending the file to the schema_files_by_db dictionary
+            schema_files_by_db[database_name].append(file)
 
         # Process schema files for each database
         for db_name, schema_files in schema_files_by_db.items():
@@ -1063,12 +1077,16 @@ class Spider2Dataset(BaseDataset):
             columns = []
             table_to_columns = {}
 
-            logger.info(f"Processing database {db_name} with {len(schema_files)} schema files")
+            # Extract the DB_NAME from db_name 
+            # ! ATTENTION: we are only using the `database_name` part of the db_name
+            db_name_parts = db_name.split('_$_')[1]
 
-            for schema_file in schema_files:
-                schema_path = os.path.join(self.db_dir, db_name, schema_file)
+            logger.info(f"Processing database {db_name_parts} with {len(schema_files)} schema files")
+
+            for schema_path in schema_files:
+                
                 if not os.path.exists(schema_path):
-                    logger.info(f"Schema file not found: {schema_path}")
+                    logger.warning(f"Schema file not found: {schema_path}")
                     continue
                 try:
                     with open(schema_path, 'r', encoding='utf-8') as f:
@@ -1122,12 +1140,12 @@ class Spider2Dataset(BaseDataset):
                         table_to_columns[table_idx].append(col_id)
 
                 except Exception as e:
-                    logger.error(f"Error processing schema file {schema_file} for database {db_name}: {e}")
+                    logger.error(f"Error processing schema file {schema_file} for database {db_name_parts}: {e}")
                     continue
                 
             # Create the schema entry for this database
-            db_schemas[db_name] = {
-                'db_id': db_name,
+            db_schemas[db_name_parts] = {
+                'db_id': db_name_parts,
                 'tables': tables,
                 'columns': columns,
                 'table_to_columns': table_to_columns,
