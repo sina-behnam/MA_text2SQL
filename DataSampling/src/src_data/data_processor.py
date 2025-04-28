@@ -603,7 +603,7 @@ class DataProcessor:
             db_id = self.adapter.get_db_id(instance)
             unique_db_ids.add(db_id)
         
-        print(f"Found {len(unique_db_ids)} unique databases")
+        print(f"Found {len(unique_db_ids)} unique databases, among instances.")
         
         # Process and save each schema
         for i, db_id in enumerate(tqdm(unique_db_ids, desc="Processing schemas", unit="schema")):
@@ -643,6 +643,7 @@ class DataProcessor:
                 if result is None:
                     print(f"Instance {idx} returned None, skipping...")
                     continue
+
                 current_batch.append(result)
                 db_id = result.get('db_id', 'unknown')
                 

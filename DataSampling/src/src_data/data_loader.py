@@ -1065,6 +1065,7 @@ class Spider2Dataset(BaseDataset):
             else:
                 logger.warning(len(cat_path.split(os.sep)))
                 logger.warning('Error: the path is not correct')
+                raise ValueError(f"Error: the path is not correct {cat_path}")
 
             # appending the database name to the schema_files_by_db dictionary
             if database_name not in self.schema_files_by_db:
@@ -1075,7 +1076,7 @@ class Spider2Dataset(BaseDataset):
         # Process schema files for each database
         for db_name, schema_files in self.schema_files_by_db.items():
 
-            cat_name = db_name.split(my_separatetor)[0]
+            cat_name = str(db_name.split(my_separatetor)[0])
             # Check if the database category is in the allowed set
             if cat_name not in self.database_cat_set:
                 continue
@@ -1087,9 +1088,9 @@ class Spider2Dataset(BaseDataset):
 
             # Extract the DB_NAME from db_name 
             # ! ATTENTION: we are only using the `database_name` part of the db_name
-            db_name_parts = db_name.split('_$_')[1]
+            db_name_parts = db_name.split(my_separatetor)[1]
 
-            logger.info(f"Processing database {db_name_parts} with {len(schema_files)} schema files")
+            logger.info(f"Processing database {db_name_parts} with {len(schema_files)} schema files from {cat_name.upper()} category")
 
             for schema_path in schema_files:
                 
@@ -1152,8 +1153,9 @@ class Spider2Dataset(BaseDataset):
                     continue
                 
             # Create the schema entry for this database
-            db_schemas[db_name_parts.lower()] = {
+            db_schemas[db_name_parts] = {
                 'db_id': db_name_parts,
+                'db_cat': cat_name,
                 'tables': tables,
                 'columns': columns,
                 'table_to_columns': table_to_columns,
@@ -1175,8 +1177,6 @@ class Spider2Dataset(BaseDataset):
         Returns:
             Schema information as a dictionary
         """
-        db_name = db_name.lower()
-
         if not self.db_schemas:
             self.load_schemas()
         # Check if the database name is in the loaded schemas or either in the schema_files_by_db 
@@ -1184,14 +1184,12 @@ class Spider2Dataset(BaseDataset):
         if db_name not in self.db_schemas:
             is_missing = True    
             for db_in_files in self.schema_files_by_db.keys():
-                if db_name in db_in_files.lower():
+                if db_name.lower() in db_in_files.lower():
                     is_missing = False
-                    break;
+                    return None;
             
             if is_missing:
                 raise ValueError(f"Database '{db_name}' not found in schema files, it means reading the schema has some issues")
-            
-            return None
         else:
             return self.db_schemas[db_name]
 
