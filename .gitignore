@@ -74,3 +74,6 @@ __MACOSX
 *.lnk
 # Add all Linux
 *.so
+
+DataSampling/src/src_data/bird_subset
+DataSampling/src/src_data/spider_subset
