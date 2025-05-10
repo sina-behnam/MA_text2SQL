@@ -10,6 +10,8 @@ import openai
 import json
 import torch
 from datetime import datetime
+import logging
+from tqdm import tqdm
 
 # Set your API key
 API_KEY = 'your_api_key_here'
@@ -44,6 +46,11 @@ class Text2SQLPipeline:
         """
         self.bird_path = bird_path
         self.spider_path = spider_path
+
+        # setup logging and create the logger
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+        self.logger.info("Initializing Text2SQLPipeline...")
         
         # Default model config
         default_model_config = {
@@ -171,18 +178,18 @@ class Text2SQLPipeline:
             train_indices, test_indices = train_test_split(
                 range(len(data_only)), test_size=0.2, random_state=42
             )
-            
+
             train_data = [all_data[i] for i in train_indices]
             test_data = [all_data[i] for i in test_indices]
 
         train_data = all_data
         test_data = []
         
-        print(f"Total data points: {len(all_data)}")
-        print(f"Bird data points: {len(bird_data)}")
-        print(f"Spider data points: {len(spider_data)}")
-        print(f"Training data points: {len(train_data)}")
-        print(f"Testing data points: {len(test_data)}")
+        self.logger.info(f"Total data points: {len(all_data)}")
+        self.logger.info(f"Bird data points: {len(bird_data)}")
+        self.logger.info(f"Spider data points: {len(spider_data)}")
+        self.logger.info(f"Training data points: {len(train_data)}")
+        self.logger.info(f"Testing data points: {len(test_data)}")
         
         return train_data, test_data
     
@@ -357,12 +364,12 @@ class Text2SQLPipeline:
                 return raw_response, generated_sql
             else:
                 # If extraction fails, return the raw response
-                print("Failed to extract SQL from response. Returning raw response.")
+                self.logger.warning("Failed to extract SQL from response. Returning raw response.")
                 return raw_response, ""
         except Exception as e:
             # Handle errors
             error_message = f"Model error: {str(e)}"
-            print(error_message)
+            self.logger.warning(error_message)
             return error_message, ""
     
     def get_sqlite_db_connection(self, database_path: str, root_dir: str) -> sqlite3.Connection:
@@ -568,17 +575,19 @@ class Text2SQLPipeline:
         Returns:
             Evaluation results with comprehensive information
         """
-        # Use a subset for evaluation
+        
         if num_samples:
             train_data = self.train_data[:num_samples]
+        else:
+            train_data = self.train_data
             
         eval_data = train_data
         
         results = []
         
         # Process each instance
-        for instance_data, file_path in eval_data:
-            print(f"Processing instance {instance_data['id']}...")
+        for instance_data, file_path in tqdm(eval_data, desc="Processing instances", unit="instance"):
+            self.logger.info(f"Processing instance {instance_data['id']}...")
             
             # Determine dataset type
             dataset_type = instance_data['dataset']
@@ -607,9 +616,9 @@ class Text2SQLPipeline:
                     }
                 }
                 
-                print(f"Execution correct: {evaluation['predicted_output']['execution_correct']}")
-                print(f"Exact match: {evaluation['predicted_output']['exact_match']}")
-                print(f"Semantic equivalent: {evaluation['predicted_output'].get('semantic_equivalent', False)}")
+                self.logger.info(f"Execution correct: {evaluation['predicted_output']['execution_correct']}")
+                self.logger.info(f"Exact match: {evaluation['predicted_output']['exact_match']}")
+                self.logger.info(f"Semantic equivalent: {evaluation['predicted_output'].get('semantic_equivalent', False)}")
             else:
                 # Failed to extract SQL
                 failed_result = {
@@ -633,13 +642,13 @@ class Text2SQLPipeline:
                     }
                 }
                 
-                print("Failed to extract SQL from model response")
+                self.logger.info("Failed to extract SQL from model response")
                 
             # Save the updated instance data to file
             if save_updated_files:
                 self._save_updated_instance(instance_data, file_path, output_dir)
                 
-            print("-" * 50)
+            self.logger.info("-" * 50)
         
         # Calculate overall metrics
         num_eval = len(results)
@@ -663,10 +672,10 @@ class Text2SQLPipeline:
             'model': self.model_info
         }
         
-        print(f"Prediction rate: {metrics['prediction_rate']:.2f}")
-        print(f"Execution accuracy: {metrics['execution_accuracy']:.2f}")
-        print(f"Exact match accuracy: {metrics['exact_match_accuracy']:.2f}")
-        print(f"Semantic equivalence accuracy: {metrics['semantic_equivalent_accuracy']:.2f}")
+        self.logger.info(f"Prediction rate: {metrics['prediction_rate']:.2f}")
+        self.logger.info(f"Execution accuracy: {metrics['execution_accuracy']:.2f}")
+        self.logger.info(f"Exact match accuracy: {metrics['exact_match_accuracy']:.2f}")
+        self.logger.info(f"Semantic equivalence accuracy: {metrics['semantic_equivalent_accuracy']:.2f}")
         
         return metrics
         
