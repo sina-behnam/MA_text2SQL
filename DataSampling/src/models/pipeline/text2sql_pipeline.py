@@ -150,7 +150,7 @@ class Text2SQLPipeline:
             # If the model call fails, default to relying on execution results
             return False, f"Error in semantic check: {str(e)}"
     
-    def load_data(self) -> Tuple[List[Tuple[Dict, str]], List[Tuple[Dict, str]]]:
+    def load_data(self, do_split : bool = False) -> Tuple[List[Tuple[Dict, str]], List[Tuple[Dict, str]]]:
         """
         Load data from BIRD and SPIDER datasets and split into train/test sets.
         Returns data with file paths.
@@ -165,14 +165,18 @@ class Text2SQLPipeline:
         # Combine datasets
         all_data = bird_data + spider_data
         
-        # Split into train/test sets (only use the data part for splitting, but keep the paths)
-        data_only = [item[0] for item in all_data]
-        train_indices, test_indices = train_test_split(
-            range(len(data_only)), test_size=0.2, random_state=42
-        )
-        
-        train_data = [all_data[i] for i in train_indices]
-        test_data = [all_data[i] for i in test_indices]
+        if do_split:
+            # Split into train/test sets (only use the data part for splitting, but keep the paths)
+            data_only = [item[0] for item in all_data]
+            train_indices, test_indices = train_test_split(
+                range(len(data_only)), test_size=0.2, random_state=42
+            )
+            
+            train_data = [all_data[i] for i in train_indices]
+            test_data = [all_data[i] for i in test_indices]
+
+        train_data = all_data
+        test_data = []
         
         print(f"Total data points: {len(all_data)}")
         print(f"Bird data points: {len(bird_data)}")
@@ -551,13 +555,13 @@ class Text2SQLPipeline:
             }
         }
     
-    def run_pipeline(self, num_samples: int = 10, save_updated_files: bool = True, 
+    def run_pipeline(self, num_samples = None, save_updated_files: bool = True, 
                     output_dir: str = None) -> Dict:
         """
         Run the complete pipeline: load data, generate SQL, evaluate, and update JSON files.
         
         Args:
-            num_samples: Number of samples to evaluate
+            num_samples: Number of samples to evaluate (default is all)
             save_updated_files: Whether to save updated JSON files
             output_dir: Directory to save updated files (if None, will update files in place)
             

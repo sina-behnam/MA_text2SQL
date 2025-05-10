@@ -114,7 +114,7 @@ class OpenAIProvider(ModelProvider):
 class LocalHuggingFaceProvider(ModelProvider):
     """Provider for local HuggingFace models"""
     
-    def __init__(self, model_path: str, device: str = "auto", max_new_tokens: int = 512):
+    def __init__(self, model_path: str, device: str = "auto", max_new_tokens: int = 512, trust_remote_code: bool = True):
         """
         Initialize the local HuggingFace provider.
         
@@ -141,11 +141,12 @@ class LocalHuggingFaceProvider(ModelProvider):
         print(f"Loading model {model_path} on {self.device}...")
         
         # Load model and tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=trust_remote_code)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_path, 
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-            device_map=self.device
+            device_map=self.device,
+            trust_remote_code=trust_remote_code
         )
     
     def generate(self, system_message: str, user_message: str) -> str:
