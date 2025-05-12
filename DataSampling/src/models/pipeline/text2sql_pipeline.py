@@ -13,15 +13,7 @@ from datetime import datetime
 import logging
 from tqdm import tqdm
 
-# Set your API key
-API_KEY = 'your_api_key_here'
-os.environ["TOGETHER_API_KEY"] = API_KEY
-
-# Dataset paths - configure these for your environment
-BIRD_DATASET_PATH = 'path/to/bird_subset/stratified_output'
-SPIDER_DATASET_PATH = 'path/to/spider_subset/spider_stratified_output_200'
-
-from models import ModelProvider,TogetherAIProvider, OpenAIProvider, LocalHuggingFaceProvider
+from models import ModelProvider,TogetherAIProvider, OpenAIProvider, LocalHuggingFaceProvider, AnthropicProvider
 
 
 class Text2SQLPipeline:
@@ -51,24 +43,28 @@ class Text2SQLPipeline:
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         self.logger.info("Initializing Text2SQLPipeline...")
-        
-        # Default model config
-        default_model_config = {
-            "type": "together_ai",
-            "name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
-            "api_key": API_KEY,
-            "device": "auto",
-            "max_new_tokens": 512
-        }
-        
         # Use provided config or default
-        self.model_config = model_config or default_model_config
-
+        self.model_config = model_config 
         # Load data
         self.train_data, self.test_data = self.load_data()
         
         # Initialize the model provider based on config
         self._init_model_provider()
+
+    @staticmethod
+    def _get_together_api_key(api_key_file_path: str) -> str:
+        """
+        Reads the API key from a .key file.
+
+        Args:
+            api_key_file_path (str): Path to the .key file containing the API key.
+
+        Returns:
+            str: The API key as a string.
+        """
+        with open(api_key_file_path, "r") as file:
+            api_key = file.read().strip()
+        return api_key
     
     def _init_model_provider(self):
         """Initialize the model provider based on the configuration"""
@@ -84,6 +80,10 @@ class Text2SQLPipeline:
             device = self.model_config.get("device", "auto")
             max_new_tokens = self.model_config.get("max_new_tokens", 512)
             self.model_provider = LocalHuggingFaceProvider(model_name, device, max_new_tokens)
+        elif model_type == "anthropic":
+            max_tokens = self.model_config.get("max_tokens", 1024)
+            extended_thinking = self.model_config.get("extended_thinking", False)
+            self.model_provider = AnthropicProvider(model_name, api_key, max_tokens, extended_thinking)
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
         
@@ -258,6 +258,10 @@ class Text2SQLPipeline:
         # Extract question and schema
         question = inference_data['question']
         schema = inference_data['schema']
+        # Extract evidence if available
+        evidence = inference_data.get('evidence', None)
+        if evidence:
+            question = f"{question} (PS : {evidence})"
         
         # Format the system message
         system_message = (
@@ -282,6 +286,9 @@ class Text2SQLPipeline:
         Returns:
             Extracted SQL query as a string, or empty string if extraction fails
         """
+        # Removing the <think> and </think> tags if present
+        text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+        text = re.sub(r'<think>', '', text)
         # Try to find SQL in JSON format first
         json_match = re.search(r'(\{.*"sql".*\})', text, re.DOTALL)
         
@@ -416,6 +423,10 @@ class Text2SQLPipeline:
                 # Execute predicted SQL
                 cursor.execute(predicted_sql)
                 predicted_result = cursor.fetchall()
+
+                # Simple check 
+                if set(predicted_result) == set(ground_truth_result):
+                    return True, ""
                 
                 # Convert to pandas DataFrame
                 predicted_df = pd.DataFrame(predicted_result)
@@ -612,7 +623,8 @@ class Text2SQLPipeline:
                         'execution_error': evaluation['predicted_output']['execution_error'],
                         'exact_match': evaluation['predicted_output']['exact_match'],
                         'semantic_equivalent': evaluation['predicted_output'].get('semantic_equivalent', None),
-                        'semantic_explanation': evaluation['predicted_output'].get('semantic_explanation', '')
+                        'semantic_explanation': evaluation['predicted_output'].get('semantic_explanation', ''),
+                        'raw_response': raw_response
                     }
                 }
                 
