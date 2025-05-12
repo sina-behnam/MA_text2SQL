@@ -1,0 +1,66 @@
+{
+    "id": 676,
+    "dataset": "bird",
+    "database": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/databases/codebase_community/codebase_community.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/codebase_community/postLinks.csv",
+            "stratified_output/databases/codebase_community/postHistory.csv",
+            "stratified_output/databases/codebase_community/badges.csv",
+            "stratified_output/databases/codebase_community/posts.csv",
+            "stratified_output/databases/codebase_community/users.csv",
+            "stratified_output/databases/codebase_community/tags.csv",
+            "stratified_output/databases/codebase_community/votes.csv",
+            "stratified_output/databases/codebase_community/comments.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/schemas/codebase_community/codebase_community.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Please list all display names of users who are adults.",
+    "sql": "SELECT DisplayName FROM users WHERE Age BETWEEN 19 AND 65",
+    "evidence": "adults refer to users where Age BETWEEN 19 and 65;",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 54,
+        "word_length": 10,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 57,
+        "tables_count": 1,
+        "tables": [
+            "users"
+        ],
+        "join_count": 0,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

@@ -1,0 +1,64 @@
+{
+    "id": 238,
+    "dataset": "bird",
+    "database": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/databases/toxicology/toxicology.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/toxicology/bond.csv",
+            "stratified_output/databases/toxicology/molecule.csv",
+            "stratified_output/databases/toxicology/atom.csv",
+            "stratified_output/databases/toxicology/connected.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/schemas/toxicology/toxicology.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many molecules have a triple bond type?",
+    "sql": "SELECT COUNT(DISTINCT T.molecule_id) FROM bond AS T WHERE T.bond_type = '#'",
+    "evidence": "triple bond refers to bond_type = '#';",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 43,
+        "word_length": 8,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 75,
+        "tables_count": 1,
+        "tables": [
+            "bond"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

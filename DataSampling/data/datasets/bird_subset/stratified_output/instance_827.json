@@ -1,0 +1,81 @@
+{
+    "id": 827,
+    "dataset": "bird",
+    "database": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/databases/superhero/superhero.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/superhero/gender.csv",
+            "stratified_output/databases/superhero/superpower.csv",
+            "stratified_output/databases/superhero/publisher.csv",
+            "stratified_output/databases/superhero/superhero.csv",
+            "stratified_output/databases/superhero/colour.csv",
+            "stratified_output/databases/superhero/attribute.csv",
+            "stratified_output/databases/superhero/hero_power.csv",
+            "stratified_output/databases/superhero/race.csv",
+            "stratified_output/databases/superhero/alignment.csv",
+            "stratified_output/databases/superhero/hero_attribute.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/schemas/superhero/superhero.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the average height of a non-human superhero in Dark Horse Comics?",
+    "sql": "SELECT AVG(T1.height_cm) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN race AS T3 ON T1.race_id = T3.id WHERE T2.publisher_name = 'Dark Horse Comics' AND T3.race != 'Human'",
+    "evidence": "average = AVG(height_cm); non-human superhero refers to race <> 'Human'; Dark Horse Comics refers to publisher_name = 'Dark Horse Comics';",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 73,
+        "word_length": 14,
+        "entities": [
+            {
+                "text": "Dark Horse Comics",
+                "label": "ORG",
+                "start": 55,
+                "end": 72
+            }
+        ],
+        "entity_types": [
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 212,
+        "tables_count": 3,
+        "tables": [
+            "superhero",
+            "publisher",
+            "race"
+        ],
+        "join_count": 2,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "AVG"
+        ],
+        "select_columns": 1
+    }
+}

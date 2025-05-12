@@ -1,0 +1,86 @@
+{
+    "id": 640,
+    "dataset": "bird",
+    "database": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/databases/codebase_community/codebase_community.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/codebase_community/postLinks.csv",
+            "stratified_output/databases/codebase_community/postHistory.csv",
+            "stratified_output/databases/codebase_community/badges.csv",
+            "stratified_output/databases/codebase_community/posts.csv",
+            "stratified_output/databases/codebase_community/users.csv",
+            "stratified_output/databases/codebase_community/tags.csv",
+            "stratified_output/databases/codebase_community/votes.csv",
+            "stratified_output/databases/codebase_community/comments.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/schemas/codebase_community/codebase_community.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Calculate the difference in view count from post posted by Mornington and view count from posts posted by Amos.",
+    "sql": "SELECT SUM(IIF(T1.DisplayName = 'Mornington', T3.ViewCount, 0)) - SUM(IIF(T1.DisplayName = 'Amos', T3.ViewCount, 0)) AS diff FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T3.Id = T2.PostId",
+    "evidence": "calculation = SUBTRACT(SUM(ViewCount where DisplayName = 'Mornington'), SUM(ViewCount where DisplayName = 'Amos'));",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 111,
+        "word_length": 19,
+        "entities": [
+            {
+                "text": "Mornington",
+                "label": "ORG",
+                "start": 59,
+                "end": 69
+            },
+            {
+                "text": "Amos",
+                "label": "PERSON",
+                "start": 106,
+                "end": 110
+            }
+        ],
+        "entity_types": [
+            "ORG",
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 235,
+        "tables_count": 3,
+        "tables": [
+            "posts",
+            "users",
+            "postHistory"
+        ],
+        "join_count": 2,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "SUM"
+        ],
+        "select_columns": 1
+    }
+}

@@ -1,0 +1,74 @@
+{
+    "id": 389,
+    "dataset": "bird",
+    "database": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/databases/card_games/card_games.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/card_games/legalities.csv",
+            "stratified_output/databases/card_games/cards.csv",
+            "stratified_output/databases/card_games/rulings.csv",
+            "stratified_output/databases/card_games/set_translations.csv",
+            "stratified_output/databases/card_games/sets.csv",
+            "stratified_output/databases/card_games/foreign_data.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/schemas/card_games/card_games.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "List down the name of cards with original types of Creature - Elf and the date of rulings for these cards.",
+    "sql": "SELECT T1.id, T2.date FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.originalType = 'Creature - Elf'",
+    "evidence": "Creature - Elf is the originalType;",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 106,
+        "word_length": 20,
+        "entities": [
+            {
+                "text": "Creature - Elf",
+                "label": "ORG",
+                "start": 51,
+                "end": 65
+            }
+        ],
+        "entity_types": [
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 2,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 125,
+        "tables_count": 2,
+        "tables": [
+            "rulings",
+            "cards"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

@@ -1,0 +1,71 @@
+{
+    "id": 1527,
+    "dataset": "bird",
+    "database": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/debit_card_specializing/customers.csv",
+            "stratified_output/databases/debit_card_specializing/gasstations.csv",
+            "stratified_output/databases/debit_card_specializing/products.csv",
+            "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+            "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which gas station has the highest amount of revenue?",
+    "sql": "SELECT GasStationID FROM transactions_1k GROUP BY GasStationID ORDER BY SUM(Price) DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 52,
+        "word_length": 9,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "highest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 95,
+        "tables_count": 1,
+        "tables": [
+            "transactions_1k"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "SUM"
+        ],
+        "select_columns": 1
+    }
+}

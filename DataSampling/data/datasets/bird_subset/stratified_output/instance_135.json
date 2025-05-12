@@ -1,0 +1,78 @@
+{
+    "id": 135,
+    "dataset": "bird",
+    "database": {
+        "name": "financial",
+        "path": [
+            "stratified_output/databases/financial/financial.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/financial/loan.csv",
+            "stratified_output/databases/financial/client.csv",
+            "stratified_output/databases/financial/district.csv",
+            "stratified_output/databases/financial/trans.csv",
+            "stratified_output/databases/financial/account.csv",
+            "stratified_output/databases/financial/card.csv",
+            "stratified_output/databases/financial/order.csv",
+            "stratified_output/databases/financial/disp.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "financial",
+        "path": [
+            "stratified_output/schemas/financial/financial.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "After making a credit card withdrawal, how many account/s with monthly issuance has a negative balance?",
+    "sql": "SELECT COUNT(T1.account_id) FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE T1.balance < 0 AND T1.operation = 'VYBER KARTOU' AND T2.frequency = 'POPLATEK MESICNE'",
+    "evidence": "Negative balance means balance < 0; Operation = 'VYBER KARTOU' stands for credit card withdraw. Frequency = 'POPLATEK MESICNE' stands for monthly issurance",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 103,
+        "word_length": 17,
+        "entities": [
+            {
+                "text": "monthly",
+                "label": "DATE",
+                "start": 63,
+                "end": 70
+            }
+        ],
+        "entity_types": [
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 2,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 195,
+        "tables_count": 2,
+        "tables": [
+            "trans",
+            "account"
+        ],
+        "join_count": 1,
+        "where_conditions": 3,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

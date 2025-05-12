@@ -1,0 +1,74 @@
+{
+    "id": 250,
+    "dataset": "bird",
+    "database": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/databases/toxicology/toxicology.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/toxicology/bond.csv",
+            "stratified_output/databases/toxicology/molecule.csv",
+            "stratified_output/databases/toxicology/atom.csv",
+            "stratified_output/databases/toxicology/connected.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/schemas/toxicology/toxicology.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Of all the carcinogenic molecules, which one has the most double bonds?",
+    "sql": "SELECT T.molecule_id FROM ( SELECT T3.molecule_id, COUNT(T1.bond_type) FROM bond AS T1 INNER JOIN molecule AS T3 ON T1.molecule_id = T3.molecule_id WHERE T3.label = '+' AND T1.bond_type = '=' GROUP BY T3.molecule_id ORDER BY COUNT(T1.bond_type) DESC LIMIT 1 ) AS T",
+    "evidence": "label = '+' mean molecules are carcinogenic; double bond refers to bond_type = ' = ';",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 71,
+        "word_length": 12,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [
+            "one"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 264,
+        "tables_count": 3,
+        "tables": [
+            "(",
+            "bond",
+            "molecule"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 1,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

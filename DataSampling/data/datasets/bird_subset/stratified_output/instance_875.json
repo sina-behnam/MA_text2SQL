@@ -1,0 +1,83 @@
+{
+    "id": 875,
+    "dataset": "bird",
+    "database": {
+        "name": "formula_1",
+        "path": [
+            "stratified_output/databases/formula_1/formula_1.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/formula_1/circuits.csv",
+            "stratified_output/databases/formula_1/status.csv",
+            "stratified_output/databases/formula_1/drivers.csv",
+            "stratified_output/databases/formula_1/driverStandings.csv",
+            "stratified_output/databases/formula_1/races.csv",
+            "stratified_output/databases/formula_1/constructors.csv",
+            "stratified_output/databases/formula_1/constructorResults.csv",
+            "stratified_output/databases/formula_1/lapTimes.csv",
+            "stratified_output/databases/formula_1/qualifying.csv",
+            "stratified_output/databases/formula_1/pitStops.csv",
+            "stratified_output/databases/formula_1/seasons.csv",
+            "stratified_output/databases/formula_1/constructorStandings.csv",
+            "stratified_output/databases/formula_1/results.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "formula_1",
+        "path": [
+            "stratified_output/schemas/formula_1/formula_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Show me the season page of year when the race No. 901 took place.",
+    "sql": "SELECT T2.url FROM races AS T1 INNER JOIN seasons AS T2 ON T2.year = T1.year WHERE T1.raceId = 901",
+    "evidence": "the season page refers to url; race number refers to raceId;",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 65,
+        "word_length": 14,
+        "entities": [
+            {
+                "text": "901",
+                "label": "CARDINAL",
+                "start": 50,
+                "end": 53
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "901"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 98,
+        "tables_count": 2,
+        "tables": [
+            "races",
+            "seasons"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

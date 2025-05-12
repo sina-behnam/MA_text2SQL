@@ -1,0 +1,69 @@
+{
+    "id": 537,
+    "dataset": "bird",
+    "database": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/databases/codebase_community/codebase_community.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/codebase_community/postLinks.csv",
+            "stratified_output/databases/codebase_community/postHistory.csv",
+            "stratified_output/databases/codebase_community/badges.csv",
+            "stratified_output/databases/codebase_community/posts.csv",
+            "stratified_output/databases/codebase_community/users.csv",
+            "stratified_output/databases/codebase_community/tags.csv",
+            "stratified_output/databases/codebase_community/votes.csv",
+            "stratified_output/databases/codebase_community/comments.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/schemas/codebase_community/codebase_community.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many posts does the user csgillespie own?",
+    "sql": "SELECT COUNT(T1.id) FROM posts AS T1 INNER JOIN users AS T2 ON T1.OwnerUserId = T2.Id WHERE T2.DisplayName = 'csgillespie'",
+    "evidence": "\"csgillespie\" is the DisplayName of user",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 45,
+        "word_length": 8,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 122,
+        "tables_count": 2,
+        "tables": [
+            "posts",
+            "users"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

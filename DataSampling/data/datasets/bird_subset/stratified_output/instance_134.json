@@ -1,0 +1,86 @@
+{
+    "id": 134,
+    "dataset": "bird",
+    "database": {
+        "name": "financial",
+        "path": [
+            "stratified_output/databases/financial/financial.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/financial/loan.csv",
+            "stratified_output/databases/financial/client.csv",
+            "stratified_output/databases/financial/district.csv",
+            "stratified_output/databases/financial/trans.csv",
+            "stratified_output/databases/financial/account.csv",
+            "stratified_output/databases/financial/card.csv",
+            "stratified_output/databases/financial/order.csv",
+            "stratified_output/databases/financial/disp.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "financial",
+        "path": [
+            "stratified_output/schemas/financial/financial.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "In the branch where the largest number of crimes were committed in 1996, how many accounts were opened?",
+    "sql": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id GROUP BY T1.A16 ORDER BY T1.A16 DESC LIMIT 1",
+    "evidence": "A16 stands for no. of committed crimes 1996",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 103,
+        "word_length": 18,
+        "entities": [
+            {
+                "text": "1996",
+                "label": "DATE",
+                "start": 67,
+                "end": 71
+            }
+        ],
+        "entity_types": [
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "1996"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "largest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 152,
+        "tables_count": 2,
+        "tables": [
+            "district",
+            "account"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

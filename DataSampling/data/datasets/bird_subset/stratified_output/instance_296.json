@@ -1,0 +1,81 @@
+{
+    "id": 296,
+    "dataset": "bird",
+    "database": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/databases/toxicology/toxicology.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/toxicology/bond.csv",
+            "stratified_output/databases/toxicology/molecule.csv",
+            "stratified_output/databases/toxicology/atom.csv",
+            "stratified_output/databases/toxicology/connected.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/schemas/toxicology/toxicology.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Indicate the molecule id is belonging to the TR000_1_2 bond that has the first atom named TR000_1.",
+    "sql": "SELECT T2.molecule_id, T2.bond_id, T1.atom_id FROM connected AS T1 INNER JOIN bond AS T2 ON T1.bond_id = T2.bond_id WHERE T1.atom_id = 'TR000_1' AND T2.bond_id = 'TR000_1_2'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 98,
+        "word_length": 18,
+        "entities": [
+            {
+                "text": "first",
+                "label": "ORDINAL",
+                "start": 73,
+                "end": 78
+            },
+            {
+                "text": "TR000_1",
+                "label": "ORG",
+                "start": 90,
+                "end": 97
+            }
+        ],
+        "entity_types": [
+            "ORDINAL",
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "first"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 3,
+        "table_overlap_lemma_count": 3,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 173,
+        "tables_count": 2,
+        "tables": [
+            "bond",
+            "connected"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 3
+    }
+}

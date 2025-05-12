@@ -1,0 +1,86 @@
+{
+    "id": 1101,
+    "dataset": "bird",
+    "database": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/databases/european_football_2/european_football_2.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/european_football_2/Team_Attributes.csv",
+            "stratified_output/databases/european_football_2/Player.csv",
+            "stratified_output/databases/european_football_2/Match.csv",
+            "stratified_output/databases/european_football_2/League.csv",
+            "stratified_output/databases/european_football_2/Country.csv",
+            "stratified_output/databases/european_football_2/Player_Attributes.csv",
+            "stratified_output/databases/european_football_2/Team.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/schemas/european_football_2/european_football_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the average number of goals made by Parma as the away team while playing in Italy?",
+    "sql": "SELECT CAST(SUM(T1.away_team_goal) AS REAL) / COUNT(T1.id) FROM \"Match\" AS T1 INNER JOIN TEAM AS T2 ON T1.away_team_api_id = T2.team_api_id INNER JOIN Country AS T3 ON T1.country_id = T3.id WHERE T2.team_long_name = 'Parma' AND T3.name = 'Italy'",
+    "evidence": "Parma refers to team_long_name = 'Parma'; average number of goals refers to AVG(away_team_goal)",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 90,
+        "word_length": 18,
+        "entities": [
+            {
+                "text": "Parma",
+                "label": "PERSON",
+                "start": 44,
+                "end": 49
+            },
+            {
+                "text": "Italy",
+                "label": "GPE",
+                "start": 84,
+                "end": 89
+            }
+        ],
+        "entity_types": [
+            "GPE",
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 245,
+        "tables_count": 3,
+        "tables": [
+            "Match",
+            "TEAM",
+            "Country"
+        ],
+        "join_count": 2,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "COUNT",
+            "SUM"
+        ],
+        "select_columns": 1
+    }
+}

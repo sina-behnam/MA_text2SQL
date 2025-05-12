@@ -1,0 +1,65 @@
+{
+    "id": 447,
+    "dataset": "bird",
+    "database": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/databases/card_games/card_games.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/card_games/legalities.csv",
+            "stratified_output/databases/card_games/cards.csv",
+            "stratified_output/databases/card_games/rulings.csv",
+            "stratified_output/databases/card_games/set_translations.csv",
+            "stratified_output/databases/card_games/sets.csv",
+            "stratified_output/databases/card_games/foreign_data.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/schemas/card_games/card_games.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Give the code of sets have expansion commander type?",
+    "sql": "SELECT T2.setCode FROM sets AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.code WHERE T1.type = 'commander'",
+    "evidence": "code of sets refers to setCode",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 52,
+        "word_length": 9,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 119,
+        "tables_count": 2,
+        "tables": [
+            "sets",
+            "set_translations"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

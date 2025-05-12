@@ -1,0 +1,92 @@
+{
+    "id": 188,
+    "dataset": "bird",
+    "database": {
+        "name": "financial",
+        "path": [
+            "stratified_output/databases/financial/financial.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/financial/loan.csv",
+            "stratified_output/databases/financial/client.csv",
+            "stratified_output/databases/financial/district.csv",
+            "stratified_output/databases/financial/trans.csv",
+            "stratified_output/databases/financial/account.csv",
+            "stratified_output/databases/financial/card.csv",
+            "stratified_output/databases/financial/order.csv",
+            "stratified_output/databases/financial/disp.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "financial",
+        "path": [
+            "stratified_output/schemas/financial/financial.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Among the accounts who have loan validity more than 24 months, list out the accounts that have the lowest approved amount and have account opening date before 1997.",
+    "sql": "SELECT T1.account_id FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE T1.duration > 24 AND STRFTIME('%Y', T2.date) < '1997' ORDER BY T1.amount ASC LIMIT 1",
+    "evidence": "",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 164,
+        "word_length": 28,
+        "entities": [
+            {
+                "text": "more than 24 months",
+                "label": "DATE",
+                "start": 42,
+                "end": 61
+            },
+            {
+                "text": "1997",
+                "label": "DATE",
+                "start": 159,
+                "end": 163
+            }
+        ],
+        "entity_types": [
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "24",
+            "1997"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "more"
+        ],
+        "has_comparatives": true,
+        "superlatives": [
+            "lowest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 2,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 185,
+        "tables_count": 2,
+        "tables": [
+            "loan",
+            "account"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

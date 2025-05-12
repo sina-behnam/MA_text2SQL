@@ -1,0 +1,90 @@
+{
+    "id": 28,
+    "dataset": "bird",
+    "database": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/databases/california_schools/california_schools.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/california_schools/schools.csv",
+            "stratified_output/databases/california_schools/satscores.csv",
+            "stratified_output/databases/california_schools/frpm.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/schemas/california_schools/california_schools.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Consider the average difference between K-12 enrollment and 15-17 enrollment of schools that are locally funded, list the names and DOC type of schools which has a difference above this average.",
+    "sql": "SELECT T2.School, T2.DOC FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND (T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) > (SELECT AVG(T3.`Enrollment (K-12)` - T3.`Enrollment (Ages 5-17)`) FROM frpm AS T3 INNER JOIN schools AS T4 ON T3.CDSCode = T4.CDSCode WHERE T4.FundingType = 'Locally funded')",
+    "evidence": "Difference between K-12 enrollment and 15-17 enrollment can be computed by `Enrollment (K-12)` - `Enrollment (Ages 5-17)`",
+    "difficulty": "challenging",
+    "question_analysis": {
+        "char_length": 194,
+        "word_length": 32,
+        "entities": [
+            {
+                "text": "K-12",
+                "label": "PRODUCT",
+                "start": 40,
+                "end": 44
+            },
+            {
+                "text": "15-17",
+                "label": "CARDINAL",
+                "start": 60,
+                "end": 65
+            },
+            {
+                "text": "DOC",
+                "label": "ORG",
+                "start": 132,
+                "end": 135
+            }
+        ],
+        "entity_types": [
+            "ORG",
+            "PRODUCT",
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "15",
+            "17"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 3
+    },
+    "sql_analysis": {
+        "char_length": 368,
+        "tables_count": 2,
+        "tables": [
+            "schools",
+            "frpm"
+        ],
+        "join_count": 2,
+        "where_conditions": 2,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "AVG"
+        ],
+        "select_columns": 2
+    }
+}

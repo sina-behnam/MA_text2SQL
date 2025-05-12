@@ -1,0 +1,74 @@
+{
+    "id": 1470,
+    "dataset": "bird",
+    "database": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/debit_card_specializing/customers.csv",
+            "stratified_output/databases/debit_card_specializing/gasstations.csv",
+            "stratified_output/databases/debit_card_specializing/products.csv",
+            "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+            "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many gas stations in CZE has Premium gas?",
+    "sql": "SELECT COUNT(GasStationID) FROM gasstations WHERE Country = 'CZE' AND Segment = 'Premium'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 45,
+        "word_length": 9,
+        "entities": [
+            {
+                "text": "CZE",
+                "label": "ORG",
+                "start": 25,
+                "end": 28
+            }
+        ],
+        "entity_types": [
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 89,
+        "tables_count": 1,
+        "tables": [
+            "gasstations"
+        ],
+        "join_count": 0,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

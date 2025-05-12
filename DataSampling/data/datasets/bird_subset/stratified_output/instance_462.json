@@ -1,0 +1,74 @@
+{
+    "id": 462,
+    "dataset": "bird",
+    "database": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/databases/card_games/card_games.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/card_games/legalities.csv",
+            "stratified_output/databases/card_games/cards.csv",
+            "stratified_output/databases/card_games/rulings.csv",
+            "stratified_output/databases/card_games/set_translations.csv",
+            "stratified_output/databases/card_games/sets.csv",
+            "stratified_output/databases/card_games/foreign_data.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/schemas/card_games/card_games.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What's the Italian name of the set of cards with \"Ancestor's Chosen\" is in?",
+    "sql": "SELECT translation FROM set_translations WHERE setCode IN ( SELECT setCode FROM cards WHERE name = 'Ancestor''s Chosen' ) AND language = 'Italian'",
+    "evidence": "Italian is a language which refers to language = 'Italian'; with \"Ancestor's Chosen\" in the card set refers to name = 'Ancestor''s Chosen'",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 75,
+        "word_length": 16,
+        "entities": [
+            {
+                "text": "Italian",
+                "label": "NORP",
+                "start": 11,
+                "end": 18
+            }
+        ],
+        "entity_types": [
+            "NORP"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 146,
+        "tables_count": 2,
+        "tables": [
+            "cards",
+            "set_translations"
+        ],
+        "join_count": 0,
+        "where_conditions": 2,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

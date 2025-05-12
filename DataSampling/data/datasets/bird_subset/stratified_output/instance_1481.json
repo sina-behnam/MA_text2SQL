@@ -1,0 +1,130 @@
+{
+    "id": 1481,
+    "dataset": "bird",
+    "database": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/debit_card_specializing/customers.csv",
+            "stratified_output/databases/debit_card_specializing/gasstations.csv",
+            "stratified_output/databases/debit_card_specializing/products.csv",
+            "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+            "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the difference in the annual average consumption of the customers with the least amount of consumption paid in CZK for 2013 between SME and LAM, LAM and KAM, and KAM and SME?",
+    "sql": "SELECT CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' AND T2.Consumption = ( SELECT MIN(Consumption) FROM yearmonth ) AND T2.Date BETWEEN 201301 AND 201312",
+    "evidence": "annual average consumption of customer with the lowest consumption in each segment = total consumption per year / the number of customer with lowest consumption in each segment; Difference in annual average = SME's annual average - LAM's annual average; Difference in annual average = LAM's annual average - KAM's annual average; Year 2013 can be presented as Between 201301 And 201312; The first 4 strings of the Date values in the yearmonth table can represent year.",
+    "difficulty": "challenging",
+    "question_analysis": {
+        "char_length": 182,
+        "word_length": 34,
+        "entities": [
+            {
+                "text": "annual",
+                "label": "DATE",
+                "start": 30,
+                "end": 36
+            },
+            {
+                "text": "CZK",
+                "label": "ORG",
+                "start": 119,
+                "end": 122
+            },
+            {
+                "text": "2013",
+                "label": "DATE",
+                "start": 127,
+                "end": 131
+            },
+            {
+                "text": "SME",
+                "label": "ORG",
+                "start": 140,
+                "end": 143
+            },
+            {
+                "text": "LAM",
+                "label": "ORG",
+                "start": 148,
+                "end": 151
+            },
+            {
+                "text": "LAM",
+                "label": "ORG",
+                "start": 153,
+                "end": 156
+            },
+            {
+                "text": "KAM",
+                "label": "ORG",
+                "start": 161,
+                "end": 164
+            },
+            {
+                "text": "KAM",
+                "label": "ORG",
+                "start": 170,
+                "end": 173
+            },
+            {
+                "text": "SME",
+                "label": "ORG",
+                "start": 178,
+                "end": 181
+            }
+        ],
+        "entity_types": [
+            "ORG",
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "2013"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "least"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 735,
+        "tables_count": 2,
+        "tables": [
+            "customers",
+            "yearmonth"
+        ],
+        "join_count": 1,
+        "where_conditions": 4,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 13,
+        "aggregation_functions": [
+            "COUNT",
+            "SUM",
+            "MIN"
+        ],
+        "select_columns": 3
+    }
+}

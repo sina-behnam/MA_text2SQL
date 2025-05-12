@@ -1,0 +1,71 @@
+{
+    "id": 587,
+    "dataset": "bird",
+    "database": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/databases/codebase_community/codebase_community.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/codebase_community/postLinks.csv",
+            "stratified_output/databases/codebase_community/postHistory.csv",
+            "stratified_output/databases/codebase_community/badges.csv",
+            "stratified_output/databases/codebase_community/posts.csv",
+            "stratified_output/databases/codebase_community/users.csv",
+            "stratified_output/databases/codebase_community/tags.csv",
+            "stratified_output/databases/codebase_community/votes.csv",
+            "stratified_output/databases/codebase_community/comments.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/schemas/codebase_community/codebase_community.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Calculate the average view count of each post tagged as 'humor' and list the title and the comment of each post.",
+    "sql": "SELECT AVG(T2.ViewCount), T2.Title, T1.Text FROM comments AS T1 INNER JOIN posts AS T2 ON T2.Id = T1.PostId  WHERE T2.Tags = '<humor>' GROUP BY T2.Title, T1.Text ",
+    "evidence": "tagged as  'humor' refers to tag = '<humor>'; comment of the post refers to Text; average view count = AVG(ViewCount)",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 112,
+        "word_length": 21,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 3,
+        "column_overlap_lemma_count": 3
+    },
+    "sql_analysis": {
+        "char_length": 162,
+        "tables_count": 2,
+        "tables": [
+            "posts",
+            "comments"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 1,
+        "clause_types": [
+            "GROUP BY"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "AVG"
+        ],
+        "select_columns": 3
+    }
+}

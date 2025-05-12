@@ -1,0 +1,97 @@
+{
+    "id": 83,
+    "dataset": "bird",
+    "database": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/databases/california_schools/california_schools.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/california_schools/schools.csv",
+            "stratified_output/databases/california_schools/satscores.csv",
+            "stratified_output/databases/california_schools/frpm.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/schemas/california_schools/california_schools.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Of the schools that offers a magnet program serving a grade span of Kindergarten to 8th grade, how many offers Multiple Provision Types? List the number of cities that offers a Kindergarten to 8th grade span and indicate how many schools are there serving such grade span for each city.",
+    "sql": "SELECT T2.City, COUNT(T2.CDSCode) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.Magnet = 1 AND T2.GSoffered = 'K-8' AND T1.`NSLP Provision Status` = 'Multiple Provision Types' GROUP BY T2.City",
+    "evidence": "Kindergarten to 8th grade refers to K-8; 'Offers a magnet program' means Magnet = 1; Multiple Provision Types refers to `NSLP Provision Status` = 'Multiple Provision Types'",
+    "difficulty": "challenging",
+    "question_analysis": {
+        "char_length": 286,
+        "word_length": 50,
+        "entities": [
+            {
+                "text": "Kindergarten",
+                "label": "PERSON",
+                "start": 68,
+                "end": 80
+            },
+            {
+                "text": "8th",
+                "label": "ORDINAL",
+                "start": 84,
+                "end": 87
+            },
+            {
+                "text": "Kindergarten",
+                "label": "PERSON",
+                "start": 177,
+                "end": 189
+            },
+            {
+                "text": "8th",
+                "label": "ORDINAL",
+                "start": 193,
+                "end": 196
+            }
+        ],
+        "entity_types": [
+            "ORDINAL",
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "8th",
+            "8th"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 3
+    },
+    "sql_analysis": {
+        "char_length": 223,
+        "tables_count": 2,
+        "tables": [
+            "schools",
+            "frpm"
+        ],
+        "join_count": 1,
+        "where_conditions": 3,
+        "subquery_count": 0,
+        "clauses_count": 1,
+        "clause_types": [
+            "GROUP BY"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 2
+    }
+}

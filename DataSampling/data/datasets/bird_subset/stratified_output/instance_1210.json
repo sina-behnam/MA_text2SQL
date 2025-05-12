@@ -1,0 +1,63 @@
+{
+    "id": 1210,
+    "dataset": "bird",
+    "database": {
+        "name": "thrombosis_prediction",
+        "path": [
+            "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+            "stratified_output/databases/thrombosis_prediction/Patient.csv",
+            "stratified_output/databases/thrombosis_prediction/Examination.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "thrombosis_prediction",
+        "path": [
+            "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the average index of the lactate dehydrogenase (LDH) for all patients with lactate dehydrogenase (LDH) within the normal range.",
+    "sql": "SELECT AVG(LDH) FROM Laboratory WHERE LDH < 500",
+    "evidence": "average index of the lactate dehydrogenase (LDH) refers to AVG(LDH); (LDH) within the normal range refers to LDH < 500",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 135,
+        "word_length": 21,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 47,
+        "tables_count": 1,
+        "tables": [
+            "Laboratory"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "AVG"
+        ],
+        "select_columns": 1
+    }
+}

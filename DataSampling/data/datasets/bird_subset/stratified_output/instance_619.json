@@ -1,0 +1,78 @@
+{
+    "id": 619,
+    "dataset": "bird",
+    "database": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/databases/codebase_community/codebase_community.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/codebase_community/postLinks.csv",
+            "stratified_output/databases/codebase_community/postHistory.csv",
+            "stratified_output/databases/codebase_community/badges.csv",
+            "stratified_output/databases/codebase_community/posts.csv",
+            "stratified_output/databases/codebase_community/users.csv",
+            "stratified_output/databases/codebase_community/tags.csv",
+            "stratified_output/databases/codebase_community/votes.csv",
+            "stratified_output/databases/codebase_community/comments.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/schemas/codebase_community/codebase_community.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many adults who obtained the badge Supporter?",
+    "sql": "SELECT COUNT(T1.Id) FROM users AS T1 INNER JOIN badges AS T2 ON T1.Id = T2.UserId WHERE T2.Name = 'Supporter' AND T1.Age BETWEEN 19 AND 65",
+    "evidence": "Supporter is the Name of badge; adult refers to Age BETWEEN 19 AND 65",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 49,
+        "word_length": 8,
+        "entities": [
+            {
+                "text": "Supporter",
+                "label": "PRODUCT",
+                "start": 39,
+                "end": 48
+            }
+        ],
+        "entity_types": [
+            "PRODUCT"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 138,
+        "tables_count": 2,
+        "tables": [
+            "badges",
+            "users"
+        ],
+        "join_count": 1,
+        "where_conditions": 3,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

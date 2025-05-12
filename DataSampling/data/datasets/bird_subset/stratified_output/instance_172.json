@@ -1,0 +1,86 @@
+{
+    "id": 172,
+    "dataset": "bird",
+    "database": {
+        "name": "financial",
+        "path": [
+            "stratified_output/databases/financial/financial.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/financial/loan.csv",
+            "stratified_output/databases/financial/client.csv",
+            "stratified_output/databases/financial/district.csv",
+            "stratified_output/databases/financial/trans.csv",
+            "stratified_output/databases/financial/account.csv",
+            "stratified_output/databases/financial/card.csv",
+            "stratified_output/databases/financial/order.csv",
+            "stratified_output/databases/financial/disp.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "financial",
+        "path": [
+            "stratified_output/schemas/financial/financial.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many owner and disponent dispositions are there from account number 1 to account number 10?",
+    "sql": "SELECT SUM(type = 'OWNER') , SUM(type = 'DISPONENT') FROM disp WHERE account_id BETWEEN 1 AND 10",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 95,
+        "word_length": 16,
+        "entities": [
+            {
+                "text": "1",
+                "label": "CARDINAL",
+                "start": 72,
+                "end": 73
+            },
+            {
+                "text": "10",
+                "label": "CARDINAL",
+                "start": 92,
+                "end": 94
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "1",
+            "10"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 96,
+        "tables_count": 1,
+        "tables": [
+            "disp"
+        ],
+        "join_count": 0,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "SUM"
+        ],
+        "select_columns": 2
+    }
+}

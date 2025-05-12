@@ -1,0 +1,65 @@
+{
+    "id": 199,
+    "dataset": "bird",
+    "database": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/databases/toxicology/toxicology.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/toxicology/bond.csv",
+            "stratified_output/databases/toxicology/molecule.csv",
+            "stratified_output/databases/toxicology/atom.csv",
+            "stratified_output/databases/toxicology/connected.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/schemas/toxicology/toxicology.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "In the molecule containing sodium atoms, how many are non-carcinogenic?",
+    "sql": "SELECT COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'na' AND T2.label = '-'",
+    "evidence": "non-carcinogenic refers to label = '-'; sodium atoms refers to element = 'na'",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 71,
+        "word_length": 11,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 157,
+        "tables_count": 2,
+        "tables": [
+            "atom",
+            "molecule"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

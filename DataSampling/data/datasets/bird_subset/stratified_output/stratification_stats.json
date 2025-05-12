@@ -1,0 +1,138 @@
+{
+    "before_stratification": {
+        "total_instances": 1534,
+        "difficulty_distribution": {
+            "simple": 925,
+            "moderate": 464,
+            "challenging": 145
+        },
+        "difficulty_ratios": {
+            "simple": 0.6029986962190352,
+            "moderate": 0.30247718383311606,
+            "challenging": 0.09452411994784876
+        },
+        "database_distribution": {
+            "california_schools": 89,
+            "financial": 106,
+            "toxicology": 145,
+            "card_games": 191,
+            "codebase_community": 186,
+            "superhero": 129,
+            "formula_1": 174,
+            "european_football_2": 129,
+            "thrombosis_prediction": 163,
+            "student_club": 158,
+            "debit_card_specializing": 64
+        },
+        "db_per_difficulty": {
+            "simple": {
+                "california_schools": 54,
+                "financial": 62,
+                "toxicology": 76,
+                "card_games": 125,
+                "codebase_community": 151,
+                "superhero": 81,
+                "formula_1": 117,
+                "european_football_2": 65,
+                "thrombosis_prediction": 50,
+                "student_club": 101,
+                "debit_card_specializing": 43
+            },
+            "moderate": {
+                "california_schools": 30,
+                "financial": 37,
+                "toxicology": 38,
+                "card_games": 53,
+                "codebase_community": 30,
+                "superhero": 33,
+                "formula_1": 43,
+                "european_football_2": 50,
+                "thrombosis_prediction": 85,
+                "student_club": 48,
+                "debit_card_specializing": 17
+            },
+            "challenging": {
+                "california_schools": 5,
+                "financial": 7,
+                "toxicology": 31,
+                "card_games": 13,
+                "codebase_community": 5,
+                "superhero": 15,
+                "formula_1": 14,
+                "european_football_2": 14,
+                "thrombosis_prediction": 28,
+                "student_club": 9,
+                "debit_card_specializing": 4
+            }
+        }
+    },
+    "after_stratification": {
+        "stratified_instances": 200,
+        "difficulty_distribution": {
+            "simple": 121,
+            "moderate": 60,
+            "challenging": 19
+        },
+        "database_distribution": {
+            "california_schools": 18,
+            "financial": 18,
+            "toxicology": 19,
+            "card_games": 19,
+            "codebase_community": 18,
+            "superhero": 19,
+            "formula_1": 17,
+            "european_football_2": 19,
+            "thrombosis_prediction": 18,
+            "student_club": 17,
+            "debit_card_specializing": 18
+        },
+        "db_per_difficulty": {
+            "simple": {
+                "california_schools": 11,
+                "financial": 11,
+                "toxicology": 11,
+                "card_games": 11,
+                "codebase_community": 11,
+                "superhero": 11,
+                "formula_1": 11,
+                "european_football_2": 11,
+                "thrombosis_prediction": 11,
+                "student_club": 11,
+                "debit_card_specializing": 11
+            },
+            "moderate": {
+                "california_schools": 5,
+                "financial": 5,
+                "toxicology": 6,
+                "card_games": 6,
+                "codebase_community": 5,
+                "superhero": 6,
+                "formula_1": 5,
+                "european_football_2": 6,
+                "thrombosis_prediction": 6,
+                "student_club": 5,
+                "debit_card_specializing": 5
+            },
+            "challenging": {
+                "california_schools": 2,
+                "financial": 2,
+                "toxicology": 2,
+                "card_games": 2,
+                "codebase_community": 2,
+                "superhero": 2,
+                "formula_1": 1,
+                "european_football_2": 2,
+                "thrombosis_prediction": 1,
+                "student_club": 1,
+                "debit_card_specializing": 2
+            }
+        },
+        "target_size": 200,
+        "feasible_size": 200,
+        "difficulty_variance": {
+            "simple": 0.20013037809647471,
+            "moderate": -0.247718383311607,
+            "challenging": 0.04758800521512396
+        }
+    }
+}

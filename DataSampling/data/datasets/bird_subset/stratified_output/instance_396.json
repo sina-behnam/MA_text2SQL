@@ -1,0 +1,77 @@
+{
+    "id": 396,
+    "dataset": "bird",
+    "database": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/databases/card_games/card_games.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/card_games/legalities.csv",
+            "stratified_output/databases/card_games/cards.csv",
+            "stratified_output/databases/card_games/rulings.csv",
+            "stratified_output/databases/card_games/set_translations.csv",
+            "stratified_output/databases/card_games/sets.csv",
+            "stratified_output/databases/card_games/foreign_data.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/schemas/card_games/card_games.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many cards with a 1993 frame version and available on paper have a sensitive content warning?",
+    "sql": "SELECT COUNT(id) FROM cards WHERE frameVersion = 1993 AND availability = 'paper' AND hasContentWarning = 1",
+    "evidence": "sensitive content warning refer to hasContentWarning = 1; available on paper refer to availability = 'paper' 1993 refer to frameVersion",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 97,
+        "word_length": 17,
+        "entities": [
+            {
+                "text": "1993",
+                "label": "DATE",
+                "start": 22,
+                "end": 26
+            }
+        ],
+        "entity_types": [
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "1993"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 106,
+        "tables_count": 1,
+        "tables": [
+            "cards"
+        ],
+        "join_count": 0,
+        "where_conditions": 3,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

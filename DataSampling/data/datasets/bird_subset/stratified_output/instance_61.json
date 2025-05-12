@@ -1,0 +1,78 @@
+{
+    "id": 61,
+    "dataset": "bird",
+    "database": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/databases/california_schools/california_schools.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/california_schools/schools.csv",
+            "stratified_output/databases/california_schools/satscores.csv",
+            "stratified_output/databases/california_schools/frpm.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/schemas/california_schools/california_schools.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many chartered schools located in the city of Hickman are owned by the Elementary School District?",
+    "sql": "SELECT COUNT(School) FROM schools WHERE DOC = 52 AND Charter = 1 AND City = 'Hickman'",
+    "evidence": "Elementary School District refers to DOC = 52; Chartered schools refer to Charter = 1 in the table schools",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 102,
+        "word_length": 17,
+        "entities": [
+            {
+                "text": "Hickman",
+                "label": "ORG",
+                "start": 50,
+                "end": 57
+            },
+            {
+                "text": "the Elementary School District",
+                "label": "ORG",
+                "start": 71,
+                "end": 101
+            }
+        ],
+        "entity_types": [
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 3,
+        "column_overlap_lemma_count": 3
+    },
+    "sql_analysis": {
+        "char_length": 85,
+        "tables_count": 1,
+        "tables": [
+            "schools"
+        ],
+        "join_count": 0,
+        "where_conditions": 3,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

@@ -1,0 +1,65 @@
+{
+    "id": 335,
+    "dataset": "bird",
+    "database": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/databases/toxicology/toxicology.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/toxicology/bond.csv",
+            "stratified_output/databases/toxicology/molecule.csv",
+            "stratified_output/databases/toxicology/atom.csv",
+            "stratified_output/databases/toxicology/connected.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "toxicology",
+        "path": [
+            "stratified_output/schemas/toxicology/toxicology.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the total number of molecules with double bonded oxygen?",
+    "sql": "SELECT COUNT(DISTINCT T1.molecule_id) FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.bond_type = '=' AND T1.element = 'o'",
+    "evidence": "oxygen refers to element = 'o'; double bond refers to bond_type = ' = ';",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 64,
+        "word_length": 11,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 156,
+        "tables_count": 2,
+        "tables": [
+            "bond",
+            "atom"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

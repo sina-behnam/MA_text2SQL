@@ -1,0 +1,96 @@
+{
+    "id": 981,
+    "dataset": "bird",
+    "database": {
+        "name": "formula_1",
+        "path": [
+            "stratified_output/databases/formula_1/formula_1.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/formula_1/circuits.csv",
+            "stratified_output/databases/formula_1/status.csv",
+            "stratified_output/databases/formula_1/drivers.csv",
+            "stratified_output/databases/formula_1/driverStandings.csv",
+            "stratified_output/databases/formula_1/races.csv",
+            "stratified_output/databases/formula_1/constructors.csv",
+            "stratified_output/databases/formula_1/constructorResults.csv",
+            "stratified_output/databases/formula_1/lapTimes.csv",
+            "stratified_output/databases/formula_1/qualifying.csv",
+            "stratified_output/databases/formula_1/pitStops.csv",
+            "stratified_output/databases/formula_1/seasons.csv",
+            "stratified_output/databases/formula_1/constructorStandings.csv",
+            "stratified_output/databases/formula_1/results.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "formula_1",
+        "path": [
+            "stratified_output/schemas/formula_1/formula_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "On what year did the youngest driver had his first qualifying race? Also state the name, date and time of the race.",
+    "sql": "SELECT T3.year, T3.name, T3.date, T3.time FROM qualifying AS T1 INNER JOIN drivers AS T2 on T1.driverId = T2.driverId INNER JOIN races AS T3 on T1.raceId = T3.raceId WHERE T1.driverId = ( SELECT driverId FROM drivers ORDER BY dob DESC LIMIT 1 ) ORDER BY T3.date ASC LIMIT 1",
+    "evidence": "date of birth refers to drivers.dob; The larger the birthday value, the younger the person is, and vice versa; first qualifying race refers to MIN(races.date);",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 115,
+        "word_length": 22,
+        "entities": [
+            {
+                "text": "what year",
+                "label": "DATE",
+                "start": 3,
+                "end": 12
+            },
+            {
+                "text": "first",
+                "label": "ORDINAL",
+                "start": 45,
+                "end": 50
+            }
+        ],
+        "entity_types": [
+            "ORDINAL",
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "first"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "youngest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 3,
+        "column_overlap_lemma_count": 3
+    },
+    "sql_analysis": {
+        "char_length": 273,
+        "tables_count": 3,
+        "tables": [
+            "races",
+            "qualifying",
+            "drivers"
+        ],
+        "join_count": 2,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 4
+    }
+}

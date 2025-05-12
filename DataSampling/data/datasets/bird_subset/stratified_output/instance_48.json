@@ -1,0 +1,86 @@
+{
+    "id": 48,
+    "dataset": "bird",
+    "database": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/databases/california_schools/california_schools.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/california_schools/schools.csv",
+            "stratified_output/databases/california_schools/satscores.csv",
+            "stratified_output/databases/california_schools/frpm.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/schemas/california_schools/california_schools.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the ratio of merged Unified School District schools in Orange County to merged Elementary School District schools?",
+    "sql": "SELECT CAST(SUM(CASE WHEN DOC = 54 THEN 1 ELSE 0 END) AS REAL) / SUM(CASE WHEN DOC = 52 THEN 1 ELSE 0 END) FROM schools WHERE StatusType = 'Merged' AND County = 'Orange'",
+    "evidence": "Elementary School District refers to DOC = 52; Unified School District refers to DOC = 54.",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 122,
+        "word_length": 19,
+        "entities": [
+            {
+                "text": "Unified School District",
+                "label": "ORG",
+                "start": 28,
+                "end": 51
+            },
+            {
+                "text": "Orange County",
+                "label": "GPE",
+                "start": 63,
+                "end": 76
+            },
+            {
+                "text": "Elementary School District",
+                "label": "PERSON",
+                "start": 87,
+                "end": 113
+            }
+        ],
+        "entity_types": [
+            "GPE",
+            "ORG",
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 3,
+        "column_overlap_lemma_count": 3
+    },
+    "sql_analysis": {
+        "char_length": 169,
+        "tables_count": 1,
+        "tables": [
+            "schools"
+        ],
+        "join_count": 0,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "SUM"
+        ],
+        "select_columns": 1
+    }
+}

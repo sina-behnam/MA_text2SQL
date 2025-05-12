@@ -1,0 +1,67 @@
+{
+    "id": 42,
+    "dataset": "bird",
+    "database": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/databases/california_schools/california_schools.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/california_schools/schools.csv",
+            "stratified_output/databases/california_schools/satscores.csv",
+            "stratified_output/databases/california_schools/frpm.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/schemas/california_schools/california_schools.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the type of education offered in the school who scored the highest average in Math?",
+    "sql": "SELECT T2.EdOpsName FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.AvgScrMath DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 91,
+        "word_length": 17,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "highest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 124,
+        "tables_count": 2,
+        "tables": [
+            "satscores",
+            "schools"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

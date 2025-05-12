@@ -1,0 +1,88 @@
+{
+    "id": 137,
+    "dataset": "bird",
+    "database": {
+        "name": "financial",
+        "path": [
+            "stratified_output/databases/financial/financial.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/financial/loan.csv",
+            "stratified_output/databases/financial/client.csv",
+            "stratified_output/databases/financial/district.csv",
+            "stratified_output/databases/financial/trans.csv",
+            "stratified_output/databases/financial/account.csv",
+            "stratified_output/databases/financial/card.csv",
+            "stratified_output/databases/financial/order.csv",
+            "stratified_output/databases/financial/disp.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "financial",
+        "path": [
+            "stratified_output/schemas/financial/financial.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many accounts have running contracts in Branch location 1?",
+    "sql": "SELECT COUNT(T1.account_id) FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN loan AS T3 ON T1.account_id = T3.account_id WHERE T1.district_id = 1 AND (T3.status = 'C' OR T3.status = 'D')",
+    "evidence": "Status = 'C' stands for running contract, OK so far; Status = 'D' stands for running contract, client in debt",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 62,
+        "word_length": 10,
+        "entities": [
+            {
+                "text": "Branch",
+                "label": "GPE",
+                "start": 44,
+                "end": 50
+            },
+            {
+                "text": "1",
+                "label": "CARDINAL",
+                "start": 60,
+                "end": 61
+            }
+        ],
+        "entity_types": [
+            "GPE",
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "1"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 228,
+        "tables_count": 3,
+        "tables": [
+            "district",
+            "loan",
+            "account"
+        ],
+        "join_count": 2,
+        "where_conditions": 3,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

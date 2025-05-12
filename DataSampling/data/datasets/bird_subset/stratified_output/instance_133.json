@@ -1,0 +1,82 @@
+{
+    "id": 133,
+    "dataset": "bird",
+    "database": {
+        "name": "financial",
+        "path": [
+            "stratified_output/databases/financial/financial.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/financial/loan.csv",
+            "stratified_output/databases/financial/client.csv",
+            "stratified_output/databases/financial/district.csv",
+            "stratified_output/databases/financial/trans.csv",
+            "stratified_output/databases/financial/account.csv",
+            "stratified_output/databases/financial/card.csv",
+            "stratified_output/databases/financial/order.csv",
+            "stratified_output/databases/financial/disp.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "financial",
+        "path": [
+            "stratified_output/schemas/financial/financial.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "In 1996, which districts have the highest unemployment rate? List their branch location and district name.",
+    "sql": "SELECT district_id, A2 FROM district ORDER BY A13 DESC LIMIT 1",
+    "evidence": "A2 refers to district names; A13 refers to unemploymant rate in 1996",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 106,
+        "word_length": 16,
+        "entities": [
+            {
+                "text": "1996",
+                "label": "DATE",
+                "start": 3,
+                "end": 7
+            }
+        ],
+        "entity_types": [
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "1996"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "highest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 62,
+        "tables_count": 1,
+        "tables": [
+            "district"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

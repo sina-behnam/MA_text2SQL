@@ -1,0 +1,66 @@
+{
+    "id": 1130,
+    "dataset": "bird",
+    "database": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/databases/european_football_2/european_football_2.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/european_football_2/Team_Attributes.csv",
+            "stratified_output/databases/european_football_2/Player.csv",
+            "stratified_output/databases/european_football_2/Match.csv",
+            "stratified_output/databases/european_football_2/League.csv",
+            "stratified_output/databases/european_football_2/Country.csv",
+            "stratified_output/databases/european_football_2/Player_Attributes.csv",
+            "stratified_output/databases/european_football_2/Team.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/schemas/european_football_2/european_football_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the short name of team who played safe while creating chance of passing?",
+    "sql": "SELECT DISTINCT t1.team_short_name FROM Team AS t1 INNER JOIN Team_Attributes AS t2 ON t1.team_api_id = t2.team_api_id WHERE t2.chanceCreationPassingClass = 'Safe'",
+    "evidence": "played safe while creating chance of passing refers to chanceCreationPassingClass = 'Safe'; short name of team refers to team_short_name",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 81,
+        "word_length": 15,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 163,
+        "tables_count": 2,
+        "tables": [
+            "Team_Attributes",
+            "Team"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

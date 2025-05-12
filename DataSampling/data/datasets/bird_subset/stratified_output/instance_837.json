@@ -1,0 +1,72 @@
+{
+    "id": 837,
+    "dataset": "bird",
+    "database": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/databases/superhero/superhero.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/superhero/gender.csv",
+            "stratified_output/databases/superhero/superpower.csv",
+            "stratified_output/databases/superhero/publisher.csv",
+            "stratified_output/databases/superhero/superhero.csv",
+            "stratified_output/databases/superhero/colour.csv",
+            "stratified_output/databases/superhero/attribute.csv",
+            "stratified_output/databases/superhero/hero_power.csv",
+            "stratified_output/databases/superhero/race.csv",
+            "stratified_output/databases/superhero/alignment.csv",
+            "stratified_output/databases/superhero/hero_attribute.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/schemas/superhero/superhero.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Give the hero ID of superhero with the lowest attribute value.",
+    "sql": "SELECT hero_id FROM hero_attribute WHERE attribute_value = ( SELECT MIN(attribute_value) FROM hero_attribute )",
+    "evidence": "lowest attribute value refers to MIN(attribute_value);",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 62,
+        "word_length": 11,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "lowest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 2,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 110,
+        "tables_count": 1,
+        "tables": [
+            "hero_attribute"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "MIN"
+        ],
+        "select_columns": 1
+    }
+}

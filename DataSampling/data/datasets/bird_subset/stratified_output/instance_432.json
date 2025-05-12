@@ -1,0 +1,80 @@
+{
+    "id": 432,
+    "dataset": "bird",
+    "database": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/databases/card_games/card_games.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/card_games/legalities.csv",
+            "stratified_output/databases/card_games/cards.csv",
+            "stratified_output/databases/card_games/rulings.csv",
+            "stratified_output/databases/card_games/set_translations.csv",
+            "stratified_output/databases/card_games/sets.csv",
+            "stratified_output/databases/card_games/foreign_data.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/schemas/card_games/card_games.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which Russian set of cards contains the most cards overall?",
+    "sql": "SELECT T1.id FROM sets AS T1 INNER JOIN set_translations AS T2 ON T1.code = T2.setCode WHERE T2.language = 'Russian' GROUP BY T1.baseSetSize ORDER BY T1.baseSetSize DESC LIMIT 1",
+    "evidence": "Russian refers to language = 'Russian'; contains the most cards overall refers to MAX(baseSetSize)",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 59,
+        "word_length": 10,
+        "entities": [
+            {
+                "text": "Russian",
+                "label": "NORP",
+                "start": 6,
+                "end": 13
+            }
+        ],
+        "entity_types": [
+            "NORP"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 177,
+        "tables_count": 2,
+        "tables": [
+            "sets",
+            "set_translations"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

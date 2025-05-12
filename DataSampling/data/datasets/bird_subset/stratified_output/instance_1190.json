@@ -1,0 +1,64 @@
+{
+    "id": 1190,
+    "dataset": "bird",
+    "database": {
+        "name": "thrombosis_prediction",
+        "path": [
+            "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+            "stratified_output/databases/thrombosis_prediction/Patient.csv",
+            "stratified_output/databases/thrombosis_prediction/Examination.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "thrombosis_prediction",
+        "path": [
+            "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What percentage of patients with a proteinuria level within the normal range have a uric acid level below the normal range?",
+    "sql": "SELECT CAST(SUM(CASE WHEN UA <= 6.5 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(ID) FROM Laboratory WHERE `U-PRO` > 0 AND `U-PRO` < 30",
+    "evidence": "proteinuria level within the normal range refers to `U-PRO` > 0 AND `U-PRO` < 30; uric acid level below the normal range refers to UA < = 6.5; calculation = MULTIPLY(DIVIDE(UA < = 6.5, `U-PRO` > 0 AND `U-PRO` < 30)\uff0c100)",
+    "difficulty": "challenging",
+    "question_analysis": {
+        "char_length": 123,
+        "word_length": 21,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 132,
+        "tables_count": 1,
+        "tables": [
+            "Laboratory"
+        ],
+        "join_count": 0,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "COUNT",
+            "SUM"
+        ],
+        "select_columns": 1
+    }
+}

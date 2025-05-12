@@ -1,0 +1,83 @@
+{
+    "id": 738,
+    "dataset": "bird",
+    "database": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/databases/superhero/superhero.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/superhero/gender.csv",
+            "stratified_output/databases/superhero/superpower.csv",
+            "stratified_output/databases/superhero/publisher.csv",
+            "stratified_output/databases/superhero/superhero.csv",
+            "stratified_output/databases/superhero/colour.csv",
+            "stratified_output/databases/superhero/attribute.csv",
+            "stratified_output/databases/superhero/hero_power.csv",
+            "stratified_output/databases/superhero/race.csv",
+            "stratified_output/databases/superhero/alignment.csv",
+            "stratified_output/databases/superhero/hero_attribute.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/schemas/superhero/superhero.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which superheroes have a durability attribute value of less than 50?",
+    "sql": "SELECT superhero_name FROM superhero AS T1 WHERE EXISTS (SELECT 1 FROM hero_attribute AS T2 INNER JOIN attribute AS T3 ON T2.attribute_id = T3.id WHERE T3.attribute_name = 'Durability' AND T2.attribute_value < 50 AND T1.id = T2.hero_id)",
+    "evidence": "durability of less than 50 refers to attribute_name = 'Durability' AND attribute_value < 50",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 68,
+        "word_length": 11,
+        "entities": [
+            {
+                "text": "less than 50",
+                "label": "CARDINAL",
+                "start": 55,
+                "end": 67
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "50"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "less"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 236,
+        "tables_count": 3,
+        "tables": [
+            "superhero",
+            "attribute",
+            "hero_attribute"
+        ],
+        "join_count": 1,
+        "where_conditions": 3,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

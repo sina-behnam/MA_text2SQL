@@ -1,0 +1,78 @@
+{
+    "id": 522,
+    "dataset": "bird",
+    "database": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/databases/card_games/card_games.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/card_games/legalities.csv",
+            "stratified_output/databases/card_games/cards.csv",
+            "stratified_output/databases/card_games/rulings.csv",
+            "stratified_output/databases/card_games/set_translations.csv",
+            "stratified_output/databases/card_games/sets.csv",
+            "stratified_output/databases/card_games/foreign_data.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/schemas/card_games/card_games.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which cards are ranked 1st on EDHRec? List all of the cards name and its banned play format.",
+    "sql": "SELECT T1.name, T2.format FROM cards AS T1 INNER JOIN legalities AS T2 ON T2.uuid = T1.uuid WHERE T1.edhrecRank = 1 AND T2.status = 'Banned' GROUP BY T1.name, T2.format",
+    "evidence": "ranked 1st on EDHRec refers to edhrecRank = 1; banned refers to status = 'Banned'; play format refers to format; cards name refers to name",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 92,
+        "word_length": 18,
+        "entities": [
+            {
+                "text": "1st",
+                "label": "ORDINAL",
+                "start": 23,
+                "end": 26
+            }
+        ],
+        "entity_types": [
+            "ORDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "1st"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 168,
+        "tables_count": 2,
+        "tables": [
+            "cards",
+            "legalities"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 1,
+        "clause_types": [
+            "GROUP BY"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

@@ -1,0 +1,69 @@
+{
+    "id": 843,
+    "dataset": "bird",
+    "database": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/databases/superhero/superhero.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/superhero/gender.csv",
+            "stratified_output/databases/superhero/superpower.csv",
+            "stratified_output/databases/superhero/publisher.csv",
+            "stratified_output/databases/superhero/superhero.csv",
+            "stratified_output/databases/superhero/colour.csv",
+            "stratified_output/databases/superhero/attribute.csv",
+            "stratified_output/databases/superhero/hero_power.csv",
+            "stratified_output/databases/superhero/race.csv",
+            "stratified_output/databases/superhero/alignment.csv",
+            "stratified_output/databases/superhero/hero_attribute.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/schemas/superhero/superhero.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "List the hero ID of superheroes have intellegence as their power.",
+    "sql": "SELECT T1.hero_id FROM hero_power AS T1 INNER JOIN superpower AS T2 ON T1.power_id = T2.id WHERE T2.power_name = 'Intelligence'",
+    "evidence": "hero ID refers to superhero.id; have intelligence as their power refers to power_name = 'Intelligence';",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 65,
+        "word_length": 11,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 127,
+        "tables_count": 2,
+        "tables": [
+            "superpower",
+            "hero_power"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

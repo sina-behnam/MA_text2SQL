@@ -1,0 +1,89 @@
+{
+    "id": 91,
+    "dataset": "bird",
+    "database": {
+        "name": "financial",
+        "path": [
+            "stratified_output/databases/financial/financial.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/financial/loan.csv",
+            "stratified_output/databases/financial/client.csv",
+            "stratified_output/databases/financial/district.csv",
+            "stratified_output/databases/financial/trans.csv",
+            "stratified_output/databases/financial/account.csv",
+            "stratified_output/databases/financial/card.csv",
+            "stratified_output/databases/financial/order.csv",
+            "stratified_output/databases/financial/disp.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "financial",
+        "path": [
+            "stratified_output/schemas/financial/financial.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "The average unemployment ratio of 1995 and 1996, which one has higher percentage?",
+    "sql": "SELECT DISTINCT IIF(AVG(A13) > AVG(A12), '1996', '1995') FROM district",
+    "evidence": "A12 refers to unemploymant rate 1995; A13 refers to unemploymant rate 1996",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 81,
+        "word_length": 13,
+        "entities": [
+            {
+                "text": "1995",
+                "label": "DATE",
+                "start": 34,
+                "end": 38
+            },
+            {
+                "text": "1996",
+                "label": "DATE",
+                "start": 43,
+                "end": 47
+            }
+        ],
+        "entity_types": [
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "1995",
+            "1996",
+            "one"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "higher"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 70,
+        "tables_count": 1,
+        "tables": [
+            "district"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "AVG"
+        ],
+        "select_columns": 1
+    }
+}

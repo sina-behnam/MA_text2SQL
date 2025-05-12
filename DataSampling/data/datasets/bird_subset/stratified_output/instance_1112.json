@@ -1,0 +1,75 @@
+{
+    "id": 1112,
+    "dataset": "bird",
+    "database": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/databases/european_football_2/european_football_2.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/european_football_2/Team_Attributes.csv",
+            "stratified_output/databases/european_football_2/Player.csv",
+            "stratified_output/databases/european_football_2/Match.csv",
+            "stratified_output/databases/european_football_2/League.csv",
+            "stratified_output/databases/european_football_2/Country.csv",
+            "stratified_output/databases/european_football_2/Player_Attributes.csv",
+            "stratified_output/databases/european_football_2/Team.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/schemas/european_football_2/european_football_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What was the chance creation crossing class for \"Hull City\" on 2010/2/22?",
+    "sql": "SELECT t2.chanceCreationCrossingClass FROM Team AS t1 INNER JOIN Team_Attributes AS t2 ON t1.team_api_id = t2.team_api_id WHERE t1.team_long_name = 'Hull City' AND SUBSTR(t2.`date`, 1, 10) = '2010-02-22'",
+    "evidence": "\"Hull City\" refers to team_long_name = 'Hull City'; on 2010/2/22 refers to date = '2010-02-22 00:00:00'",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 73,
+        "word_length": 12,
+        "entities": [
+            {
+                "text": "2010/2/22",
+                "label": "CARDINAL",
+                "start": 63,
+                "end": 72
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 203,
+        "tables_count": 2,
+        "tables": [
+            "Team_Attributes",
+            "Team"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

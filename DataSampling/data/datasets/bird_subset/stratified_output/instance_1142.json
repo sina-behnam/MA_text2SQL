@@ -1,0 +1,84 @@
+{
+    "id": 1142,
+    "dataset": "bird",
+    "database": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/databases/european_football_2/european_football_2.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/european_football_2/Team_Attributes.csv",
+            "stratified_output/databases/european_football_2/Player.csv",
+            "stratified_output/databases/european_football_2/Match.csv",
+            "stratified_output/databases/european_football_2/League.csv",
+            "stratified_output/databases/european_football_2/Country.csv",
+            "stratified_output/databases/european_football_2/Player_Attributes.csv",
+            "stratified_output/databases/european_football_2/Team.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/schemas/european_football_2/european_football_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "In the 2015\u20132016 season, how many games were played in the Italian Serie A league?",
+    "sql": "SELECT COUNT(t2.id) FROM League AS t1 INNER JOIN Match AS t2 ON t1.id = t2.league_id WHERE t1.name = 'Italy Serie A' AND t2.season = '2015/2016'",
+    "evidence": "In the 2015\u20132016 season refers to season = '2015/2016'",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 82,
+        "word_length": 15,
+        "entities": [
+            {
+                "text": "the 2015\u20132016 season",
+                "label": "DATE",
+                "start": 3,
+                "end": 23
+            },
+            {
+                "text": "the Italian Serie",
+                "label": "ORG",
+                "start": 55,
+                "end": 72
+            }
+        ],
+        "entity_types": [
+            "ORG",
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 144,
+        "tables_count": 2,
+        "tables": [
+            "Match",
+            "League"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

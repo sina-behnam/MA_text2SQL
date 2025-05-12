@@ -1,0 +1,81 @@
+{
+    "id": 868,
+    "dataset": "bird",
+    "database": {
+        "name": "formula_1",
+        "path": [
+            "stratified_output/databases/formula_1/formula_1.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/formula_1/circuits.csv",
+            "stratified_output/databases/formula_1/status.csv",
+            "stratified_output/databases/formula_1/drivers.csv",
+            "stratified_output/databases/formula_1/driverStandings.csv",
+            "stratified_output/databases/formula_1/races.csv",
+            "stratified_output/databases/formula_1/constructors.csv",
+            "stratified_output/databases/formula_1/constructorResults.csv",
+            "stratified_output/databases/formula_1/lapTimes.csv",
+            "stratified_output/databases/formula_1/qualifying.csv",
+            "stratified_output/databases/formula_1/pitStops.csv",
+            "stratified_output/databases/formula_1/seasons.csv",
+            "stratified_output/databases/formula_1/constructorStandings.csv",
+            "stratified_output/databases/formula_1/results.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "formula_1",
+        "path": [
+            "stratified_output/schemas/formula_1/formula_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Where is Malaysian Grand Prix held? Give the location coordinates.",
+    "sql": "SELECT DISTINCT T1.lat, T1.lng FROM circuits AS T1 INNER JOIN races AS T2 ON T2.circuitID = T1.circuitId WHERE T2.name = 'Malaysian Grand Prix'",
+    "evidence": "location coordinates refers to (lat, lng); Malaysian Grand Prix refers to races.name = 'Malaysian Grand Prix'",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 66,
+        "word_length": 10,
+        "entities": [
+            {
+                "text": "Malaysian",
+                "label": "NORP",
+                "start": 9,
+                "end": 18
+            }
+        ],
+        "entity_types": [
+            "NORP"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 143,
+        "tables_count": 2,
+        "tables": [
+            "circuits",
+            "races"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

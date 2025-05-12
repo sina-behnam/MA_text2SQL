@@ -1,0 +1,71 @@
+{
+    "id": 2,
+    "dataset": "bird",
+    "database": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/databases/california_schools/california_schools.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/california_schools/schools.csv",
+            "stratified_output/databases/california_schools/satscores.csv",
+            "stratified_output/databases/california_schools/frpm.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/schemas/california_schools/california_schools.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Please list the zip code of all the charter schools in Fresno County Office of Education.",
+    "sql": "SELECT T2.Zip FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`District Name` = 'Fresno County Office of Education' AND T1.`Charter School (Y/N)` = 1",
+    "evidence": "Charter schools refers to `Charter School (Y/N)` = 1 in the table fprm",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 89,
+        "word_length": 16,
+        "entities": [
+            {
+                "text": "Fresno County Office of Education",
+                "label": "ORG",
+                "start": 55,
+                "end": 88
+            }
+        ],
+        "entity_types": [
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 3,
+        "column_overlap_lemma_count": 4
+    },
+    "sql_analysis": {
+        "char_length": 178,
+        "tables_count": 2,
+        "tables": [
+            "schools",
+            "frpm"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

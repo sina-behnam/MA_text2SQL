@@ -1,0 +1,73 @@
+{
+    "id": 355,
+    "dataset": "bird",
+    "database": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/databases/card_games/card_games.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/card_games/legalities.csv",
+            "stratified_output/databases/card_games/cards.csv",
+            "stratified_output/databases/card_games/rulings.csv",
+            "stratified_output/databases/card_games/set_translations.csv",
+            "stratified_output/databases/card_games/sets.csv",
+            "stratified_output/databases/card_games/foreign_data.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "card_games",
+        "path": [
+            "stratified_output/schemas/card_games/card_games.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the keyword found on card 'Angel of Mercy'?",
+    "sql": "SELECT DISTINCT keywords FROM cards WHERE name = 'Angel of Mercy'",
+    "evidence": "Angel of Mercy' is the name of card;",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 51,
+        "word_length": 10,
+        "entities": [
+            {
+                "text": "Angel of Mercy'",
+                "label": "WORK_OF_ART",
+                "start": 35,
+                "end": 50
+            }
+        ],
+        "entity_types": [
+            "WORK_OF_ART"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 65,
+        "tables_count": 1,
+        "tables": [
+            "cards"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

@@ -1,0 +1,77 @@
+{
+    "id": 81,
+    "dataset": "bird",
+    "database": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/databases/california_schools/california_schools.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/california_schools/schools.csv",
+            "stratified_output/databases/california_schools/satscores.csv",
+            "stratified_output/databases/california_schools/frpm.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/schemas/california_schools/california_schools.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "In which city can you find the school in the state of California with the lowest latitude coordinates and what is its lowest grade? Indicate the school name.",
+    "sql": "SELECT T2.City, T1.`Low Grade`, T1.`School Name` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.State = 'CA' ORDER BY T2.Latitude ASC LIMIT 1",
+    "evidence": "State of California refers to state = 'CA'",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 157,
+        "word_length": 28,
+        "entities": [
+            {
+                "text": "California",
+                "label": "GPE",
+                "start": 54,
+                "end": 64
+            }
+        ],
+        "entity_types": [
+            "GPE"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "lowest",
+            "lowest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 4,
+        "column_overlap_lemma_count": 5
+    },
+    "sql_analysis": {
+        "char_length": 171,
+        "tables_count": 2,
+        "tables": [
+            "schools",
+            "frpm"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 3
+    }
+}

@@ -1,0 +1,85 @@
+{
+    "id": 1076,
+    "dataset": "bird",
+    "database": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/databases/european_football_2/european_football_2.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/european_football_2/Team_Attributes.csv",
+            "stratified_output/databases/european_football_2/Player.csv",
+            "stratified_output/databases/european_football_2/Match.csv",
+            "stratified_output/databases/european_football_2/League.csv",
+            "stratified_output/databases/european_football_2/Country.csv",
+            "stratified_output/databases/european_football_2/Player_Attributes.csv",
+            "stratified_output/databases/european_football_2/Team.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/schemas/european_football_2/european_football_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the difference of the average ball control score between Abdou Diallo and Aaron Appindangoye\n?",
+    "sql": "SELECT CAST(SUM(CASE WHEN t1.player_name = 'Abdou Diallo' THEN t2.ball_control ELSE 0 END) AS REAL) / COUNT(CASE WHEN t1.player_name = 'Abdou Diallo' THEN t2.id ELSE NULL END) - CAST(SUM(CASE WHEN t1.player_name = 'Aaron Appindangoye' THEN t2.ball_control ELSE 0 END) AS REAL) / COUNT(CASE WHEN t1.player_name = 'Aaron Appindangoye' THEN t2.id ELSE NULL END) FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id",
+    "evidence": "difference of the average ball control = SUBTRACT(AVG(ball_control WHERE player_name = 'Abdou Diallo'), AVG(ball_control WHERE player_name = 'Aaron Appindangoye')); AVG(ball_control WHERE player_name = 'XX XX') = SUM(CASE WHEN player_name = 'XX XX' THEN ball_control ELSE 0 END) / COUNT(CASE WHEN player_name = 'XX XX' THEN id ELSE NULL END)",
+    "difficulty": "challenging",
+    "question_analysis": {
+        "char_length": 102,
+        "word_length": 16,
+        "entities": [
+            {
+                "text": "Abdou Diallo",
+                "label": "ORG",
+                "start": 65,
+                "end": 77
+            },
+            {
+                "text": "Aaron Appindangoye",
+                "label": "PERSON",
+                "start": 82,
+                "end": 100
+            }
+        ],
+        "entity_types": [
+            "ORG",
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 450,
+        "tables_count": 2,
+        "tables": [
+            "Player",
+            "Player_Attributes"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 4,
+        "aggregation_functions": [
+            "COUNT",
+            "SUM"
+        ],
+        "select_columns": 1
+    }
+}

@@ -1,0 +1,82 @@
+{
+    "id": 755,
+    "dataset": "bird",
+    "database": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/databases/superhero/superhero.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/superhero/gender.csv",
+            "stratified_output/databases/superhero/superpower.csv",
+            "stratified_output/databases/superhero/publisher.csv",
+            "stratified_output/databases/superhero/superhero.csv",
+            "stratified_output/databases/superhero/colour.csv",
+            "stratified_output/databases/superhero/attribute.csv",
+            "stratified_output/databases/superhero/hero_power.csv",
+            "stratified_output/databases/superhero/race.csv",
+            "stratified_output/databases/superhero/alignment.csv",
+            "stratified_output/databases/superhero/hero_attribute.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "superhero",
+        "path": [
+            "stratified_output/schemas/superhero/superhero.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "List down at least five full name of Demi-God superheroes.",
+    "sql": "SELECT T1.full_name FROM superhero AS T1 INNER JOIN race AS T2 ON T1.race_id = T2.id WHERE T2.race = 'Demi-God'",
+    "evidence": "Demi-God superheroes refers to race = 'Demi-God'",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 58,
+        "word_length": 11,
+        "entities": [
+            {
+                "text": "at least five",
+                "label": "CARDINAL",
+                "start": 10,
+                "end": 23
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "five"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "least"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 111,
+        "tables_count": 2,
+        "tables": [
+            "superhero",
+            "race"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

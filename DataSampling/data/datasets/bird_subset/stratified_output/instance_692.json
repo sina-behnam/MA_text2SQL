@@ -1,0 +1,76 @@
+{
+    "id": 692,
+    "dataset": "bird",
+    "database": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/databases/codebase_community/codebase_community.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/codebase_community/postLinks.csv",
+            "stratified_output/databases/codebase_community/postHistory.csv",
+            "stratified_output/databases/codebase_community/badges.csv",
+            "stratified_output/databases/codebase_community/posts.csv",
+            "stratified_output/databases/codebase_community/users.csv",
+            "stratified_output/databases/codebase_community/tags.csv",
+            "stratified_output/databases/codebase_community/votes.csv",
+            "stratified_output/databases/codebase_community/comments.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "codebase_community",
+        "path": [
+            "stratified_output/schemas/codebase_community/codebase_community.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How long did it take the user, known by his or her display name 'Zolomon' to get the badge? Count from the date the user's account was created.",
+    "sql": "SELECT T1.Date - T2.CreationDate FROM badges AS T1 INNER JOIN users AS T2 ON T1.UserId = T2.Id WHERE T2.DisplayName = 'Zolomon'",
+    "evidence": "SUBTRACT(Date from stats_badges, CreationDate) where DisplayName = 'Zolomon';",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 143,
+        "word_length": 29,
+        "entities": [
+            {
+                "text": "Zolomon",
+                "label": "PERSON",
+                "start": 65,
+                "end": 72
+            }
+        ],
+        "entity_types": [
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 127,
+        "tables_count": 2,
+        "tables": [
+            "badges",
+            "users"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

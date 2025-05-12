@@ -1,0 +1,75 @@
+{
+    "id": 1494,
+    "dataset": "bird",
+    "database": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/debit_card_specializing/customers.csv",
+            "stratified_output/databases/debit_card_specializing/gasstations.csv",
+            "stratified_output/databases/debit_card_specializing/products.csv",
+            "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+            "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What percentage of Slovakian gas stations are premium?",
+    "sql": "SELECT CAST(SUM(IIF(Segment = 'Premium', 1, 0)) AS FLOAT) * 100 / COUNT(GasStationID) FROM gasstations WHERE Country = 'SVK'",
+    "evidence": "Percentage of premium gas station = (Total of premium gas station in Slovakia / Total of gas station in Slovakia) * 100%.",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 54,
+        "word_length": 8,
+        "entities": [
+            {
+                "text": "Slovakian",
+                "label": "NORP",
+                "start": 19,
+                "end": 28
+            }
+        ],
+        "entity_types": [
+            "NORP"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 124,
+        "tables_count": 1,
+        "tables": [
+            "gasstations"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "COUNT",
+            "SUM"
+        ],
+        "select_columns": 1
+    }
+}

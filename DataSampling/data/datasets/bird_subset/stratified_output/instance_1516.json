@@ -1,0 +1,89 @@
+{
+    "id": 1516,
+    "dataset": "bird",
+    "database": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/debit_card_specializing/customers.csv",
+            "stratified_output/databases/debit_card_specializing/gasstations.csv",
+            "stratified_output/databases/debit_card_specializing/products.csv",
+            "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+            "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "debit_card_specializing",
+        "path": [
+            "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many transactions were paid in CZK in the morning of 2012/8/26?",
+    "sql": "SELECT COUNT(T1.TransactionID) FROM transactions_1k AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Date = '2012-08-26' AND T1.Time < '13:00:00' AND T2.Currency = 'CZK'",
+    "evidence": "'2012/8/26' can be represented by '2012-08-26'; The morning refers to the time before '13:00:00'",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 67,
+        "word_length": 12,
+        "entities": [
+            {
+                "text": "CZK",
+                "label": "ORG",
+                "start": 35,
+                "end": 38
+            },
+            {
+                "text": "the morning",
+                "label": "TIME",
+                "start": 42,
+                "end": 53
+            },
+            {
+                "text": "2012/8/26",
+                "label": "CARDINAL",
+                "start": 57,
+                "end": 66
+            }
+        ],
+        "entity_types": [
+            "TIME",
+            "ORG",
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 195,
+        "tables_count": 2,
+        "tables": [
+            "customers",
+            "transactions_1k"
+        ],
+        "join_count": 1,
+        "where_conditions": 3,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

@@ -1,0 +1,90 @@
+{
+    "id": 179,
+    "dataset": "bird",
+    "database": {
+        "name": "financial",
+        "path": [
+            "stratified_output/databases/financial/financial.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/financial/loan.csv",
+            "stratified_output/databases/financial/client.csv",
+            "stratified_output/databases/financial/district.csv",
+            "stratified_output/databases/financial/trans.csv",
+            "stratified_output/databases/financial/account.csv",
+            "stratified_output/databases/financial/card.csv",
+            "stratified_output/databases/financial/order.csv",
+            "stratified_output/databases/financial/disp.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "financial",
+        "path": [
+            "stratified_output/schemas/financial/financial.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How much, in total, did client number 617 pay for all of the transactions in 1998?",
+    "sql": "SELECT SUM(T3.amount) FROM client AS T1 INNER JOIN disp AS T4 ON T1.client_id = T4.client_id INNER JOIN account AS T2 ON T4.account_id = T2.account_id INNER JOIN trans AS T3 ON T2.account_id = T3.account_id WHERE STRFTIME('%Y', T3.date)= '1998' AND T1.client_id = 617",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 82,
+        "word_length": 16,
+        "entities": [
+            {
+                "text": "617",
+                "label": "CARDINAL",
+                "start": 38,
+                "end": 41
+            },
+            {
+                "text": "1998",
+                "label": "DATE",
+                "start": 77,
+                "end": 81
+            }
+        ],
+        "entity_types": [
+            "DATE",
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "617",
+            "1998"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 267,
+        "tables_count": 4,
+        "tables": [
+            "disp",
+            "client",
+            "trans",
+            "account"
+        ],
+        "join_count": 3,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "SUM"
+        ],
+        "select_columns": 1
+    }
+}

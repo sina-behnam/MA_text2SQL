@@ -1,0 +1,93 @@
+{
+    "id": 26,
+    "dataset": "bird",
+    "database": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/databases/california_schools/california_schools.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/california_schools/schools.csv",
+            "stratified_output/databases/california_schools/satscores.csv",
+            "stratified_output/databases/california_schools/frpm.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "california_schools",
+        "path": [
+            "stratified_output/schemas/california_schools/california_schools.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "State the names and full communication address of high schools in Monterey which has more than 800 free or reduced price meals for ages 15-17?",
+    "sql": "SELECT T1.`School Name`, T2.Street, T2.City, T2.State, T2.Zip FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Monterey' AND T1.`Free Meal Count (Ages 5-17)` > 800 AND T1.`School Type` = 'High Schools (Public)'",
+    "evidence": "Full communication address should include Street, City, State and zip code if any.",
+    "difficulty": "moderate",
+    "question_analysis": {
+        "char_length": 142,
+        "word_length": 26,
+        "entities": [
+            {
+                "text": "Monterey",
+                "label": "GPE",
+                "start": 66,
+                "end": 74
+            },
+            {
+                "text": "more than 800",
+                "label": "CARDINAL",
+                "start": 85,
+                "end": 98
+            },
+            {
+                "text": "ages 15-17",
+                "label": "DATE",
+                "start": 131,
+                "end": 141
+            }
+        ],
+        "entity_types": [
+            "GPE",
+            "DATE",
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "800",
+            "15",
+            "17"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "more"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 3,
+        "column_overlap_lemma_count": 4
+    },
+    "sql_analysis": {
+        "char_length": 248,
+        "tables_count": 2,
+        "tables": [
+            "schools",
+            "frpm"
+        ],
+        "join_count": 1,
+        "where_conditions": 3,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 5
+    }
+}

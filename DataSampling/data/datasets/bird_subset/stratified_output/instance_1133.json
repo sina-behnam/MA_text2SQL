@@ -1,0 +1,92 @@
+{
+    "id": 1133,
+    "dataset": "bird",
+    "database": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/databases/european_football_2/european_football_2.sqlite"
+        ],
+        "csv_files": [
+            "stratified_output/databases/european_football_2/Team_Attributes.csv",
+            "stratified_output/databases/european_football_2/Player.csv",
+            "stratified_output/databases/european_football_2/Match.csv",
+            "stratified_output/databases/european_football_2/League.csv",
+            "stratified_output/databases/european_football_2/Country.csv",
+            "stratified_output/databases/european_football_2/Player_Attributes.csv",
+            "stratified_output/databases/european_football_2/Team.csv"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "european_football_2",
+        "path": [
+            "stratified_output/schemas/european_football_2/european_football_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many football players born after the 1990s have the first name \"Aaron\"?",
+    "sql": "SELECT COUNT(id) FROM Player WHERE birthday > '1990' AND player_name LIKE 'Aaron%'",
+    "evidence": "first name \"Aaron\" refers to player_name LIKE 'Aaron%'; born after the 1990s refers to birthday > '1990'",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 75,
+        "word_length": 13,
+        "entities": [
+            {
+                "text": "the 1990s",
+                "label": "DATE",
+                "start": 37,
+                "end": 46
+            },
+            {
+                "text": "first",
+                "label": "ORDINAL",
+                "start": 56,
+                "end": 61
+            },
+            {
+                "text": "Aaron",
+                "label": "PERSON",
+                "start": 68,
+                "end": 73
+            }
+        ],
+        "entity_types": [
+            "ORDINAL",
+            "DATE",
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "first"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 82,
+        "tables_count": 1,
+        "tables": [
+            "Player"
+        ],
+        "join_count": 0,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}
