@@ -1,0 +1,98 @@
+{
+  "id": 226,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the percentage of double bonds in the molecule TR008? Please provide your answer as a percentage with five decimal places.",
+  "sql": "SELECT ROUND(CAST(COUNT(CASE WHEN T.bond_type = '=' THEN T.bond_id ELSE NULL END) AS REAL) * 100 / COUNT(T.bond_id),5) FROM bond AS T WHERE T.molecule_id = 'TR008'",
+  "evidence": "double bond refers to bond_type = '='; TR008 is the molecule id; percentage = DIVIDE(SUM(bond_type = '='), COUNT(bond_id)) as percent where molecule_id = 'TR008'",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 130,
+    "word_length": 22,
+    "entities": [
+      {
+        "text": "TR008",
+        "label": "PRODUCT",
+        "start": 55,
+        "end": 60
+      },
+      {
+        "text": "five",
+        "label": "CARDINAL",
+        "start": 110,
+        "end": 114
+      }
+    ],
+    "entity_types": [
+      "PRODUCT",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "five"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 163,
+    "tables_count": 1,
+    "tables": [
+      "bond"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "WITH bond_counts AS (SELECT molecule_id, COUNT(bond_id) AS total_bonds, SUM(CASE WHEN bond_type = 'double' THEN 1 ELSE 0 END) AS double_bonds FROM bond WHERE molecule_id = 'TR008' GROUP BY molecule_id) SELECT ROUND((double_bonds / total_bonds) * 100, 5) AS double_bond_percentage FROM bond_counts;",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The queries count different bond types: Gold uses '=' and Generated uses 'double'. Without knowing if these are equivalent in the database, the results may differ."
+    }
+  }
+}

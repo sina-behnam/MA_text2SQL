@@ -1,0 +1,74 @@
+{
+  "id": 840,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show the names of conductors and the orchestras they have conducted.",
+  "sql": "SELECT T1.Name ,  T2.Orchestra FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 68,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 111,
+    "tables_count": 2,
+    "tables": [
+      "conductor",
+      "orchestra"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT c.Name AS Conductor_Name, o.Orchestra AS Orchestra_Name FROM conductor c JOIN orchestra o ON c.Conductor_ID = o.Conductor_ID",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema to understand the tables and their relationships:\n\n1. `conductor` table: Contains information about conductors, including their ID, name, age, nationality, and year of work.\n2. `orchestra` table: Contains information about orchestras, including their ID, name, conductor ID (references conductor table), record company, founding year, and major record format.\n3. `performance` table: Contains information about performances, including their ID, orchestra ID (references orchestra table), type, date, ratings, weekly rank, and share.\n4. `show` table: Contains information about shows, including their ID, performance ID (references performance table), whether it's the first show, result, and attendance.\n\nTo answer the question \"Show the names of conductors and the orchestras they have conducted\", I need to:\n1. Join the `conductor` table with the `orchestra` table using the `Conductor_ID` field.\n2. Select the conductor name from the `conductor` table and the orchestra name from the `orchestra` table.\n\nHere's the SQL query:\n</think>\n\nI'll write a SQL query that joins the conductor and orchestra tables to show the names of conductors and the orchestras they have conducted.\n\n```json\n{\n  \"sql\": \"SELECT c.Name AS Conductor_Name, o.Orchestra AS Orchestra_Name FROM conductor c JOIN orchestra o ON c.Conductor_ID = o.Conductor_ID\"\n}\n```"
+    }
+  }
+}

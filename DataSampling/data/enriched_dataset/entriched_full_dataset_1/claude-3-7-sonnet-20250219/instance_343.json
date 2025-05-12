@@ -1,0 +1,82 @@
+{
+  "id": 343,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which template type code is used by most number of documents?",
+  "sql": "SELECT T1.template_type_code FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id GROUP BY T1.template_type_code ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 61,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 169,
+    "tables_count": 2,
+    "tables": [
+      "Templates",
+      "Documents"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT t.Template_Type_Code, COUNT(d.Document_ID) as document_count FROM Templates t JOIN Documents d ON t.Template_ID = d.Template_ID GROUP BY t.Template_Type_Code ORDER BY document_count DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "raw_response": "<think>\nLet's understand the database schema first:\n\n1. `Ref_Template_Types`: Stores template type codes and their descriptions.\n2. `Templates`: Stores templates with their IDs, version numbers, and template type codes (linked to Ref_Template_Types).\n3. `Documents`: Stores documents with their IDs, template IDs (linked to Templates), and other document info.\n4. `Paragraphs`: Stores paragraphs with their IDs, document IDs (linked to Documents), and other paragraph info.\n\nThe question asks: \"Which template type code is used by most number of documents?\"\n\nTo answer this, we need to:\n1. Connect Documents to Templates to get the Template_Type_Code.\n2. Count how many documents use each Template_Type_Code.\n3. Find the Template_Type_Code with the highest count.\n\nLet me write the SQL query:\n\n```sql\nSELECT rt.Template_Type_Code, COUNT(d.Document_ID) as document_count\nFROM Ref_Template_Types rt\nJOIN Templates t ON rt.Template_Type_Code = t.Template_Type_Code\nJOIN Documents d ON t.Template_ID = d.Template_ID\nGROUP BY rt.Template_Type_Code\nORDER BY document_count DESC\nLIMIT 1;\n```\n\nThis query:\n1. Joins the three relevant tables.\n2. Groups by Template_Type_Code.\n3. Counts the number of documents for each Template_Type_Code.\n4. Orders by the count in descending order.\n5. Limits to the top result (the Template_Type_Code with the most documents).\n\nActually, I think we don't need to involve the Ref_Template_Types table directly, since we just need the Template_Type_Code, not its description. Let's simplify:\n\n```sql\nSELECT t.Template_Type_Code, COUNT(d.Document_ID) as document_count\nFROM Templates t\nJOIN Documents d ON t.Template_ID = d.Template_ID\nGROUP BY t.Template_Type_Code\nORDER BY document_count DESC\nLIMIT 1;\n```\n\nThat looks better. This will give us the Template_Type_Code that is used by the most number of documents, along with the count of documents.\n\nWait, I think I might not be fully capturing the essence of the question. Let me think about it again.\n\nIf a document is associated with a template, and a template has a template type code, then we need to count how many documents are using each template type code. \n\nThe query I just provided would give us the Template_Type_Code with the highest document count. So it seems correct. Let's stick with this query:\n\n```sql\nSELECT t.Template_Type_Code, COUNT(d.Document_ID) as document_count\nFROM Templates t\nJOIN Documents d ON t.Template_ID = d.Template_ID\nGROUP BY t.Template_Type_Code\nORDER BY document_count DESC\nLIMIT 1;\n```\n\nBut I realized there's a slight problem: if a document has a NULL Template_ID, it won't be included in the count. Depending on the requirements, we might need to handle this separately. However, for the current question, we're specifically asked about Template_Type_Code, so documents without a template (NULL Template_ID) wouldn't have a Template_Type_Code anyway.\n\nSo, the SQL query above is correct for the question.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT t.Template_Type_Code, COUNT(d.Document_ID) as document_count FROM Templates t JOIN Documents d ON t.Template_ID = d.Template_ID GROUP BY t.Template_Type_Code ORDER BY document_count DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

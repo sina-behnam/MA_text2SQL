@@ -1,0 +1,108 @@
+{
+  "id": 995,
+  "dataset": "bird",
+  "database": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/databases/formula_1/formula_1.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/formula_1/circuits.csv",
+      "stratified_output/databases/formula_1/status.csv",
+      "stratified_output/databases/formula_1/drivers.csv",
+      "stratified_output/databases/formula_1/driverStandings.csv",
+      "stratified_output/databases/formula_1/races.csv",
+      "stratified_output/databases/formula_1/constructors.csv",
+      "stratified_output/databases/formula_1/constructorResults.csv",
+      "stratified_output/databases/formula_1/lapTimes.csv",
+      "stratified_output/databases/formula_1/qualifying.csv",
+      "stratified_output/databases/formula_1/pitStops.csv",
+      "stratified_output/databases/formula_1/seasons.csv",
+      "stratified_output/databases/formula_1/constructorStandings.csv",
+      "stratified_output/databases/formula_1/results.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/schemas/formula_1/formula_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average score of Lewis Hamilton among all the Turkish Grand Prix?",
+  "sql": "SELECT AVG(T2.points) FROM drivers AS T1 INNER JOIN driverStandings AS T2 ON T1.driverId = T2.driverId INNER JOIN races AS T3 ON T3.raceId = T2.raceId WHERE T1.forename = 'Lewis' AND T1.surname = 'Hamilton' AND T3.name = 'Turkish Grand Prix'",
+  "evidence": "Average score = AVG(points)",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 77,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "Lewis Hamilton",
+        "label": "PERSON",
+        "start": 29,
+        "end": 43
+      },
+      {
+        "text": "the Turkish Grand Prix",
+        "label": "EVENT",
+        "start": 54,
+        "end": 76
+      }
+    ],
+    "entity_types": [
+      "EVENT",
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 241,
+    "tables_count": 3,
+    "tables": [
+      "driverStandings",
+      "drivers",
+      "races"
+    ],
+    "join_count": 2,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(r.points) as average_score FROM results r JOIN drivers d ON r.driverId = d.driverId JOIN races ra ON r.raceId = ra.raceId WHERE d.forename = 'Lewis' AND d.surname = 'Hamilton' AND ra.name = 'Turkish Grand Prix'",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The queries are not semantically equivalent because they use different data sources. The gold query calculates the average from the 'driverStandings' table, which typically contains cumulative points standings after each race. The generated query uses the 'results' table, which contains individual race results. These would produce different values - the first averages Hamilton's standings points at Turkish Grand Prix events, while the second averages only the points he earned in each specific Turkish Grand Prix race.",
+      "raw_response": "<think>\nLet me understand what the question is asking for and then identify the relevant tables and columns needed to answer it:\n\n1. We need to find the average score (points) of Lewis Hamilton in all Turkish Grand Prix races.\n\nRelevant tables:\n- `drivers`: To identify Lewis Hamilton's driverId\n- `races`: To identify Turkish Grand Prix races\n- `results`: To get the points scored in each race\n\nThe approach would be:\n1. Find Lewis Hamilton's driverId from the `drivers` table.\n2. Find all races that are Turkish Grand Prix from the `races` table.\n3. Join with the `results` table to get Hamilton's points in these races.\n4. Calculate the average of these points.\n\nLet's write the SQL query:\n```sql\nSELECT AVG(r.points) as average_score\nFROM results r\nJOIN drivers d ON r.driverId = d.driverId\nJOIN races ra ON r.raceId = ra.raceId\nWHERE d.forename = 'Lewis' AND d.surname = 'Hamilton'\nAND ra.name LIKE '%Turkish Grand Prix%'\n```\n\nThis query will:\n1. Join the results table with drivers to identify Lewis Hamilton's results\n2. Join with races to filter for only Turkish Grand Prix\n3. Calculate the average of the points column from these results\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(r.points) as average_score FROM results r JOIN drivers d ON r.driverId = d.driverId JOIN races ra ON r.raceId = ra.raceId WHERE d.forename = 'Lewis' AND d.surname = 'Hamilton' AND ra.name = 'Turkish Grand Prix'\"\n}\n```"
+    }
+  }
+}

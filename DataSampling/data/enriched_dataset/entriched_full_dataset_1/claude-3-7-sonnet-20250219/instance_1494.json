@@ -1,0 +1,92 @@
+{
+  "id": 1494,
+  "dataset": "bird",
+  "database": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/debit_card_specializing/customers.csv",
+      "stratified_output/databases/debit_card_specializing/gasstations.csv",
+      "stratified_output/databases/debit_card_specializing/products.csv",
+      "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+      "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What percentage of Slovakian gas stations are premium?",
+  "sql": "SELECT CAST(SUM(IIF(Segment = 'Premium', 1, 0)) AS FLOAT) * 100 / COUNT(GasStationID) FROM gasstations WHERE Country = 'SVK'",
+  "evidence": "Percentage of premium gas station = (Total of premium gas station in Slovakia / Total of gas station in Slovakia) * 100%.",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 54,
+    "word_length": 8,
+    "entities": [
+      {
+        "text": "Slovakian",
+        "label": "NORP",
+        "start": 19,
+        "end": 28
+      }
+    ],
+    "entity_types": [
+      "NORP"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 124,
+    "tables_count": 1,
+    "tables": [
+      "gasstations"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT",
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT (COUNT(CASE WHEN Segment = 'Premium' THEN 1 END) * 100.0 / COUNT(*)) AS PremiumPercentage FROM gasstations WHERE Country = 'Slovakia';",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "These queries are not semantically equivalent because they use different values in the WHERE clause. The first query filters for 'SVK' while the second query filters for 'Slovakia'. If these are stored differently in the database (e.g., one is an ISO code and one is the full country name), they would return different results. The calculation methods (SUM with IIF vs COUNT with CASE) are functionally equivalent, as are the division operations, but the country filter difference makes these queries non-equivalent.",
+      "raw_response": "<think>\nLet's break down the question:\n\n1. We need to find the percentage of gas stations in Slovakia that are premium.\n2. The formula is: (Total number of premium gas stations in Slovakia / Total number of gas stations in Slovakia) * 100%.\n\nLooking at the provided schema, we have a table called `gasstations` which should contain information about gas stations. It has columns:\n- `GasStationID` (primary key)\n- `ChainID`\n- `Country`\n- `Segment`\n\nThe \"Segment\" column likely indicates the type of gas station, which could include \"Premium\" as one of its values.\n\nSo, to answer the question, we need to:\n1. Count the total number of gas stations in Slovakia (`Country` = 'Slovakia').\n2. Count the number of premium gas stations in Slovakia (`Country` = 'Slovakia' and `Segment` = 'Premium').\n3. Calculate the percentage using the formula provided.\n\nLet's write a SQL query for this:\n\n```sql\nSELECT\n    (COUNT(CASE WHEN Segment = 'Premium' THEN 1 END) * 100.0 / COUNT(*)) AS PremiumPercentage\nFROM gasstations\nWHERE Country = 'Slovakia';\n```\n\nThis query:\n1. Counts all gas stations in Slovakia.\n2. Counts premium gas stations in Slovakia using a CASE statement.\n3. Calculates the percentage.\n\nI'm assuming the `Segment` column in the `gasstations` table contains values like \"Premium\" to indicate premium gas stations. If the segment is called something else, the query would need to be adjusted.\n\nAnother way to write the same query could be:\n\n```sql\nSELECT\n    (SUM(CASE WHEN Segment = 'Premium' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS PremiumPercentage\nFROM gasstations\nWHERE Country = 'Slovakia';\n```\n\nOr:\n\n```sql\nSELECT\n    (COUNT(CASE WHEN Segment = 'Premium' THEN 1 ELSE NULL END) * 100.0 / COUNT(*)) AS PremiumPercentage\nFROM gasstations\nWHERE Country = 'Slovakia';\n```\n\nAll of these should give the same result. I'll go with the first one since it's the most concise.\n</think>\n\nBased on the provided schema, I need to calculate the percentage of Slovakian gas stations that are premium.\n\n```json\n{\n  \"sql\": \"SELECT (COUNT(CASE WHEN Segment = 'Premium' THEN 1 END) * 100.0 / COUNT(*)) AS PremiumPercentage FROM gasstations WHERE Country = 'Slovakia';\"\n}\n```"
+    }
+  }
+}

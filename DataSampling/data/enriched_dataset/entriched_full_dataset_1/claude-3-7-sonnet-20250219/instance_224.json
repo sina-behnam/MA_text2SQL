@@ -1,0 +1,82 @@
+{
+  "id": 224,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which city is the most frequent source airport?",
+  "sql": "SELECT T1.City FROM AIRPORTS AS T1 JOIN FLIGHTS AS T2 ON T1.AirportCode  =  T2.SourceAirport GROUP BY T1.City ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 47,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 140,
+    "tables_count": 2,
+    "tables": [
+      "FLIGHTS",
+      "AIRPORTS"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT a.City, COUNT(*) as flight_count FROM flights f JOIN airports a ON f.SourceAirport = a.AirportCode GROUP BY a.City ORDER BY flight_count DESC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to find the city that is most frequently used as a source airport in flights. Here's how I'll approach this:\n\n1. The `flights` table has a column `SourceAirport` that contains the airport code of the source airport.\n2. I need to join with the `airports` table to get the city for each source airport.\n3. Then I need to count the occurrences of each city as a source airport and find the one with the highest count.\n\nSo the query will:\n1. Join the `flights` and `airports` tables on `SourceAirport = AirportCode`\n2. Group by the `City` column\n3. Count the number of flights for each city\n4. Order by the count in descending order\n5. Limit to the top 1 result (the city with the highest count)\n\nHere's the SQL query:\n\n```sql\nSELECT a.City, COUNT(*) as flight_count\nFROM flights f\nJOIN airports a ON f.SourceAirport = a.AirportCode\nGROUP BY a.City\nORDER BY flight_count DESC\nLIMIT 1\n```\n\nThis will give us the city that is most frequently used as a source airport along with the count of how many times it's used.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT a.City, COUNT(*) as flight_count FROM flights f JOIN airports a ON f.SourceAirport = a.AirportCode GROUP BY a.City ORDER BY flight_count DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

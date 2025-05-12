@@ -1,0 +1,98 @@
+{
+  "id": 1211,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Provide the ID and age of patient with lactate dehydrogenase (LDH) between 100-300 index above the normal range.",
+  "sql": "SELECT DISTINCT T1.ID, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.LDH > 600 AND T2.LDH < 800",
+  "evidence": "age refers to SUBTRACT(year(current_timestamp), year(Birthday)); lactate dehydrogenase (LDH) between 100-300 index above the normal range refers to LDH between 600 and 800;",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 112,
+    "word_length": 19,
+    "entities": [
+      {
+        "text": "ID",
+        "label": "ORG",
+        "start": 12,
+        "end": 14
+      },
+      {
+        "text": "100-300",
+        "label": "CARDINAL",
+        "start": 75,
+        "end": 82
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "100",
+      "300"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 186,
+    "tables_count": 2,
+    "tables": [
+      "Laboratory",
+      "Patient"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT p.ID, YEAR(CURRENT_TIMESTAMP) - YEAR(p.Birthday) AS age FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.LDH BETWEEN 600 AND 800",
+      "execution_correct": false,
+      "execution_error": "Execution error: no such function: YEAR",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: no such function: YEAR",
+      "raw_response": "<think>\nBased on the question and the database schema, I need to:\n\n1. Find patients whose LDH value is between 600 and 800 (which is 100-300 index above the normal range, as specified in the question).\n2. Calculate the age of these patients by subtracting the year of their birthdate from the current year.\n3. Return the patient ID and calculated age.\n\nLet's break down the query:\n\n1. We need to join the Laboratory and Patient tables to get both the LDH values and the birthdate.\n2. We need to filter for LDH values between 600 and 800.\n3. We need to calculate the age using YEAR(CURRENT_TIMESTAMP) - YEAR(Birthday) as mentioned in the question.\n\nHere's the SQL query I'll construct:\n\n```sql\nSELECT \n    p.ID,\n    YEAR(CURRENT_TIMESTAMP) - YEAR(p.Birthday) AS age\nFROM \n    Laboratory l\nJOIN \n    Patient p ON l.ID = p.ID\nWHERE \n    l.LDH BETWEEN 600 AND 800;\n```\n\nThis query joins the Laboratory and Patient tables on the ID field, filters for LDH values between 600 and 800, and calculates the age as specified. It then returns the patient ID and age.\n\nLet me double check this query:\n\n- We're joining the Laboratory and Patient tables correctly.\n- We're filtering for LDH between 600 and 800.\n- We're calculating the age using YEAR(CURRENT_TIMESTAMP) - YEAR(p.Birthday) as specified.\n- We're selecting the ID and calculated age.\n\nThe query looks correct. It will return the ID and age of patients whose LDH values are between 600 and 800.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT p.ID, YEAR(CURRENT_TIMESTAMP) - YEAR(p.Birthday) AS age FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.LDH BETWEEN 600 AND 800\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "id": 587,
+  "dataset": "bird",
+  "database": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/databases/codebase_community/codebase_community.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/codebase_community/postLinks.csv",
+      "stratified_output/databases/codebase_community/postHistory.csv",
+      "stratified_output/databases/codebase_community/badges.csv",
+      "stratified_output/databases/codebase_community/posts.csv",
+      "stratified_output/databases/codebase_community/users.csv",
+      "stratified_output/databases/codebase_community/tags.csv",
+      "stratified_output/databases/codebase_community/votes.csv",
+      "stratified_output/databases/codebase_community/comments.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/schemas/codebase_community/codebase_community.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Calculate the average view count of each post tagged as 'humor' and list the title and the comment of each post.",
+  "sql": "SELECT AVG(T2.ViewCount), T2.Title, T1.Text FROM comments AS T1 INNER JOIN posts AS T2 ON T2.Id = T1.PostId  WHERE T2.Tags = '<humor>' GROUP BY T2.Title, T1.Text ",
+  "evidence": "tagged as  'humor' refers to tag = '<humor>'; comment of the post refers to Text; average view count = AVG(ViewCount)",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 112,
+    "word_length": 21,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 3,
+    "column_overlap_lemma_count": 3
+  },
+  "sql_analysis": {
+    "char_length": 162,
+    "tables_count": 2,
+    "tables": [
+      "posts",
+      "comments"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "select the title and comment. The title is in posts.Title, and the comment is in comments.Text. I'll alias them as 'Title' and 'Comment' respectively.\n\nPutting it all together, the SQL query will select the average view count, title, and comment from the joined tables where the tags include 'humor'. I'll make sure to group the results appropriately, but since I'm calculating an average and listing each post's details, I might not need a GROUP BY unless I'm aggregating per post, which I'm not in this case.\n\nWait, actually, if I want the average view count across all humor posts, I might need to calculate it once, but the user also wants each post's title and comment. So perhaps I should first calculate the average and then join it with the individual post and comment details. Alternatively, I can include the average in each row, but that might not be necessary. Hmm, maybe I should just calculate the average and list each post's details separately. But the user's question seems to ask for both the average and the individual details, so perhaps I need to structure the query to include both.\n\nWait, maybe I'm overcomplicating. The user wants the average view count of each post tagged as 'humor' and also list the title and comment of each post. So for each humor post, I need to show its title, comment, and the average view count across all humor posts. That means the average is a single value, but I need to display it for each post. So I can calculate the average in a subquery and then join it with the posts and comments.\n\nAlternatively, I can use a window function to get the average alongside each row. But since the user might be using a database that supports window functions, I can try that. So the query would select Title, Comment, and the average ViewCount over all humor posts.\n\nWait, but the initial approach I took in the example response doesn't include the average. It only selects the title and comment. So perhaps I need to adjust that. Let me think again.\n\nThe user wants two things: the average view count of humor posts and the list of titles and comments. So maybe the query should first get the average and then list each post with its title and comment. But in SQL, I can't really return two separate result sets in one query. So perhaps the best approach is to calculate the average and then select the individual posts, including the average as a column.\n\nSo, I'll modify the query to include the average as a calculated field. I'll use a subquery to get the average view count of all humor posts and then cross join it with the posts and comments.\n\nAlternatively, I can use a window function like AVG(ViewCount) OVER () to get the average for each row. That way, each post's row will have its own title, comment, and the average view count.\n\nSo, the final query would join posts and comments, filter for 'humor' tags, and include the average view count using a window function. That way, each row shows the post's title, comment, and the average view count across all humor posts.\n\nWait, but in the example response, the query only selects title and comment without the average. So perhaps the user only wants the average and the list, but not necessarily combined. Maybe I should provide the average as a separate calculation and then the list of posts. But in SQL, that would require two separate queries or using a union, which isn't ideal.\n\nAlternatively, perhaps the user wants the average per post, but that doesn't make sense because average is an aggregate. So I think the correct approach is to calculate the average once and then list each post with its title and comment.\n\nBut the example response only includes the SELECT for title and comment. So maybe the user's main focus is on listing the posts with their titles and comments, and also calculating the average view count. So perhaps the query should first get the average and then select the individual posts.\n\nWait, perhaps the user wants the average view count for all humor posts, and then list each humor post with its title and comment. So the average is a single value, and then each post is listed. But in SQL, this would require two separate SELECT statements, which isn't possible in one query. So perhaps the best approach is to calculate the average in a subquery and then select the posts, including the average as a column.\n\nSo, the query would look like:\n\nSELECT p.Title, c.Text AS Comment, (SELECT AVG(ViewCount) FROM posts WHERE Tags LIKE '%humor%') AS AverageViewCount\nFROM posts p\nLEFT JOIN comments c ON p.Id = c.PostId\nWHERE p.Tags LIKE '%humor%';",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"and\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"and\": syntax error"
+    }
+  }
+}

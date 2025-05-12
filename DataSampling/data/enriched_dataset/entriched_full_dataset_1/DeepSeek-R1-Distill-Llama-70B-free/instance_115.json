@@ -1,0 +1,92 @@
+{
+  "id": 115,
+  "dataset": "bird",
+  "database": {
+    "name": "financial",
+    "path": [
+      "stratified_output/databases/financial/financial.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/financial/loan.csv",
+      "stratified_output/databases/financial/client.csv",
+      "stratified_output/databases/financial/district.csv",
+      "stratified_output/databases/financial/trans.csv",
+      "stratified_output/databases/financial/account.csv",
+      "stratified_output/databases/financial/card.csv",
+      "stratified_output/databases/financial/order.csv",
+      "stratified_output/databases/financial/disp.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "financial",
+    "path": [
+      "stratified_output/schemas/financial/financial.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For the branch which located in the south Bohemia with biggest number of inhabitants, what is the percentage of the male clients?",
+  "sql": "SELECT CAST(SUM(T1.gender = 'M') AS REAL) * 100 / COUNT(T1.client_id) FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T2.A3 = 'south Bohemia' GROUP BY T2.A4 ORDER BY T2.A4 DESC LIMIT 1",
+  "evidence": "Percentage of the male clients = DIVIDE(COUNT(male clients), COUNT(clients)) * 100; Male refers to gender = 'M', A3 is the region name. A4 contains the information about inhabitants.",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 129,
+    "word_length": 22,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "biggest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 221,
+    "tables_count": 2,
+    "tables": [
+      "district",
+      "client"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT",
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT (SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) / COUNT(client_id)) * 100 FROM client WHERE district_id = (SELECT district_id FROM district WHERE A2 = 'South Bohemia' AND A8 = (SELECT MAX(A8) FROM district WHERE A2 = 'South Bohemia'))",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The Gold Query finds the district with the highest percentage of male clients, while the Generated Query finds the percentage in the most populous district. They answer different questions."
+    }
+  }
+}

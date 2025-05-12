@@ -1,0 +1,88 @@
+{
+  "id": 587,
+  "dataset": "bird",
+  "database": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/databases/codebase_community/codebase_community.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/codebase_community/postLinks.csv",
+      "stratified_output/databases/codebase_community/postHistory.csv",
+      "stratified_output/databases/codebase_community/badges.csv",
+      "stratified_output/databases/codebase_community/posts.csv",
+      "stratified_output/databases/codebase_community/users.csv",
+      "stratified_output/databases/codebase_community/tags.csv",
+      "stratified_output/databases/codebase_community/votes.csv",
+      "stratified_output/databases/codebase_community/comments.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/schemas/codebase_community/codebase_community.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Calculate the average view count of each post tagged as 'humor' and list the title and the comment of each post.",
+  "sql": "SELECT AVG(T2.ViewCount), T2.Title, T1.Text FROM comments AS T1 INNER JOIN posts AS T2 ON T2.Id = T1.PostId  WHERE T2.Tags = '<humor>' GROUP BY T2.Title, T1.Text ",
+  "evidence": "tagged as  'humor' refers to tag = '<humor>'; comment of the post refers to Text; average view count = AVG(ViewCount)",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 112,
+    "word_length": 21,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 3,
+    "column_overlap_lemma_count": 3
+  },
+  "sql_analysis": {
+    "char_length": 162,
+    "tables_count": 2,
+    "tables": [
+      "posts",
+      "comments"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT p.Title, c.Text AS Comment, (SELECT AVG(ViewCount) FROM posts WHERE Tags LIKE '%<humor>%') AS AverageViewCount FROM posts p JOIN comments c ON p.Id = c.PostId WHERE p.Tags LIKE '%<humor>%'",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (9, 3) vs predicted (19, 3)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (9, 3) vs predicted (19, 3)",
+      "raw_response": "<think>\nLet's analyze the requirements and the database schema:\n\n1. Calculate the average view count of posts tagged as 'humor'\n2. List the title of each post\n3. List the comment of each post, which refers to the Text field in comments\n\nFrom the schema, we can see that:\n- Posts are stored in the `posts` table, which includes `Title`, `ViewCount`, and `Tags` fields\n- Comments are stored in the `comments` table, which has a `Text` field\n- Posts and comments are related by `PostId` in the `comments` table, which references `Id` in the `posts` table\n\nTo find posts tagged as 'humor', we need to look for '<humor>' in the Tags field.\n\nSo we need to:\n1. Select posts where Tags contain '<humor>'\n2. Calculate the average view count of these posts\n3. For each post, list its title\n4. For each post, list its comment text\n\nLet's build the SQL query:\n\n```sql\nSELECT \n    p.Title,\n    c.Text as Comment,\n    AVG(p.ViewCount) OVER() as AverageViewCount\nFROM \n    posts p\nJOIN \n    comments c ON p.Id = c.PostId\nWHERE \n    p.Tags LIKE '%<humor>%'\nORDER BY \n    p.Id\n```\n\nHmm, but this query might not be exactly what's needed. Let me reconsider:\n\nIf the question is asking for the average view count for each post tagged as 'humor', and then list the title and comment of each post, then we'd need something like:\n\n```sql\nSELECT \n    p.Title,\n    c.Text as Comment,\n    AVG(p.ViewCount) OVER() as AverageViewCount\nFROM \n    posts p\nJOIN \n    comments c ON p.Id = c.PostId\nWHERE \n    p.Tags LIKE '%<humor>%'\n```\n\nBut this would give the same average view count for all posts, which doesn't seem right.\n\nLet me think about this more carefully. The question is asking for \"the average view count of each post tagged as 'humor'\". If we're calculating the average for each post individually, that doesn't make sense since a post has only one view count. It's more likely that the question is asking for the average view count across all posts tagged as 'humor', and then to list each post's title and comments.\n\nLet's revise the query:\n\n```sql\nWITH HumorPosts AS (\n    SELECT \n        p.Id,\n        p.Title,\n        p.ViewCount\n    FROM \n        posts p\n    WHERE \n        p.Tags LIKE '%<humor>%'\n)\nSELECT \n    hp.Title,\n    c.Text as Comment,\n    (SELECT AVG(ViewCount) FROM HumorPosts) as AverageViewCount\nFROM \n    HumorPosts hp\nJOIN \n    comments c ON hp.Id = c.PostId\n```\n\nThis query first selects all posts tagged as 'humor', then joins with the comments table to get the comment text for each post, and calculates the average view count across all 'humor' posts.\n\nLet me double-check. Actually, it's possible that a post can have multiple comments. In that case, this query would return multiple rows for each post (one for each comment). If we want to include all comments, this is fine. If we want just one comment per post, we'd need to aggregate them somehow (e.g., using GROUP_CONCAT or a subquery).\n\nSince the question says \"the comment of each post\", implying one comment per post, let's make sure we handle this properly. For simplicity, I'll assume we want the first comment for each post:\n\n```sql\nWITH HumorPosts AS (\n    SELECT \n        p.Id,\n        p.Title,\n        p.ViewCount\n    FROM \n        posts p\n    WHERE \n        p.Tags LIKE '%<humor>%'\n)\nSELECT \n    hp.Title,\n    (SELECT c.Text FROM comments c WHERE c.PostId = hp.Id ORDER BY c.CreationDate LIMIT 1) as Comment,\n    (SELECT AVG(ViewCount) FROM HumorPosts) as AverageViewCount\nFROM \n    HumorPosts hp\n```\n\nBut now that I think about it more, the problem is that a post can have multiple comments, so which comment should we include? Actually, looking at the comments table, it seems that each comment is linked to a post via the PostId field. So we'd get multiple rows for each post that has multiple comments, which is probably what's expected.\n\nLet's go with a slightly simpler version of the query:\n\n```sql\nSELECT \n    p.Title,\n    c.Text as Comment,\n    (SELECT AVG(ViewCount) FROM posts WHERE Tags LIKE '%<humor>%') as AverageViewCount\nFROM \n    posts p\nJOIN \n    comments c ON p.Id = c.PostId\nWHERE \n    p.Tags LIKE '%<humor>%'\n```\n\nThis query calculates the average view count of all posts tagged as 'humor', and then lists the title and comment text for each 'humor' post.\n</think>\n\nI'll create a SQL query to calculate the average view count of posts tagged as 'humor' and list the titles and comments for these posts.\n\n```json\n{\n  \"sql\": \"SELECT p.Title, c.Text AS Comment, (SELECT AVG(ViewCount) FROM posts WHERE Tags LIKE '%<humor>%') AS AverageViewCount FROM posts p JOIN comments c ON p.Id = c.PostId WHERE p.Tags LIKE '%<humor>%'\"\n}\n```"
+    }
+  }
+}

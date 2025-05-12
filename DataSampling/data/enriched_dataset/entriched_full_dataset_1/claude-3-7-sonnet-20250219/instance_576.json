@@ -1,0 +1,74 @@
+{
+  "id": 576,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the id of the semester that had both Masters and Bachelors students enrolled?",
+  "sql": "SELECT DISTINCT T2.semester_id FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id WHERE degree_summary_name  =  'Master' INTERSECT SELECT DISTINCT T2.semester_id FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id  =  T2.degree_program_id WHERE degree_summary_name  =  'Bachelor'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 85,
+    "word_length": 16,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 361,
+    "tables_count": 2,
+    "tables": [
+      "Degree_Programs",
+      "Student_Enrolment"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT s.semester_id \nFROM Semesters s\nWHERE EXISTS (\n    SELECT 1 \n    FROM Student_Enrolment se\n    JOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id\n    WHERE se.semester_id = s.semester_id\n    AND dp.degree_summary_name LIKE '%Master%'\n)\nAND EXISTS (\n    SELECT 1 \n    FROM Student_Enrolment se\n    JOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id\n    WHERE se.semester_id = s.semester_id\n    AND dp.degree_summary_name LIKE '%Bachelor%'\n)\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nTo answer this question, I need to find the semester_id that had both Masters and Bachelors students enrolled. Let me analyze the schema to figure out how to identify the degree level of students.\n\nThe schema includes:\n1. `Semesters` table with semester_id\n2. `Student_Enrolment` table linking students to semesters and degree programs\n3. `Degree_Programs` table that has information about degree programs\n\nI need to determine how to identify whether a program is Masters or Bachelors. Looking at the schema, it seems the `Degree_Programs` table has a `degree_summary_name` field that might contain this information. However, I don't see explicit fields like \"degree_level\" or similar.\n\nI'll assume that `degree_summary_name` contains information like \"Masters in Computer Science\" or \"Bachelors in Physics\", where we can identify the degree level from the name.\n\nGiven this assumption, I need to:\n1. Find all semesters that have at least one Masters student enrolled\n2. Find all semesters that have at least one Bachelors student enrolled\n3. Find the intersection of these sets of semesters\n\nI'll write a SQL query that does this:\n\n```sql\nSELECT semester_id\nFROM Semesters s\nWHERE EXISTS (\n    SELECT 1 \n    FROM Student_Enrolment se\n    JOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id\n    WHERE se.semester_id = s.semester_id\n    AND dp.degree_summary_name LIKE 'Master%'\n)\nAND EXISTS (\n    SELECT 1 \n    FROM Student_Enrolment se\n    JOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id\n    WHERE se.semester_id = s.semester_id\n    AND dp.degree_summary_name LIKE 'Bachelor%'\n)\n```\n\nThis query assumes that Masters programs have \"Master\" in their name and Bachelors programs have \"Bachelor\" in their name. \n\nHowever, there's a potential issue with this approach: what if the degree level is stored differently? For example, what if it uses abbreviations like \"MS\" for Masters or \"BS\" for Bachelors? Or what if the degree level is stored in a different field or table that's not shown in the schema?\n\nLet me try a more general approach that might work regardless of how the degree level is stored:\n\n```sql\nSELECT se.semester_id\nFROM Student_Enrolment se\nJOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id\nGROUP BY se.semester_id\nHAVING COUNT(DISTINCT CASE WHEN dp.degree_summary_name LIKE 'Master%' THEN 'Masters' \n                           WHEN dp.degree_summary_name LIKE 'Bachelor%' THEN 'Bachelors' \n                      END) = 2\n```\n\nThis query counts the distinct degree levels (Masters and Bachelors) for each semester and selects only the semesters that have both.\n\nWait, the HAVING COUNT(...) = 2 approach might not work correctly if there are other degree levels beyond Masters and Bachelors. Let me modify the approach:\n\n```sql\nSELECT se.semester_id\nFROM Student_Enrolment se\nJOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id\nWHERE dp.degree_summary_name LIKE 'Master%' OR dp.degree_summary_name LIKE 'Bachelor%'\nGROUP BY se.semester_id\nHAVING \n    SUM(CASE WHEN dp.degree_summary_name LIKE 'Master%' THEN 1 ELSE 0 END) > 0\n    AND SUM(CASE WHEN dp.degree_summary_name LIKE 'Bachelor%' THEN 1 ELSE 0 END) > 0\n```\n\nThis query will select semesters that have at least one Masters student and at least one Bachelors student.\n\nUpon further reflection, both of these approaches still rely on assumptions about how the degree level is stored. I'll stick with the second approach, but note that it might need adjustment based on the actual data.\n</think>\n\nLooking at the schema, I need to find semesters that have both Masters and Bachelors students enrolled by analyzing the degree programs connected to student enrollments.\n\nThe degree level information is likely in the `degree_summary_name` field of the `Degree_Programs` table, so I'll search for programs containing \"Master\" and \"Bachelor\" in their names.\n\n```json\n{\n  \"sql\": \"SELECT s.semester_id \nFROM Semesters s\nWHERE EXISTS (\n    SELECT 1 \n    FROM Student_Enrolment se\n    JOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id\n    WHERE se.semester_id = s.semester_id\n    AND dp.degree_summary_name LIKE '%Master%'\n)\nAND EXISTS (\n    SELECT 1 \n    FROM Student_Enrolment se\n    JOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id\n    WHERE se.semester_id = s.semester_id\n    AND dp.degree_summary_name LIKE '%Bachelor%'\n)\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "id": 697,
+  "dataset": "spider",
+  "database": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/databases/voter_1/voter_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/schemas/voter_1/voter_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many contestants did not get voted?",
+  "sql": "SELECT count(*) FROM contestants WHERE contestant_number NOT IN ( SELECT contestant_number FROM votes )",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 39,
+    "word_length": 7,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 103,
+    "tables_count": 2,
+    "tables": [
+      "contestants",
+      "votes"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM CONTESTANTS c LEFT JOIN VOTES v ON c.contestant_number = v.contestant_number WHERE v.vote_id IS NULL",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to find the number of contestants who did not receive any votes. Let me analyze the database schema.\n\nFrom the schema:\n1. The `CONTESTANTS` table stores information about all contestants.\n2. The `VOTES` table stores information about votes, including which contestant received each vote.\n\nTo find contestants who did not get any votes, I need to identify contestants in the `CONTESTANTS` table who don't have any corresponding entries in the `VOTES` table.\n\nI can do this using a LEFT JOIN between the `CONTESTANTS` and `VOTES` tables and then counting the contestants where there's no corresponding vote.\n\nThe SQL query should look like:\n\n```sql\nSELECT COUNT(*) \nFROM CONTESTANTS c\nLEFT JOIN VOTES v ON c.contestant_number = v.contestant_number\nWHERE v.vote_id IS NULL;\n```\n\nIn this query:\n- I LEFT JOIN the `CONTESTANTS` and `VOTES` tables on `contestant_number`.\n- I filter for rows where `vote_id` is NULL, indicating that there's no vote for that contestant.\n- I count the number of such contestants.\n\nThis should give me the number of contestants who did not receive any votes.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM CONTESTANTS c LEFT JOIN VOTES v ON c.contestant_number = v.contestant_number WHERE v.vote_id IS NULL\"\n}\n```"
+    }
+  }
+}

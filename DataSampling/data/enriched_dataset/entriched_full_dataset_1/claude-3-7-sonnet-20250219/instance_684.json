@@ -1,0 +1,86 @@
+{
+  "id": 684,
+  "dataset": "bird",
+  "database": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/databases/codebase_community/codebase_community.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/codebase_community/postLinks.csv",
+      "stratified_output/databases/codebase_community/postHistory.csv",
+      "stratified_output/databases/codebase_community/badges.csv",
+      "stratified_output/databases/codebase_community/posts.csv",
+      "stratified_output/databases/codebase_community/users.csv",
+      "stratified_output/databases/codebase_community/tags.csv",
+      "stratified_output/databases/codebase_community/votes.csv",
+      "stratified_output/databases/codebase_community/comments.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/schemas/codebase_community/codebase_community.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Identify the percentage of teenage users.",
+  "sql": "SELECT CAST(SUM(IIF(Age BETWEEN 13 AND 18, 1, 0)) AS REAL) * 100 / COUNT(Id) FROM users",
+  "evidence": "DIVIDE(COUNT(Id where Age BETWEEN 13 and 18), COUNT(Id)) as percentage;",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 41,
+    "word_length": 6,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 87,
+    "tables_count": 1,
+    "tables": [
+      "users"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT",
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT (COUNT(CASE WHEN Age BETWEEN 13 AND 18 THEN Id END) * 100.0 / COUNT(Id)) AS percentage FROM users",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to look at the database schema to identify the users table and see if it contains an Age field to calculate the percentage of teenage users.\n\nFrom the schema provided, I can see that there is a `users` table with an `Age` field:\n```\nCREATE TABLE users\n(\n    Id              INTEGER          not null UNIQUE\n        primary key,\n    Reputation      INTEGER          null,\n    CreationDate    DATETIME     null,\n    DisplayName     TEXT null,\n    LastAccessDate  DATETIME     null,\n    WebsiteUrl      TEXT null,\n    Location        TEXT null,\n    AboutMe         TEXT     null,\n    Views           INTEGER          null,\n    UpVotes         INTEGER          null,\n    DownVotes       INTEGER          null,\n    AccountId       INTEGER          null,\n    Age             INTEGER          null,\n    ProfileImageUrl TEXT null\n);\n```\n\nTo calculate the percentage of teenage users (users aged between 13 and 18), I need to:\n\n1. Count the number of users whose age is between 13 and 18\n2. Count the total number of users\n3. Divide the first count by the second count and multiply by 100 to get the percentage\n\nThe prompt also suggests a specific formula: `DIVIDE(COUNT(Id where Age BETWEEN 13 and 18), COUNT(Id)) as percentage`\n\nLet me create the SQL query:\n</think>\n\nBased on the database schema, I'll create a query to calculate the percentage of teenage users (ages 13-18) from the users table.\n\n```json\n{\n  \"sql\": \"SELECT (COUNT(CASE WHEN Age BETWEEN 13 AND 18 THEN Id END) * 100.0 / COUNT(Id)) AS percentage FROM users\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": 374,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the id and name of the document with the most paragraphs.",
+  "sql": "SELECT T1.document_id ,  T2.document_name FROM Paragraphs AS T1 JOIN Documents AS T2 ON T1.document_id  =  T2.document_id GROUP BY T1.document_id ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 64,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 176,
+    "tables_count": 2,
+    "tables": [
+      "Paragraphs",
+      "Documents"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT d.Document_ID, d.Document_Name FROM Documents d WHERE d.Document_ID = (SELECT Document_ID FROM Paragraphs GROUP BY Document_ID ORDER BY COUNT(*) DESC LIMIT 1)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to write a SQL query to find the document with the most paragraphs.\n\nFrom the schema, I see that:\n1. The `Documents` table contains document information with `Document_ID` and `Document_Name`.\n2. The `Paragraphs` table references `Documents` via `Document_ID` and contains one row per paragraph.\n\nTo find the document with the most paragraphs, I need to:\n1. Count the number of paragraphs for each document by grouping the `Paragraphs` table by `Document_ID`.\n2. Join this count with the `Documents` table to get the document name.\n3. Order the results by the paragraph count in descending order.\n4. Limit to 1 to get only the document with the most paragraphs.\n\nHere's the SQL query:\n\n```sql\nSELECT d.Document_ID, d.Document_Name\nFROM Documents d\nJOIN (\n    SELECT Document_ID, COUNT(*) as paragraph_count\n    FROM Paragraphs\n    GROUP BY Document_ID\n    ORDER BY paragraph_count DESC\n    LIMIT 1\n) p ON d.Document_ID = p.Document_ID\n```\n\nActually, let me try a different approach, as sometimes the join approach might not work well if there's a tie for the document with the most paragraphs. I'll use a subquery to find the maximum paragraph count, and then find documents with that count:\n\n```sql\nSELECT d.Document_ID, d.Document_Name\nFROM Documents d\nJOIN (\n    SELECT Document_ID, COUNT(*) as paragraph_count\n    FROM Paragraphs\n    GROUP BY Document_ID\n) p ON d.Document_ID = p.Document_ID\nWHERE p.paragraph_count = (\n    SELECT MAX(paragraph_count)\n    FROM (\n        SELECT Document_ID, COUNT(*) as paragraph_count\n        FROM Paragraphs\n        GROUP BY Document_ID\n    ) sub\n)\n```\n\nHowever, thinking about it once more, we can actually simplify this with a single query:\n\n```sql\nSELECT d.Document_ID, d.Document_Name\nFROM Documents d\nWHERE d.Document_ID = (\n    SELECT Document_ID\n    FROM Paragraphs\n    GROUP BY Document_ID\n    ORDER BY COUNT(*) DESC\n    LIMIT 1\n)\n```\n\nThis should return the `Document_ID` and `Document_Name` of the document with the most paragraphs.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT d.Document_ID, d.Document_Name FROM Documents d WHERE d.Document_ID = (SELECT Document_ID FROM Paragraphs GROUP BY Document_ID ORDER BY COUNT(*) DESC LIMIT 1)\"\n}\n```"
+    }
+  }
+}

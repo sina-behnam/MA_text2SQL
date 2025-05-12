@@ -1,0 +1,78 @@
+{
+  "id": 833,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the maximum and minimum shares for performances that do not have the type \"Live final\".",
+  "sql": "SELECT max(SHARE) ,  min(SHARE) FROM performance WHERE TYPE != \"Live final\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 94,
+    "word_length": 16,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 75,
+    "tables_count": 1,
+    "tables": [
+      "performance"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "MIN",
+      "MAX"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT MAX(Share) AS max_share, MIN(Share) AS min_share FROM performance WHERE Type != 'Live final'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema and the question:\n\n1. The user wants to find the maximum and minimum shares for performances.\n2. The condition is that the performances should not have the type \"Live final\".\n3. The \"shares\" are stored in the \"performance\" table's \"Share\" column.\n\nLet's look at the performance table structure:\n```\nCREATE TABLE \"performance\" (\n\"Performance_ID\" int,\n\"Orchestra_ID\" int,\n\"Type\" text,\n\"Date\" text,\n\"Official_ratings_(millions)\" real,\n\"Weekly_rank\" text,\n\"Share\" text,\nPRIMARY KEY (\"Performance_ID\"),\nFOREIGN KEY (`Orchestra_ID`) REFERENCES `orchestra`(`Orchestra_ID`)\n)\n```\n\nFrom this structure, we can see that:\n- The \"Share\" column exists in the \"performance\" table.\n- The \"Type\" column also exists in the \"performance\" table.\n\nNow, let's create a SQL query to find the maximum and minimum shares for performances that do not have the type \"Live final\":\n\n```sql\nSELECT \n    MAX(Share) AS max_share,\n    MIN(Share) AS min_share\nFROM \n    performance\nWHERE \n    Type != 'Live final'\n```\n\nHowever, there's a potential issue: the \"Share\" column is of type \"text\", not a numeric type. This might cause problems when trying to find maximum and minimum values because string comparison might not yield the expected results. If the \"Share\" values are stored in a format that can be converted to numeric (like percentages or numbers), we would need to convert them first to get accurate results.\n\nBut without knowing the exact format of the \"Share\" data, I'll stick with the basic query. If the user provides more information about the format of the \"Share\" data, the query can be adjusted accordingly.\n\nSo, the final SQL query would be:\n```sql\nSELECT \n    MAX(Share) AS max_share,\n    MIN(Share) AS min_share\nFROM \n    performance\nWHERE \n    Type != 'Live final'\n```\n</think>\n\n```json\n{\n  \"sql\": \"SELECT MAX(Share) AS max_share, MIN(Share) AS min_share FROM performance WHERE Type != 'Live final'\"\n}\n```"
+    }
+  }
+}

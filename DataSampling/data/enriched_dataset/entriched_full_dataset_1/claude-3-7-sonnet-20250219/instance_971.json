@@ -1,0 +1,73 @@
+{
+  "id": 971,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the role, street, city and state of the professionals living in a city that contains the substring 'West'.",
+  "sql": "SELECT role_code ,  street ,  city ,  state FROM professionals WHERE city LIKE '%West%'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 111,
+    "word_length": 19,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 3,
+    "column_overlap_lemma_count": 3
+  },
+  "sql_analysis": {
+    "char_length": 87,
+    "tables_count": 1,
+    "tables": [
+      "professionals"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 4
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT role_code, street, city, state FROM Professionals WHERE city LIKE '%West%'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the query requirements and the database schema to construct the appropriate SQL query.\n\nThe question asks for the role, street, city, and state of professionals living in a city that contains the substring 'West'.\n\nFrom the provided schema, I can see the following relevant table:\n- `Professionals` - containing the information about professionals including their city, street, state, and role_code.\n\nTo find professionals living in a city containing the substring 'West', I need to use the LIKE operator with a wildcard. The SQL pattern would be '%West%', which matches any string containing 'West' anywhere within it.\n\nThe fields needed from the Professionals table are:\n- `role_code`\n- `street`\n- `city`\n- `state`\n\nSo the SQL query should be:\n```sql\nSELECT role_code, street, city, state\nFROM Professionals\nWHERE city LIKE '%West%'\n```\n\nThis query will return all professionals whose city field contains the substring 'West' anywhere in it, along with their role code, street, city, and state information.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT role_code, street, city, state FROM Professionals WHERE city LIKE '%West%'\"\n}\n```"
+    }
+  }
+}

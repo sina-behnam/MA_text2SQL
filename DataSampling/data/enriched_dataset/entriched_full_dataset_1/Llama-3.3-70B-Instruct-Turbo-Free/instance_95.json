@@ -1,0 +1,76 @@
+{
+  "id": 95,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which model of the car has the minimum horsepower?",
+  "sql": "SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.horsepower ASC LIMIT 1;",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 50,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 116,
+    "tables_count": 2,
+    "tables": [
+      "CAR_NAMES",
+      "CARS_DATA"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT T1.Model FROM model_list AS T1 INNER JOIN car_names AS T2 ON T1.Model = T2.Model INNER JOIN cars_data AS T3 ON T2.MakeId = T3.Id ORDER BY CAST(REPLACE(T3.Horsepower, ' ', '') AS REAL) ASC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The two queries are not semantically equivalent. The Gold SQL Query joins CAR_NAMES with CARS_DATA on MakeId, whereas the Generated SQL Query joins model_list with car_names on Model, and then joins car_names with cars_data on MakeId. This difference in join conditions changes the logic of the queries, potentially leading to different results."
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "id": 505,
+  "dataset": "spider",
+  "database": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/databases/battle_death/battle_death.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/schemas/battle_death/battle_death.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show names, results and bulgarian commanders of the battles with no ships lost in the 'English Channel'.",
+  "sql": "SELECT name ,  RESULT ,  bulgarian_commander FROM battle EXCEPT SELECT T1.name ,  T1.result ,  T1.bulgarian_commander FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle WHERE T2.location  =  'English Channel'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 104,
+    "word_length": 17,
+    "entities": [
+      {
+        "text": "English",
+        "label": "LANGUAGE",
+        "start": 87,
+        "end": 94
+      }
+    ],
+    "entity_types": [
+      "LANGUAGE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 222,
+    "tables_count": 2,
+    "tables": [
+      "ship",
+      "battle"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT b.name, b.result, b.bulgarian_commander FROM battle b WHERE NOT EXISTS (SELECT 1 FROM ship s WHERE s.lost_in_battle = b.id AND s.location = 'English Channel')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the request and the database schema:\n\n1. We need to find battles with no ships lost in the 'English Channel'.\n2. For these battles, we need to show:\n   - battle names\n   - battle results\n   - Bulgarian commanders\n\nLooking at the schema:\n- The `battle` table has information about battle names, results, and Bulgarian commanders.\n- The `ship` table has a `lost_in_battle` field that references the `battle` table, and a `location` field that indicates where the ship is/was.\n- The `death` table has information about deaths caused by ships.\n\nTo find battles with no ships lost in the 'English Channel', we need to:\n1. Find all ships located in the 'English Channel'.\n2. Among these ships, find those that were lost in battles.\n3. Then, find battles where no ships were lost in the 'English Channel'.\n\nLet's construct the query:\n\n```sql\nSELECT b.name, b.result, b.bulgarian_commander\nFROM battle b\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM ship s\n    WHERE s.lost_in_battle = b.id\n    AND s.location = 'English Channel'\n)\n```\n\nActually, I need to reconsider my approach. The request is for \"battles with no ships lost in the 'English Channel'.\" This can be interpreted in two ways:\n1. Battles that took place in the English Channel, and no ships were lost in these battles.\n2. Battles where no ships that were in the English Channel were lost.\n\nGiven the schema, it's more likely that the `location` field in the `ship` table refers to where the ship is/was located, not where the battle took place. The battle location is not explicitly given in the schema.\n\nLet's interpret it as: battles where no ships that were in the English Channel were lost.\n\n```sql\nSELECT b.name, b.result, b.bulgarian_commander\nFROM battle b\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM ship s\n    WHERE s.lost_in_battle = b.id\n    AND s.location = 'English Channel'\n)\n```\n\nBut wait, this might still be ambiguous. Let's think about it differently. The `ship` table has `lost_in_battle` which is a foreign key to the `battle` table. This means that if a ship was lost in a battle, this field would point to that battle. If a ship wasn't lost in any battle, this field might be NULL.\n\nWith this understanding, we want to find battles where no ships located in the 'English Channel' were lost.\n\n```sql\nSELECT b.name, b.result, b.bulgarian_commander\nFROM battle b\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM ship s\n    WHERE s.lost_in_battle = b.id\n    AND s.location = 'English Channel'\n)\n```\n\nBut there's another issue here: The `location` field in the `ship` table might be the current location for ships that weren't lost, or the location where they were lost for ships that were lost. It's not clear from the schema.\n\nLet's assume `location` in the `ship` table refers to where the ship is or was last known to be. In this case, our query looks for battles where no ships currently or last known to be in the 'English Channel' were lost.\n\nActually, I think the most reasonable interpretation is that the query is asking for battles that occurred in the English Channel where no ships were lost. However, the schema doesn't explicitly mention where battles took place.\n\nLet's go with our interpretation: battles where no ships located in the 'English Channel' were lost. The query would be:\n\n```sql\nSELECT b.name, b.result, b.bulgarian_commander\nFROM battle b\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM ship s\n    WHERE s.lost_in_battle = b.id\n    AND s.location = 'English Channel'\n)\n```\n\nThis gives us battles where no ships from the 'English Channel' were lost.\n</think>\n\nI'll analyze the schema to find battles with no ships lost in the English Channel.\n\n```sql\nSELECT b.name, b.result, b.bulgarian_commander\nFROM battle b\nWHERE b.id IN (\n    SELECT s.lost_in_battle\n    FROM ship s\n    WHERE s.location = 'English Channel'\n    GROUP BY s.lost_in_battle\n    HAVING COUNT(*) = 0\n)\nOR b.id NOT IN (\n    SELECT s.lost_in_battle\n    FROM ship s\n    WHERE s.location = 'English Channel' AND s.lost_in_battle IS NOT NULL\n)\n```\n\nActually, I need to refine this. The correct query is:\n\n{\"sql\": \"SELECT b.name, b.result, b.bulgarian_commander FROM battle b WHERE NOT EXISTS (SELECT 1 FROM ship s WHERE s.lost_in_battle = b.id AND s.location = 'English Channel')\"}"
+    }
+  }
+}

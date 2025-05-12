@@ -1,0 +1,92 @@
+{
+  "id": 1054,
+  "dataset": "bird",
+  "database": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/databases/european_football_2/european_football_2.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/european_football_2/Team_Attributes.csv",
+      "stratified_output/databases/european_football_2/Player.csv",
+      "stratified_output/databases/european_football_2/Match.csv",
+      "stratified_output/databases/european_football_2/League.csv",
+      "stratified_output/databases/european_football_2/Country.csv",
+      "stratified_output/databases/european_football_2/Player_Attributes.csv",
+      "stratified_output/databases/european_football_2/Team.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/schemas/european_football_2/european_football_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the defensive work rate of the football player David Wilson\n?",
+  "sql": "SELECT DISTINCT t2.defensive_work_rate FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE t1.player_name = 'David Wilson'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 69,
+    "word_length": 12,
+    "entities": [
+      {
+        "text": "David Wilson",
+        "label": "PERSON",
+        "start": 55,
+        "end": 67
+      }
+    ],
+    "entity_types": [
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 168,
+    "tables_count": 2,
+    "tables": [
+      "Player",
+      "Player_Attributes"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT pa.defensive_work_rate FROM Player p JOIN Player_Attributes pa ON p.player_api_id = pa.player_api_id WHERE p.player_name = 'David Wilson' ORDER BY pa.date DESC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nTo answer this question, I need to find the defensive work rate of a football player named David Wilson. Let me examine the relevant tables and their structure:\n\nFrom the schema, we can see:\n1. The `Player` table contains player information including player names.\n2. The `Player_Attributes` table contains player attributes including their defensive work rate.\n\nThe `Player` table contains:\n- `id` (Primary Key)\n- `player_api_id` (Unique ID)\n- `player_name` (The player's name)\n- `player_fifa_api_id` (Unique FIFA ID)\n- Other fields like birthday, height, weight\n\nThe `Player_Attributes` table contains:\n- `id` (Primary Key)\n- `player_fifa_api_id` (Foreign Key to Player)\n- `player_api_id` (Foreign Key to Player)\n- `defensive_work_rate` (The field we're looking for)\n- Many other player attributes\n\nI need to join these tables to find the defensive work rate of the player named \"David Wilson\".\n\nThe query would be like:\n1. Join the Player table with the Player_Attributes table using either player_api_id or player_fifa_api_id\n2. Filter where player_name is 'David Wilson'\n3. Select the defensive_work_rate\n\nI'll also need to consider that the Player_Attributes table might have multiple entries for a player over time (since there's a 'date' field), so I might want to get the most recent one.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT pa.defensive_work_rate FROM Player p JOIN Player_Attributes pa ON p.player_api_id = pa.player_api_id WHERE p.player_name = 'David Wilson' ORDER BY pa.date DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

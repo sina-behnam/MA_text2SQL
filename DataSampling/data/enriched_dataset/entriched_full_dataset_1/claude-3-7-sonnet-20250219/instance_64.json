@@ -1,0 +1,77 @@
+{
+  "id": 64,
+  "dataset": "spider",
+  "database": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/databases/pets_1/pets_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/schemas/pets_1/pets_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the ids of the students who do not own cats as pets?",
+  "sql": "SELECT stuid FROM student EXCEPT SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 61,
+    "word_length": 14,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 179,
+    "tables_count": 3,
+    "tables": [
+      "student",
+      "has_pet",
+      "pets"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT StuID FROM Student WHERE StuID NOT IN (SELECT Has_Pet.StuID FROM Has_Pet JOIN Pets ON Has_Pet.PetID = Pets.PetID WHERE LOWER(Pets.PetType) = 'cat')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema to solve this question:\n\n1. We have a `Student` table that contains information about students, with `StuID` as the primary key.\n2. We have a `Pets` table that contains information about pets, with `PetID` as the primary key and a `PetType` column.\n3. We have a `Has_Pet` table that establishes the relationship between students and their pets. It has foreign keys to both the `Student` and `Pets` tables.\n\nThe question asks for the IDs of students who do not own cats as pets. To solve this, we need to:\n\n1. Find students who own cats\n2. Find all students who are not in the cat-owning group\n\nTo find students who own cats, we'll join the `Has_Pet` table with the `Pets` table where `PetType` is 'cat' (or similar).\n\nTo find students who don't own cats, we'll use a subquery with the `NOT IN` operator to exclude the students who do own cats.\n\nHere's the SQL query:\n\n```sql\nSELECT StuID\nFROM Student\nWHERE StuID NOT IN (\n    SELECT Has_Pet.StuID\n    FROM Has_Pet\n    JOIN Pets ON Has_Pet.PetID = Pets.PetID\n    WHERE Pets.PetType = 'cat'\n);\n```\n\nActually, we need to be careful here, because the `PetType` field might have variations like 'Cat', 'CAT', etc. To be safe, let's use a case-insensitive comparison:\n\n```sql\nSELECT StuID\nFROM Student\nWHERE StuID NOT IN (\n    SELECT Has_Pet.StuID\n    FROM Has_Pet\n    JOIN Pets ON Has_Pet.PetID = Pets.PetID\n    WHERE LOWER(Pets.PetType) = 'cat'\n);\n```\n\nBut wait, I'm thinking there might be another way to approach this with NOT EXISTS:\n\n```sql\nSELECT StuID\nFROM Student s\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM Has_Pet hp\n    JOIN Pets p ON hp.PetID = p.PetID\n    WHERE hp.StuID = s.StuID\n    AND LOWER(p.PetType) = 'cat'\n);\n```\n\nBoth approaches should work. Let's go with the second one, as it might be more efficient in some databases.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT StuID FROM Student WHERE StuID NOT IN (SELECT Has_Pet.StuID FROM Has_Pet JOIN Pets ON Has_Pet.PetID = Pets.PetID WHERE LOWER(Pets.PetType) = 'cat')\"\n}\n```"
+    }
+  }
+}

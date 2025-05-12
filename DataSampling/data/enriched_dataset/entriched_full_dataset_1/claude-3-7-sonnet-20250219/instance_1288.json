@@ -1,0 +1,81 @@
+{
+  "id": 1288,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Please list the diagnosis of the patients whose total protein is lower than normal.",
+  "sql": "SELECT T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TP < 6.0",
+  "evidence": "total protein is lower than normal refers to TP < 6.0;",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 83,
+    "word_length": 14,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "lower"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 101,
+    "tables_count": 2,
+    "tables": [
+      "Laboratory",
+      "Patient"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT p.Diagnosis FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.TP < 6.0",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nBased on the question, I need to find the diagnosis of patients whose total protein (TP) is lower than normal, where \"lower than normal\" means TP < 6.0.\n\nLooking at the database schema:\n\n1. The `Laboratory` table contains the `TP` (total protein) column.\n2. The `Patient` table contains the `Diagnosis` column.\n3. These tables are related by the `ID` column.\n\nTo solve this problem, I need to:\n1. Find all records in the `Laboratory` table where `TP < 6.0`\n2. Get the corresponding patient IDs\n3. Retrieve the diagnoses for these patients from the `Patient` table\n\nLet's write the SQL query:\n\n```sql\nSELECT DISTINCT p.Diagnosis\nFROM Patient p\nJOIN Laboratory l ON p.ID = l.ID\nWHERE l.TP < 6.0\n```\n\nThis query will join the Patient and Laboratory tables, filter records where TP is less than 6.0, and return the diagnoses.\n\nHowever, I notice there's also a `Diagnosis` column in the `Examination` table. The question doesn't specify which diagnosis to use. Let me consider both possibilities:\n\nOption 1: Use the diagnosis from the Patient table (as shown above)\nOption 2: Use the diagnosis from the Examination table\n\nFor option 2, the query would be:\n```sql\nSELECT DISTINCT e.Diagnosis\nFROM Examination e\nJOIN Laboratory l ON e.ID = l.ID\nWHERE l.TP < 6.0\n```\n\nSince the question doesn't specify which diagnosis to use, I'll go with the diagnosis from the Patient table as it seems to be more general information about the patient rather than examination-specific. But I'll make sure to mention this assumption in my response.\n\nActually, looking at the question more carefully, it asks for \"the diagnosis of the patients whose total protein is lower than normal\". This suggests it wants the diagnoses for all matching patients, which means I should include the patient information in my query to identify which diagnosis belongs to which patient.\n\nHere's the updated query:\n```sql\nSELECT DISTINCT p.ID, p.Diagnosis\nFROM Patient p\nJOIN Laboratory l ON p.ID = l.ID\nWHERE l.TP < 6.0\n```\n\nBut on further thought, the question is asking for a list of diagnoses, not necessarily tied to specific patients. Let me revert to the original query and just return the distinct diagnoses:\n\n```sql\nSELECT DISTINCT p.Diagnosis\nFROM Patient p\nJOIN Laboratory l ON p.ID = l.ID\nWHERE l.TP < 6.0\n```\n\nThis query will return a list of unique diagnoses for patients whose total protein is lower than normal (TP < 6.0).\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT p.Diagnosis FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.TP < 6.0\"\n}\n```"
+    }
+  }
+}

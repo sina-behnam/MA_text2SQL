@@ -1,0 +1,82 @@
+{
+  "id": 796,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the government form name and total population for each government form whose average life expectancy is longer than 72.",
+  "sql": "SELECT sum(Population) ,  GovernmentForm FROM country GROUP BY GovernmentForm HAVING avg(LifeExpectancy)  >  72",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 124,
+    "word_length": 20,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [
+      "72"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "longer"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 111,
+    "tables_count": 1,
+    "tables": [
+      "country"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "AVG",
+      "SUM"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT GovernmentForm, SUM(Population) AS TotalPopulation FROM country WHERE LifeExpectancy > 72 GROUP BY GovernmentForm",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (17, 2) vs predicted (22, 2)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (17, 2) vs predicted (22, 2)"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": 649,
+  "dataset": "spider",
+  "database": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the earnings of poker players in descending order.",
+  "sql": "SELECT Earnings FROM poker_player ORDER BY Earnings DESC",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 55,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 56,
+    "tables_count": 1,
+    "tables": [
+      "poker_player"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Earnings FROM poker_player ORDER BY Earnings DESC",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nLet's analyze the database schema to understand the tables and relationships.\n\nWe have two tables:\n1. `poker_player` - Contains information about poker players, including their earnings.\n2. `people` - Contains general information about people, including their name, nationality, etc.\n\nThe `poker_player` table has a foreign key to the `people` table through the `People_ID` column.\n\nThe user is asking for the earnings of poker players in descending order. The `Earnings` column in the `poker_player` table seems to be what we need.\n\nTo list the earnings of poker players in descending order, we need to:\n1. Select the relevant columns from the `poker_player` table\n2. Order the results by the `Earnings` column in descending order\n\nSince the user specifically asked for earnings of poker players, I'll include the poker players' names in the results. For that, I'll need to join the `poker_player` table with the `people` table.\n\nHere's the SQL query:\n\n```sql\nSELECT p.Name, pp.Earnings\nFROM poker_player pp\nJOIN people p ON pp.People_ID = p.People_ID\nORDER BY pp.Earnings DESC;\n```\n\nThis query will return a list of poker players with their names and earnings, ordered by earnings in descending order.\n\nChecking the user's request again, they just want the earnings in descending order. However, providing the names along with the earnings would make the results more meaningful. If we strictly want just the earnings, we could simply do:\n\n```sql\nSELECT Earnings\nFROM poker_player\nORDER BY Earnings DESC;\n```\n\nBut I think including the names makes more sense for a meaningful result. So I'll go with the first query.\n\nActually, I'm seeing that the user explicitly asks for a list of earnings, not including names. To strictly follow the request, the second query is more appropriate. But to provide a more useful response, I might suggest the first query. However, since the task is to respond precisely to the user's question, I'll go with the second query.\n\nSo, the final SQL query is:\n\n```sql\nSELECT Earnings\nFROM poker_player\nORDER BY Earnings DESC;\n```\n\nThis will list the earnings of poker players in descending order, as requested.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Earnings FROM poker_player ORDER BY Earnings DESC\"\n}\n```"
+    }
+  }
+}

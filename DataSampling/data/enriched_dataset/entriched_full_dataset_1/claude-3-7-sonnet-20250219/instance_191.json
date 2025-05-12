@@ -1,0 +1,103 @@
+{
+  "id": 191,
+  "dataset": "bird",
+  "database": {
+    "name": "financial",
+    "path": [
+      "stratified_output/databases/financial/financial.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/financial/loan.csv",
+      "stratified_output/databases/financial/client.csv",
+      "stratified_output/databases/financial/district.csv",
+      "stratified_output/databases/financial/trans.csv",
+      "stratified_output/databases/financial/account.csv",
+      "stratified_output/databases/financial/card.csv",
+      "stratified_output/databases/financial/order.csv",
+      "stratified_output/databases/financial/disp.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "financial",
+    "path": [
+      "stratified_output/schemas/financial/financial.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many loan accounts are for pre-payment of duration of 24 months with weekly issuance of statement.",
+  "sql": "SELECT COUNT(T2.account_id) FROM account AS T1 INNER JOIN loan AS T2 ON T1.account_id = T2.account_id WHERE T2.duration = 24 AND T1.frequency = 'POPLATEK TYDNE'",
+  "evidence": "Frequency = 'POPLATEK TYDNE' referes to weekly statement",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 102,
+    "word_length": 18,
+    "entities": [
+      {
+        "text": "24 months",
+        "label": "DATE",
+        "start": 58,
+        "end": 67
+      },
+      {
+        "text": "weekly",
+        "label": "DATE",
+        "start": 73,
+        "end": 79
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "24"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 160,
+    "tables_count": 2,
+    "tables": [
+      "loan",
+      "account"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM loan l JOIN account a ON l.account_id = a.account_id WHERE l.duration = 24 AND a.frequency = 'POPLATEK TYDNE'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's break down the query requirements:\n\n1. We need to count loan accounts.\n2. These loans should be for \"pre-payment\" - I'll need to understand how this is represented in the schema.\n3. The duration of the loans should be 24 months.\n4. The accounts should have weekly statement issuance (\"POPLATEK TYDNE\").\n\nFirst, let's understand which tables we need:\n- `loan` table has information about loans, including the `duration` field.\n- `account` table has the `frequency` field, which indicates how often statements are issued.\n\nI need to join these tables and apply the filters:\n1. `loan.duration = 24` for 24-month loans.\n2. `account.frequency = 'POPLATEK TYDNE'` for weekly statement issuance.\n\nFor the \"pre-payment\" part, I'm not sure which field in the schema represents this information. Let me think about it:\n- It could be in the `loan.status` field, but I don't know what value corresponds to \"pre-payment.\"\n- It could be in the `k_symbol` field from the `order` or `trans` tables, but it's not clear.\n- It might be represented by the `type` field in the `trans` table.\n\nWithout specific information about how \"pre-payment\" is represented, I'll focus on the parts I know: 24-month duration and weekly frequency.\n\nLet's build the SQL query:\n\n```sql\nSELECT COUNT(DISTINCT l.account_id) \nFROM loan l\nJOIN account a ON l.account_id = a.account_id\nWHERE l.duration = 24\nAND a.frequency = 'POPLATEK TYDNE'\n```\n\nActually, there's a bit of confusion about the \"pre-payment\" requirement. If this refers to the type of loan or payment method, I would need more information about how this is stored in the database.\n\nHowever, after re-reading the question, I realize that \"pre-payment\" might refer to a specific type of loan, and I'm being asked to count accounts where loans have pre-payment arrangements. If this is the case, I need to know which field indicates that a loan is for \"pre-payment\".\n\nSince I don't have this specific information, I'll go with the interpretation that pre-payment might be represented in the \"k_symbol\" field of the order table. The `order` table has a `k_symbol` field that could potentially indicate the type of transaction. If \"pre-payment\" corresponds to a specific value in this field, then I should include it in the query.\n\nLet me revise the query:\n\n```sql\nSELECT COUNT(DISTINCT l.account_id)\nFROM loan l\nJOIN account a ON l.account_id = a.account_id\nJOIN `order` o ON l.account_id = o.account_id\nWHERE l.duration = 24\nAND a.frequency = 'POPLATEK TYDNE'\nAND o.k_symbol = 'Pre-payment' -- This is a guess\n```\n\nHowever, without knowing the exact value that corresponds to \"pre-payment\" in the `k_symbol` field (if that's even the right field), this part of the query is uncertain.\n\nHmm, I don't see a field in the database that explicitly mentions pre-payment.\n\nOn second thought, looking more at the request, the \"pre-payment\" might actually be referring to a property of the accounts or loans, not a separate concept. For example, it could be indicating that these are loans where people are making prepayments (paying before the due date).\n\nGiven the ambiguity, I'll stick with the parts of the query that I'm sure about: 24-month duration and weekly frequency.\n\n```sql\nSELECT COUNT(DISTINCT l.account_id)\nFROM loan l\nJOIN account a ON l.account_id = a.account_id\nWHERE l.duration = 24\nAND a.frequency = 'POPLATEK TYDNE'\n```\n\nActually, I think I may have been confused about \"pre-payment\" - it could be that the question is asking about a specific value in the k_symbol field of the order table which indicates pre-payment.\n\nSince I don't have a data sample or explanation of what values can be in the `k_symbol` field, I'll just mention that the SQL query provides the number of loan accounts with a 24-month duration and weekly statement issuance, but the \"pre-payment\" filter might require additional information.\n\nAfter thinking about this more, I think the most likely interpretation is that the question is simply asking about loans with a duration of 24 months where the account has weekly statement issuance. The \"pre-payment\" might be referring to the fact that these are loans where the borrower is making payments ahead of schedule, but without more context, I'll stick with the clear parts of the request.\n\nFinal SQL query:\n\n```sql\nSELECT COUNT(DISTINCT l.account_id)\nFROM loan l\nJOIN account a ON l.account_id = a.account_id\nWHERE l.duration = 24\nAND a.frequency = 'POPLATEK TYDNE'\n```\n\nI'll give that as my answer.\n</think>\n\nLooking at your question, I need to find loan accounts with a duration of 24 months and weekly statement issuance (where frequency is 'POPLATEK TYDNE').\n\nFor this, I need to join the loan and account tables to count loan accounts that match these specific criteria.\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM loan l JOIN account a ON l.account_id = a.account_id WHERE l.duration = 24 AND a.frequency = 'POPLATEK TYDNE'\"\n}\n```"
+    }
+  }
+}

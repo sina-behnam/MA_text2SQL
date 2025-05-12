@@ -1,0 +1,107 @@
+{
+  "id": 859,
+  "dataset": "bird",
+  "database": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/databases/formula_1/formula_1.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/formula_1/circuits.csv",
+      "stratified_output/databases/formula_1/status.csv",
+      "stratified_output/databases/formula_1/drivers.csv",
+      "stratified_output/databases/formula_1/driverStandings.csv",
+      "stratified_output/databases/formula_1/races.csv",
+      "stratified_output/databases/formula_1/constructors.csv",
+      "stratified_output/databases/formula_1/constructorResults.csv",
+      "stratified_output/databases/formula_1/lapTimes.csv",
+      "stratified_output/databases/formula_1/qualifying.csv",
+      "stratified_output/databases/formula_1/pitStops.csv",
+      "stratified_output/databases/formula_1/seasons.csv",
+      "stratified_output/databases/formula_1/constructorStandings.csv",
+      "stratified_output/databases/formula_1/results.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/schemas/formula_1/formula_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What's Bruno Senna's Q1 result in the qualifying race No. 354?",
+  "sql": "SELECT T1.q1 FROM qualifying AS T1 INNER JOIN drivers AS T2 ON T2.driverId = T1.driverId WHERE T1.raceId = 354 AND T2.forename = 'Bruno' AND T2.surname = 'Senna'",
+  "evidence": "race number refers to raceId; Bruno Senna refers to the full name of the driver; Full name of the driver refers to drivers.forename and drivers.surname;",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 62,
+    "word_length": 13,
+    "entities": [
+      {
+        "text": "Bruno Senna's",
+        "label": "PERSON",
+        "start": 7,
+        "end": 20
+      },
+      {
+        "text": "354",
+        "label": "CARDINAL",
+        "start": 58,
+        "end": 61
+      }
+    ],
+    "entity_types": [
+      "PERSON",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "354"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 161,
+    "tables_count": 2,
+    "tables": [
+      "qualifying",
+      "drivers"
+    ],
+    "join_count": 1,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT q.q1 FROM qualifying q JOIN drivers d ON q.driverId = d.driverId WHERE q.raceId = 354 AND d.forename = 'Bruno' AND d.surname = 'Senna'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to find Bruno Senna's Q1 result in qualifying race with raceId = 354. Let me break down the steps:\n\n1. First, I need to identify Bruno Senna from the 'drivers' table by matching his forename and surname\n2. Then, I need to join the 'qualifying' table to find his Q1 result for race 354\n\nBased on the database schema:\n- The 'drivers' table has 'forename' and 'surname' columns to identify the driver\n- The 'qualifying' table has 'raceId', 'driverId', and 'q1' columns that will help us find the Q1 result\n\nLet me construct the SQL query:\n\n```sql\nSELECT q.q1\nFROM qualifying q\nJOIN drivers d ON q.driverId = d.driverId\nWHERE q.raceId = 354\nAND d.forename = 'Bruno'\nAND d.surname = 'Senna'\n```\n\nThis query joins the qualifying table with the drivers table, filters for race 354 and the driver named Bruno Senna, and selects the Q1 result.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT q.q1 FROM qualifying q JOIN drivers d ON q.driverId = d.driverId WHERE q.raceId = 354 AND d.forename = 'Bruno' AND d.surname = 'Senna'\"\n}\n```"
+    }
+  }
+}

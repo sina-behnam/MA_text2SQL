@@ -1,0 +1,74 @@
+{
+  "id": 545,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are all the course names of the courses which ever have students enrolled in?",
+  "sql": "SELECT DISTINCT T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 82,
+    "word_length": 15,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 119,
+    "tables_count": 2,
+    "tables": [
+      "Courses",
+      "Student_Enrolment_Courses"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT c.course_name FROM Courses c JOIN Student_Enrolment_Courses sec ON c.course_id = sec.course_id",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nTo answer this question, I need to find all course names for courses that have students enrolled in them. Looking at the database schema, here's how the data flows:\n\n1. We have a `Courses` table that contains `course_id` and `course_name`.\n2. A student is enrolled in a course through the `Student_Enrolment_Courses` table, which links a `course_id` from the `Courses` table to a `student_enrolment_id` from the `Student_Enrolment` table.\n\nSo, to find all course names for courses that have students enrolled in them, I need to:\n1. Identify all course_ids in the `Student_Enrolment_Courses` table.\n2. Join this with the `Courses` table to get the corresponding course names.\n\nHere's the SQL query:\n\n```sql\nSELECT DISTINCT c.course_name\nFROM Courses c\nJOIN Student_Enrolment_Courses sec ON c.course_id = sec.course_id\n```\n\nThis query:\n1. Joins the `Courses` table with the `Student_Enrolment_Courses` table on their common field, `course_id`.\n2. Selects the `course_name` from the `Courses` table.\n3. Uses `DISTINCT` to avoid listing the same course multiple times (in case multiple students are enrolled in the same course).\n\nThis should return all course names for courses that have at least one student enrolled in them.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT c.course_name FROM Courses c JOIN Student_Enrolment_Courses sec ON c.course_id = sec.course_id\"\n}\n```"
+    }
+  }
+}

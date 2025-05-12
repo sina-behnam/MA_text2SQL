@@ -1,0 +1,75 @@
+{
+  "id": 826,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the names of conductors whose nationalities are not \"USA\"?",
+  "sql": "SELECT Name FROM conductor WHERE Nationality != 'USA'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 67,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 53,
+    "tables_count": 1,
+    "tables": [
+      "conductor"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name FROM conductor WHERE Nationality != 'USA'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nBased on the provided database schema, we need to write a SQL query to find the names of conductors whose nationalities are not \"USA\". Let's analyze the schema:\n\n1. We have a `conductor` table that contains information about conductors including their name and nationality.\n2. We need to filter conductors whose `Nationality` is not \"USA\".\n3. We need to select the `Name` field from the results.\n\nThe SQL query should look like this:\n\n```sql\nSELECT Name\nFROM conductor\nWHERE Nationality != 'USA'\n```\n\nThis query will:\n1. Select the `Name` column from the `conductor` table\n2. Filter to only include rows where the `Nationality` column is not equal to \"USA\"\n\nThe result will be a list of names of conductors whose nationalities are not \"USA\".\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Name FROM conductor WHERE Nationality != 'USA'\"\n}\n```"
+    }
+  }
+}

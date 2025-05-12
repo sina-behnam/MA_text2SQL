@@ -1,0 +1,83 @@
+{
+  "id": 366,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the paragraph texts for the document with the name 'Customer reviews'?",
+  "sql": "SELECT T1.paragraph_text FROM Paragraphs AS T1 JOIN Documents AS T2 ON T1.document_id  =  T2.document_id WHERE T2.document_name  =  \"Customer reviews\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 79,
+    "word_length": 13,
+    "entities": [
+      {
+        "text": "Customer",
+        "label": "ORG",
+        "start": 61,
+        "end": 69
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 150,
+    "tables_count": 2,
+    "tables": [
+      "Documents",
+      "Paragraphs"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT p.Paragraph_Text FROM Paragraphs p JOIN Documents d ON p.Document_ID = d.Document_ID WHERE d.Document_Name = 'Customer reviews'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nThe question asks for paragraph texts for the document with the name 'Customer reviews'. Let's analyze the database schema to understand how to query this information.\n\nFrom the schema, I can see four tables:\n1. Ref_Template_Types - Contains template type codes and descriptions\n2. Templates - Contains template information with references to template types\n3. Documents - Contains document information with references to templates\n4. Paragraphs - Contains paragraph information with references to documents\n\nThe question is asking for the paragraphs of a document named \"Customer reviews\". \n\nI need to:\n1. Find the Document_ID for the document named \"Customer reviews\" in the Documents table.\n2. Use that Document_ID to query the paragraphs in the Paragraphs table.\n\nHere's the SQL query I need to write:\n\n```sql\nSELECT p.Paragraph_Text\nFROM Paragraphs p\nJOIN Documents d ON p.Document_ID = d.Document_ID\nWHERE d.Document_Name = 'Customer reviews'\n```\n\nThis query joins the Paragraphs table with the Documents table and filters for only the document named \"Customer reviews\". It then selects the Paragraph_Text column from the Paragraphs table.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT p.Paragraph_Text FROM Paragraphs p JOIN Documents d ON p.Document_ID = d.Document_ID WHERE d.Document_Name = 'Customer reviews'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": 127,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average weight of cars each year?",
+  "sql": "SELECT avg(Weight) ,  YEAR FROM CARS_DATA GROUP BY YEAR;",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 45,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "each year",
+        "label": "DATE",
+        "start": 35,
+        "end": 44
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 56,
+    "tables_count": 1,
+    "tables": [
+      "CARS_DATA"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Year, AVG(Weight) as average_weight FROM cars_data GROUP BY Year ORDER BY Year",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Both queries calculate the average weight of cars grouped by year, returning the same result set. The differences are: 1) Column order is reversed (Year first in generated query), 2) Generated query uses 'average_weight' alias for AVG(Weight), 3) Generated query adds ORDER BY Year which only affects presentation order but not the actual data returned, and 4) Case differences in table name which are irrelevant in SQL. These differences don't change the semantic meaning of the query.",
+      "raw_response": "<think>\nBased on the database schema provided, I need to write a SQL query to find the average weight of cars each year. Let's analyze the tables:\n\n1. `continents` - Contains continent information\n2. `countries` - Contains country information, linked to continents\n3. `car_makers` - Contains information about car manufacturers\n4. `model_list` - Contains car models linked to makers\n5. `car_names` - Contains specific car names/makes linked to models\n6. `cars_data` - Contains car specifications including weight and year\n\nFrom the schema, it seems that the `cars_data` table is the one that contains both the weight and year information that we need for our query. The `Weight` column holds the car weights, and the `Year` column contains the year information.\n\nTo find the average weight of cars for each year, I need to:\n1. Group the data in `cars_data` by `Year`\n2. Calculate the average of the `Weight` column for each group\n\nHere's the SQL query to accomplish this:\n\n```sql\nSELECT Year, AVG(Weight) as average_weight\nFROM cars_data\nGROUP BY Year\nORDER BY Year\n```\n\nThis query will:\n- Select the year and calculate the average weight\n- Group the data by year\n- Order the results by year in ascending order\n\nThis should provide a clear view of how the average weight of cars has changed over the years.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Year, AVG(Weight) as average_weight FROM cars_data GROUP BY Year ORDER BY Year\"\n}\n```"
+    }
+  }
+}

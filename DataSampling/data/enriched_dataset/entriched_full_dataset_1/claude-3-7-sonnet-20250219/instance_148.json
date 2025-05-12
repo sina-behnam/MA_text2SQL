@@ -1,0 +1,85 @@
+{
+  "id": 148,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the number of car models created by the car maker American Motor Company?",
+  "sql": "SELECT count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker WHERE T1.FullName  =  'American Motor Company';",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 81,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "American Motor Company",
+        "label": "ORG",
+        "start": 58,
+        "end": 80
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 129,
+    "tables_count": 2,
+    "tables": [
+      "CAR_MAKERS",
+      "MODEL_LIST"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM model_list WHERE Maker = (SELECT Id FROM car_makers WHERE Maker = 'American Motor Company' OR FullName = 'American Motor Company')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to find the number of car models created by \"American Motor Company\". Let's analyze the database schema:\n\n1. `car_makers` table contains information about car manufacturers, including their name (`Maker`) and full name (`FullName`).\n2. `model_list` table contains car models and has a foreign key `Maker` referencing `car_makers.Id`.\n\nSo to count the number of car models created by American Motor Company, I need to:\n1. Find the ID of \"American Motor Company\" in the `car_makers` table.\n2. Count the number of entries in the `model_list` table that have that maker ID.\n\nThe SQL query would be:\n\n```sql\nSELECT COUNT(*) \nFROM model_list\nWHERE Maker = (\n    SELECT Id \n    FROM car_makers \n    WHERE Maker = 'American Motor Company' OR FullName = 'American Motor Company'\n);\n```\n\nI'm using both `Maker` and `FullName` columns in the `car_makers` table to search for \"American Motor Company\" because I'm not sure which column contains the manufacturer name as requested by the user. The manufacturer might be listed under a shorter name in the `Maker` column and the full name in the `FullName` column, or vice versa.\n\nLet me format this into the required JSON response format.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM model_list WHERE Maker = (SELECT Id FROM car_makers WHERE Maker = 'American Motor Company' OR FullName = 'American Motor Company')\"\n}\n```"
+    }
+  }
+}

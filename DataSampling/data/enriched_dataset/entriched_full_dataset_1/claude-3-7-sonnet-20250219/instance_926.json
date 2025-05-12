@@ -1,0 +1,88 @@
+{
+  "id": 926,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which first names are used for professionals or owners but are not used as dog names?",
+  "sql": "SELECT first_name FROM Professionals UNION SELECT first_name FROM Owners EXCEPT SELECT name FROM Dogs",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 85,
+    "word_length": 16,
+    "entities": [
+      {
+        "text": "first",
+        "label": "ORDINAL",
+        "start": 6,
+        "end": 11
+      }
+    ],
+    "entity_types": [
+      "ORDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "first"
+    ],
+    "has_numbers": true,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 101,
+    "tables_count": 3,
+    "tables": [
+      "Dogs",
+      "Owners",
+      "Professionals"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 2,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT DISTINCT first_name \nFROM (\n    SELECT first_name FROM Professionals\n    UNION \n    SELECT first_name FROM Owners\n) AS people_names\nWHERE first_name NOT IN (\n    SELECT name FROM Dogs WHERE name IS NOT NULL\n) AND first_name IS NOT NULL\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet me analyze what the question is asking:\n\n\"Which first names are used for professionals or owners but are not used as dog names?\"\n\nThis means we need to:\n1. Find all first names used by professionals\n2. Find all first names used by owners\n3. Find all names used for dogs\n4. Return names that are in 1 or 2 but not in 3\n\nLooking at the schema:\n- The `Professionals` table has a `first_name` column\n- The `Owners` table has a `first_name` column\n- The `Dogs` table has a `name` column (this represents dog names)\n\nLet me write a SQL query to answer this question:\n\nI'll first get all first names from both professionals and owners, then exclude any that are also used as dog names.\n\nHere's how I'll approach it:\n1. Get a combined list of unique first names from professionals and owners using UNION\n2. Check which of these names do not appear in the dog names list using NOT IN\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT first_name \nFROM (\n    SELECT first_name FROM Professionals\n    UNION \n    SELECT first_name FROM Owners\n) AS people_names\nWHERE first_name NOT IN (\n    SELECT name FROM Dogs WHERE name IS NOT NULL\n) AND first_name IS NOT NULL\"\n}\n```"
+    }
+  }
+}

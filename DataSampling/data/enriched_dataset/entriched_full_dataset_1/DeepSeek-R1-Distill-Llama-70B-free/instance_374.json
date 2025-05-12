@@ -1,0 +1,81 @@
+{
+  "id": 374,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the id and name of the document with the most paragraphs.",
+  "sql": "SELECT T1.document_id ,  T2.document_name FROM Paragraphs AS T1 JOIN Documents AS T2 ON T1.document_id  =  T2.document_id GROUP BY T1.document_id ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 64,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 176,
+    "tables_count": 2,
+    "tables": [
+      "Paragraphs",
+      "Documents"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT D.Document_ID, D.Document_Name FROM Documents D WHERE D.Document_ID = (SELECT P.Document_ID FROM Paragraphs P GROUP BY P.Document_ID ORDER BY COUNT(P.Paragraph_ID) DESC LIMIT 1)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": 181,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the abbreviation of Airline \"JetBlue Airways\"?",
+  "sql": "SELECT Abbreviation FROM AIRLINES WHERE Airline  =  \"JetBlue Airways\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 54,
+    "word_length": 8,
+    "entities": [
+      {
+        "text": "Airline \"JetBlue Airways",
+        "label": "ORG",
+        "start": 28,
+        "end": 52
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 69,
+    "tables_count": 1,
+    "tables": [
+      "AIRLINES"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Abbreviation FROM airlines WHERE Airline = 'JetBlue Airways'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the schema to understand the structure of the database.\n\nWe have 3 tables:\n1. `airlines` - containing airline information like name, abbreviation, and country\n2. `airports` - containing airport information like city, code, name, country\n3. `flights` - containing flight information with references to airlines and airports\n\nThe question asks for the abbreviation of the airline \"JetBlue Airways\". This information is likely stored in the `airlines` table, which has columns:\n- uid (INTEGER PRIMARY KEY)\n- Airline (TEXT) - This would contain the airline name, like \"JetBlue Airways\"\n- Abbreviation (TEXT) - This would contain what we're looking for\n- Country (TEXT)\n\nSo we need to query the `airlines` table to find the abbreviation of \"JetBlue Airways\". The SQL query would be:\n\n```sql\nSELECT Abbreviation\nFROM airlines\nWHERE Airline = 'JetBlue Airways';\n```\n\nThis query selects the Abbreviation column from the airlines table where the Airline name matches exactly \"JetBlue Airways\".\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Abbreviation FROM airlines WHERE Airline = 'JetBlue Airways'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "id": 71,
+  "dataset": "bird",
+  "database": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/databases/california_schools/california_schools.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/california_schools/schools.csv",
+      "stratified_output/databases/california_schools/satscores.csv",
+      "stratified_output/databases/california_schools/frpm.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/schemas/california_schools/california_schools.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the district code for the School that does not offer a magnet program in the city of Fresno?",
+  "sql": "SELECT T1.`District Code` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.City = 'Fresno' AND T2.Magnet = 0",
+  "evidence": "When magent is equal to 0 in the database, it means ths school doesn't offer a magnet program.",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 100,
+    "word_length": 20,
+    "entities": [
+      {
+        "text": "School",
+        "label": "ORG",
+        "start": 34,
+        "end": 40
+      },
+      {
+        "text": "Fresno",
+        "label": "GPE",
+        "start": 93,
+        "end": 99
+      }
+    ],
+    "entity_types": [
+      "GPE",
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 4,
+    "column_overlap_lemma_count": 4
+  },
+  "sql_analysis": {
+    "char_length": 136,
+    "tables_count": 2,
+    "tables": [
+      "schools",
+      "frpm"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT f.`District Code` FROM schools s JOIN frpm f ON s.CDSCode = f.CDSCode WHERE s.City = 'Fresno' AND s.Magnet = 0",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me understand the question and the database schema to construct the appropriate SQL query.\n\nThe question asks for the district code for the School that does not offer a magnet program in the city of Fresno.\n\nFrom the database schema, I can see:\n1. The `schools` table contains information about schools including:\n   - `City` column which can be used to filter for schools in Fresno\n   - `Magnet` column which indicates whether a school offers a magnet program (0 = no magnet program)\n   - `District` column which contains the district name\n   - `District Code` is not in this table, but it seems to be in the `frpm` table\n\n2. The `frpm` table contains:\n   - `District Code` which is what we're looking for\n   - It has a foreign key relationship with `schools` through `CDSCode`\n\nSo to answer the question, I need to:\n1. Find schools in Fresno where Magnet = 0 from the `schools` table\n2. Join with the `frpm` table to get the corresponding district code\n\nHere's the SQL query I'll construct:\n\n```sql\nSELECT f.`District Code` \nFROM schools s\nJOIN frpm f ON s.CDSCode = f.CDSCode\nWHERE s.City = 'Fresno' AND s.Magnet = 0\n```\n\nLet me review this query to make sure it's correct:\n- It joins the `schools` and `frpm` tables on the common CDSCode\n- It filters for schools in Fresno (City = 'Fresno')\n- It filters for schools without a magnet program (Magnet = 0)\n- It selects the District Code from the frpm table\n\nThis should provide the district code(s) for schools in Fresno that don't offer a magnet program.\n\nActually, it's possible that there could be multiple such schools, potentially from different districts. The question asks for \"the district code,\" implying a single answer. If we need to ensure a single result, we might need additional criteria or to use DISTINCT to get unique district codes:\n\n```sql\nSELECT DISTINCT f.`District Code` \nFROM schools s\nJOIN frpm f ON s.CDSCode = f.CDSCode\nWHERE s.City = 'Fresno' AND s.Magnet = 0\n```\n\nThis will return unique district codes for schools in Fresno without magnet programs.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT f.`District Code` FROM schools s JOIN frpm f ON s.CDSCode = f.CDSCode WHERE s.City = 'Fresno' AND s.Magnet = 0\"\n}\n```"
+    }
+  }
+}

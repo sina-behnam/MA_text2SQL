@@ -1,0 +1,97 @@
+{
+  "id": 639,
+  "dataset": "bird",
+  "database": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/databases/codebase_community/codebase_community.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/codebase_community/postLinks.csv",
+      "stratified_output/databases/codebase_community/postHistory.csv",
+      "stratified_output/databases/codebase_community/badges.csv",
+      "stratified_output/databases/codebase_community/posts.csv",
+      "stratified_output/databases/codebase_community/users.csv",
+      "stratified_output/databases/codebase_community/tags.csv",
+      "stratified_output/databases/codebase_community/votes.csv",
+      "stratified_output/databases/codebase_community/comments.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/schemas/codebase_community/codebase_community.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Based on posts posted by Community, calculate the percentage of posts that use the R language.",
+  "sql": "SELECT CAST(SUM(IIF(T3.TagName = 'r', 1, 0)) AS REAL) * 100 / COUNT(T1.Id) FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN tags AS T3 ON T3.ExcerptPostId = T2.PostId WHERE T1.DisplayName = 'Community'",
+  "evidence": "DIVIDE(COUNT(PostId WHERE TagName = 'r')), (COUNT(PostId WHERE DisplayName = 'Community')) as percentage; R language refers to tagname = 'r'",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 94,
+    "word_length": 16,
+    "entities": [
+      {
+        "text": "Community",
+        "label": "ORG",
+        "start": 25,
+        "end": 34
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 230,
+    "tables_count": 3,
+    "tables": [
+      "users",
+      "postHistory",
+      "tags"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT",
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT \n  ROUND(\n    (COUNT(CASE WHEN p.Tags LIKE '%<r>%' THEN 1 END) * 100.0) / \n    COUNT(*)\n  , 2) AS percentage\nFROM \n  posts p\nJOIN \n  users u ON p.OwnerUserId = u.Id\nWHERE \n  u.DisplayName = 'Community'\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet me analyze the question and database schema to formulate the correct SQL query:\n\n1. We need to calculate the percentage of posts that use the R language.\n2. The posts should be those posted by \"Community\" user.\n3. R language is identified by \"tagname = 'r'\".\n\nLooking at the tables:\n- `posts` contains the post information including who owns the post (`OwnerUserId`)\n- `users` contains user information including `DisplayName`\n- `tags` contains tag information with `TagName`\n\nBut there doesn't seem to be a direct relationship between posts and tags in the provided schema. We'll need to identify how posts are linked to tags.\n\nLooking at the `posts` table, there's a column called `Tags`, which might store tags for posts. However, this isn't a normalized relationship and might need string parsing.\n\nLet's formulate the query:\n\n1. First, we need to identify posts by the \"Community\" user:\n   - Join `posts` with `users` where `posts.OwnerUserId = users.Id` and `users.DisplayName = 'Community'`\n\n2. From those posts, we need to calculate:\n   - Total count of posts\n   - Count of posts with the R tag (TagName = 'r')\n   - Percentage: (Count with R tag / Total count) * 100\n\nLet me try to write the SQL query. Based on the schema, if `posts.Tags` contains the tag information, we'll need to use string operations to check if a post has the 'r' tag.\n\nBut I see a challenge: There doesn't seem to be a clear many-to-many relationship between posts and tags in the schema provided. The `tags` table exists, but I don't see a join table connecting posts to tags.\n\nLet me re-examine the schema to see if I'm missing something.\n\nLooking at the `posts` table again, there's a column called `Tags`. This might be a string containing tags separated by some delimiter, or it might be JSON, or something else.\n\nSince we don't have a clear relationship, I'll use the `Tags` column and assume it contains tag names as substrings (which is a common approach in some non-normalized schemas).\n\nLet's create a query:\n\n```sql\nSELECT \n    COUNT(CASE WHEN p.Tags LIKE '%<r>%' THEN 1 END) * 100.0 / COUNT(*) as PercentageRPosts\nFROM \n    posts p\nJOIN \n    users u ON p.OwnerUserId = u.Id\nWHERE \n    u.DisplayName = 'Community'\n```\n\nThis assumes that the `Tags` column in `posts` contains tags in the format `<tagname>`, which is a common format used in systems like Stack Overflow. If the format is different, the query would need to be adjusted.\n\nWait, I wonder if there's another way to interpret the question. It's possible the question is asking for the percentage of all posts with the \"r\" tag made by the Community user out of all posts made by the Community user.\n\nActually, looking at the PS provided in the question, it seems there might be a direct way to identify posts with the \"r\" tag. Let me re-examine.\n\nThe PS suggests using:\n```\nDIVIDE(COUNT(PostId WHERE TagName = 'r')), (COUNT(PostId WHERE DisplayName = 'Community')) as percentage\n```\n\nSo, there's a direct relationship somewhere between posts, tags, and users. Let me re-examine the schema.\n\nHmm, I don't see an explicit join table between posts and tags. Let me check other tables to see if there's a hidden relationship.\n\nActually, I'm thinking there might be an implicit relationship we're missing, or perhaps the data model includes some views or denormalized structures not shown in the schema.\n\nGiven the hint in the PS, I'm going to assume there's some way to directly relate posts to tags and users. Let me try to infer a plausible relationship.\n\nHere's what I'm thinking:\n- From `posts`, we can get `OwnerUserId` to link to `users`.\n- For tags, if we don't have a direct relationship, it gets trickier. We might need to parse the `Tags` column in `posts`.\n\nLet me craft a query based on the PS hint:\n\n```sql\nSELECT \n    (COUNT(CASE WHEN t.TagName = 'r' AND u.DisplayName = 'Community' THEN p.Id END) * 100.0) / \n    COUNT(CASE WHEN u.DisplayName = 'Community' THEN p.Id END) as percentage\nFROM \n    posts p\nJOIN \n    users u ON p.OwnerUserId = u.Id\nLEFT JOIN \n    -- This assumes there's some way to relate posts to tags\n    tags t ON /* some relationship */\n```\n\nBut I'm still missing how to relate posts to tags directly.\n\nLet me try a different approach. Since I can't directly join `posts` and `tags`, I'll use the `Tags` column in `posts` to infer the tags:\n\n```sql\nSELECT \n    (COUNT(CASE WHEN p.Tags LIKE '%<r>%' AND u.DisplayName = 'Community' THEN p.Id END) * 100.0) / \n    COUNT(CASE WHEN u.DisplayName = 'Community' THEN p.Id END) as percentage\nFROM \n    posts p\nJOIN \n    users u ON p.OwnerUserId = u.Id\n```\n\nThis assumes tags are stored in the format `<tagname>` in the `Tags` column of `posts`.\n</think>\n\nLooking at the database schema, I see we need to calculate the percentage of posts by the \"Community\" user that have the R language tag.\n\nThe key tables for this query are:\n1. `posts` - contains post information\n2. `users` - contains user information including DisplayName\n3. `tags` - contains tag information\n\nTo find posts that use the R language, I need to check for the tag \"r\" in the posts' Tags column. The Tags column in the posts table appears to store tags in a string format, so I'll need to use string search (LIKE operator).\n\n```json\n{\n  \"sql\": \"SELECT \n  ROUND(\n    (COUNT(CASE WHEN p.Tags LIKE '%<r>%' THEN 1 END) * 100.0) / \n    COUNT(*)\n  , 2) AS percentage\nFROM \n  posts p\nJOIN \n  users u ON p.OwnerUserId = u.Id\nWHERE \n  u.DisplayName = 'Community'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "id": 125,
+  "dataset": "bird",
+  "database": {
+    "name": "financial",
+    "path": [
+      "stratified_output/databases/financial/financial.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/financial/loan.csv",
+      "stratified_output/databases/financial/client.csv",
+      "stratified_output/databases/financial/district.csv",
+      "stratified_output/databases/financial/trans.csv",
+      "stratified_output/databases/financial/account.csv",
+      "stratified_output/databases/financial/card.csv",
+      "stratified_output/databases/financial/order.csv",
+      "stratified_output/databases/financial/disp.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "financial",
+    "path": [
+      "stratified_output/schemas/financial/financial.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For loans contracts which are still running where client are in debt, list the district of the and the state the percentage unemployment rate increment from year 1995 to 1996.",
+  "sql": "SELECT CAST((T3.A13 - T3.A12) AS REAL) * 100 / T3.A12 FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id INNER JOIN district AS T3 ON T2.district_id = T3.district_id WHERE T1.status = 'D'",
+  "evidence": "Unemployment increment rate in percentage = [(unemployment rate 2016 - unemployment rate 2015) / unemployment rate 2015] * 100; unemployment rate 2015 appears in the A12; unemployment rate 2016 appears in the A13; Loan contracts which are still running where client are in debt can be presented as status = 'D'",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 175,
+    "word_length": 30,
+    "entities": [
+      {
+        "text": "from year 1995 to 1996",
+        "label": "DATE",
+        "start": 152,
+        "end": 174
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "1995",
+      "1996"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 3,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 210,
+    "tables_count": 3,
+    "tables": [
+      "district",
+      "loan",
+      "account"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT \n    d.A2 as district,\n    d.A3 as state,\n    ((d.A13 - d.A12) / d.A12) * 100 as unemployment_rate_increment\nFROM \n    loan l\nJOIN \n    account a ON l.account_id = a.account_id\nJOIN \n    district d ON a.district_id = d.district_id\nWHERE \n    l.status = 'D'\nGROUP BY\n    d.district_id, d.A2, d.A3\nORDER BY \n    unemployment_rate_increment DESC\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet's break down the question:\n\n1. We need to find loans that are still running and where clients are in debt.\n   - According to the note, these are loans with status = 'D'.\n\n2. For these loans, we need to list the district and state along with the percentage unemployment rate increment from 1995 to 1996.\n   - Unemployment rate increment = [(unemployment rate 1996 - unemployment rate 1995) / unemployment rate 1995] * 100\n   - Unemployment rate 1995 is A12 in the district table\n   - Unemployment rate 1996 is A13 in the district table\n\nFirst, let's understand the schema relationships:\n- loan table has a loan_id, account_id, status, etc.\n- account table has account_id, district_id, etc.\n- district table has district_id, A2 (which might be the district name), A3 (which might be the state), A12 (unemployment rate 1995), A13 (unemployment rate 1996), etc.\n\nNow, we need to:\n1. Join loan with account to get the district_id of the account.\n2. Join account with district to get the district details.\n3. Filter for loans with status = 'D'.\n4. Calculate the unemployment rate increment.\n\nLet's formulate the SQL query:\n\n```sql\nSELECT \n    d.A2 as district,\n    d.A3 as state,\n    ((d.A13 - d.A12) / d.A12) * 100 as unemployment_rate_increment\nFROM \n    loan l\nJOIN \n    account a ON l.account_id = a.account_id\nJOIN \n    district d ON a.district_id = d.district_id\nWHERE \n    l.status = 'D'\nORDER BY \n    unemployment_rate_increment DESC;\n```\n\nThis query will:\n1. Join the loan table with the account table using account_id.\n2. Join the account table with the district table using district_id.\n3. Filter for loans with status = 'D'.\n4. Calculate the unemployment rate increment as [(A13 - A12) / A12] * 100.\n5. Order the results by the unemployment rate increment in descending order to see the districts with the highest increase first.\n6. Return the district (A2), state (A3), and the calculated unemployment rate increment.\n\nLet's review this query once more:\n\n- The joins look correct, connecting loan to account and then to district.\n- The calculation for the unemployment rate increment follows the given formula.\n- The filtering for loans with status 'D' is as instructed.\n\nHowever, there's a subtle issue: A12 (unemployment rate for 1995) can be NULL as indicated by the DDL (`A12 REAL null`). We should handle this case to avoid division by zero or NULL results.\n\n```sql\nSELECT \n    d.A2 as district,\n    d.A3 as state,\n    CASE \n        WHEN d.A12 IS NULL OR d.A12 = 0 THEN NULL\n        ELSE ((d.A13 - d.A12) / d.A12) * 100 \n    END as unemployment_rate_increment\nFROM \n    loan l\nJOIN \n    account a ON l.account_id = a.account_id\nJOIN \n    district d ON a.district_id = d.district_id\nWHERE \n    l.status = 'D'\nORDER BY \n    unemployment_rate_increment DESC;\n```\n\nThis should handle the potential NULL values in A12. If A12 is NULL or zero, the unemployment rate increment will be NULL to avoid division by zero or meaningless results.\n</think>\n\nBased on the question and schema, I'll create a SQL query to find districts where clients have running loans and are in debt, along with unemployment rate increment calculations.\n\n```json\n{\n  \"sql\": \"SELECT \n    d.A2 as district,\n    d.A3 as state,\n    ((d.A13 - d.A12) / d.A12) * 100 as unemployment_rate_increment\nFROM \n    loan l\nJOIN \n    account a ON l.account_id = a.account_id\nJOIN \n    district d ON a.district_id = d.district_id\nWHERE \n    l.status = 'D'\nGROUP BY\n    d.district_id, d.A2, d.A3\nORDER BY \n    unemployment_rate_increment DESC\"\n}\n```"
+    }
+  }
+}

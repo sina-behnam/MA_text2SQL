@@ -1,0 +1,81 @@
+{
+  "id": 879,
+  "dataset": "spider",
+  "database": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/schemas/network_1/network_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the grade that has the greatest number of high schoolers.",
+  "sql": "SELECT grade FROM Highschooler GROUP BY grade ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 64,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "greatest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 76,
+    "tables_count": 1,
+    "tables": [
+      "Highschooler"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT grade FROM Highschooler GROUP BY grade ORDER BY COUNT(*) DESC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's look at the database schema to understand the tables and their columns:\n\n1. Highschooler table:\n   - ID (int, primary key)\n   - name (text)\n   - grade (int)\n\n2. Friend table:\n   - student_id (int, part of primary key)\n   - friend_id (int, part of primary key)\n   - Both columns are foreign keys referencing Highschooler.ID\n\n3. Likes table:\n   - student_id (int, part of primary key)\n   - liked_id (int, part of primary key)\n   - Both columns are foreign keys referencing Highschooler.ID\n\nNow, to find the grade with the greatest number of high schoolers, I need to:\n1. Count how many high schoolers are in each grade\n2. Find the grade with the maximum count\n\nHere's the SQL query:\n\n```sql\nSELECT grade, COUNT(*) AS count\nFROM Highschooler\nGROUP BY grade\nORDER BY count DESC\nLIMIT 1;\n```\n\nThis query:\n1. Groups high schoolers by their grade\n2. Counts how many are in each grade\n3. Orders the results in descending order by count\n4. Returns only the top 1 row, which is the grade with the most high schoolers\n\nLet me check if this is correct. The user wants the grade with the greatest number of high schoolers, not the actual count. So the query should return just the grade.\n\n```sql\nSELECT grade\nFROM Highschooler\nGROUP BY grade\nORDER BY COUNT(*) DESC\nLIMIT 1;\n```\n\nThis is the correct SQL query for the task.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT grade FROM Highschooler GROUP BY grade ORDER BY COUNT(*) DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

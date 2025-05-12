@@ -1,0 +1,81 @@
+{
+  "id": 1310,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For the male patients that have a normal prothrombin time, what is their average prothrombin time?",
+  "sql": "SELECT AVG(T2.PT) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.PT < 14 AND T1.SEX = 'M'",
+  "evidence": "male refers to Sex = 'M'; normal prothrombin time refer to PT < 14; average prothrombin time = AVG(PT);",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 98,
+    "word_length": 16,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 115,
+    "tables_count": 2,
+    "tables": [
+      "Laboratory",
+      "Patient"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(L.PT) as AverageProthombinTime FROM Patient P JOIN Laboratory L ON P.ID = L.ID WHERE P.SEX = 'M' AND L.PT < 14",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nAlright, I'm asked to find the average prothrombin time (PT) for male patients who have a normal prothrombin time (PT < 14).\n\nFrom the provided database schema, I can see:\n\n1. The `Patient` table has an `ID` column and a `SEX` column, which I need to filter for male patients (SEX = 'M').\n2. The `Laboratory` table has a `PT` column, which represents the prothrombin time. I need to filter for PT < 14 and then calculate the average.\n\nTo solve this, I need to:\n1. Join the `Patient` and `Laboratory` tables on the `ID` column.\n2. Filter for male patients (SEX = 'M').\n3. Filter for normal prothrombin time (PT < 14).\n4. Calculate the average of the PT values that meet these conditions using the AVG function.\n\nHere's the SQL query:\n\n```sql\nSELECT AVG(L.PT) as AverageProthombinTime\nFROM Patient P\nJOIN Laboratory L ON P.ID = L.ID\nWHERE P.SEX = 'M' AND L.PT < 14\n```\n\nThis query selects the average of the PT column from the Laboratory table for rows where the Sex is 'M' (male) in the Patient table and the PT is less than 14 (normal prothrombin time). The join operation ensures that we're looking at the laboratory results for the correct patients.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(L.PT) as AverageProthombinTime FROM Patient P JOIN Laboratory L ON P.ID = L.ID WHERE P.SEX = 'M' AND L.PT < 14\"\n}\n```"
+    }
+  }
+}

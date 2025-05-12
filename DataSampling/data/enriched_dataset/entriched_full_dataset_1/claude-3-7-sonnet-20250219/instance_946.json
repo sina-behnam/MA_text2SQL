@@ -1,0 +1,85 @@
+{
+  "id": 946,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the date of each treatment, together with the first name of the professional who operated it.",
+  "sql": "SELECT T1.date_of_treatment ,  T2.first_name FROM Treatments AS T1 JOIN Professionals AS T2 ON T1.professional_id  =  T2.professional_id",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 98,
+    "word_length": 17,
+    "entities": [
+      {
+        "text": "first",
+        "label": "ORDINAL",
+        "start": 51,
+        "end": 56
+      }
+    ],
+    "entity_types": [
+      "ORDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "first"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 136,
+    "tables_count": 2,
+    "tables": [
+      "Treatments",
+      "Professionals"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT t.date_of_treatment, p.first_name FROM Treatments t JOIN Professionals p ON t.professional_id = p.professional_id",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nBased on the database schema, I need to list the date of each treatment along with the first name of the professional who operated it. Let me identify the relevant tables:\n\n1. `Treatments` table: Contains the date of treatment (date_of_treatment) and a foreign key to the professional (professional_id)\n2. `Professionals` table: Contains the first name of the professional (first_name)\n\nI need to join these tables to get the required information. The join condition would be:\n- Join Treatments and Professionals on Treatments.professional_id = Professionals.professional_id\n\nFrom the joined table, I need to select:\n- Treatments.date_of_treatment\n- Professionals.first_name\n\nHere's the SQL query:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT t.date_of_treatment, p.first_name FROM Treatments t JOIN Professionals p ON t.professional_id = p.professional_id\"\n}\n```"
+    }
+  }
+}

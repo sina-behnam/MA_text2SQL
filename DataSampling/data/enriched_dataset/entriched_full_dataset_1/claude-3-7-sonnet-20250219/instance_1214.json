@@ -1,0 +1,90 @@
+{
+  "id": 1214,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List ID, sex and date of birth of patient whose total protein (TP) below the lower range of the normal index.",
+  "sql": "SELECT DISTINCT T1.ID, T1.SEX, T1.Birthday FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TP < 6.0",
+  "evidence": "total protein (TP) below the lower range of the normal index refers to TP < 6.0",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 109,
+    "word_length": 21,
+    "entities": [
+      {
+        "text": "List ID",
+        "label": "ORG",
+        "start": 0,
+        "end": 7
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "lower"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 4,
+    "column_overlap_lemma_count": 4
+  },
+  "sql_analysis": {
+    "char_length": 124,
+    "tables_count": 2,
+    "tables": [
+      "Laboratory",
+      "Patient"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT p.ID, p.SEX, p.Birthday FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.TP < 6.0",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema to understand how to retrieve the requested information:\n\n1. We need to find patients with total protein (TP) below the lower range of the normal index, which is defined as TP < 6.0.\n\n2. The database contains three tables:\n   - `Examination` - Contains examination records for patients\n   - `Patient` - Contains patient demographic information (including ID, SEX, and Birthday)\n   - `Laboratory` - Contains laboratory test results, including the TP (total protein) values\n\n3. We need to retrieve:\n   - ID (from the Patient table)\n   - Sex (from the Patient table)\n   - Date of birth (Birthday from the Patient table)\n\n4. The condition is TP < 6.0, which means we need to filter records from the Laboratory table.\n\nBased on this analysis, we need to:\n1. Join the Patient and Laboratory tables\n2. Filter for laboratory records where TP < 6.0\n3. Select the patient ID, sex, and birthday\n\nHere's how I'll structure the SQL query:\n- I'll select distinct Patient.ID, Patient.SEX, and Patient.Birthday to ensure we get each patient only once, even if they have multiple lab tests with low TP values\n- I'll join the Patient and Laboratory tables using the ID field\n- I'll add a WHERE condition to filter for TP < 6.0\n\nLet me write the SQL query:\n\n```sql\nSELECT DISTINCT p.ID, p.SEX, p.Birthday\nFROM Patient p\nJOIN Laboratory l ON p.ID = l.ID\nWHERE l.TP < 6.0;\n```\n\nThis query will return the ID, sex, and date of birth of patients who have at least one laboratory record with a total protein (TP) value below 6.0.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT p.ID, p.SEX, p.Birthday FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.TP < 6.0\"\n}\n```"
+    }
+  }
+}

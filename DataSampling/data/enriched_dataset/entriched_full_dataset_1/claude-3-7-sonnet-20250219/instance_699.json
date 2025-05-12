@@ -1,0 +1,74 @@
+{
+  "id": 699,
+  "dataset": "spider",
+  "database": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/databases/voter_1/voter_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/schemas/voter_1/voter_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the create dates, states, and phone numbers of the votes that were for the contestant named 'Tabatha Gehling'?",
+  "sql": "SELECT T2.created ,  T2.state ,  T2.phone_number FROM contestants AS T1 JOIN votes AS T2 ON T1.contestant_number  =  T2.contestant_number WHERE T1.contestant_name  =  'Tabatha Gehling'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 119,
+    "word_length": 20,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 184,
+    "tables_count": 2,
+    "tables": [
+      "contestants",
+      "votes"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT v.created, v.state, v.phone_number FROM VOTES v JOIN CONTESTANTS c ON v.contestant_number = c.contestant_number WHERE c.contestant_name = 'Tabatha Gehling'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. AREA_CODE_STATE table: Contains area codes and states\n   - area_code (integer, primary key)\n   - state (varchar(2))\n\n2. CONTESTANTS table: Contains contestant information\n   - contestant_number (integer, primary key)\n   - contestant_name (varchar(50))\n\n3. VOTES table: Contains voting information\n   - vote_id (integer, primary key)\n   - phone_number (integer)\n   - state (varchar(2), foreign key to AREA_CODE_STATE.state)\n   - contestant_number (integer, foreign key to CONTESTANTS.contestant_number)\n   - created (timestamp)\n\nThe question asks for the create dates, states, and phone numbers of votes that were for the contestant named 'Tabatha Gehling'.\n\nTo answer this, I need to:\n1. Find the contestant_number for 'Tabatha Gehling' in the CONTESTANTS table\n2. Join this with the VOTES table to find votes for this contestant\n3. Select the created, state, and phone_number from these votes\n\nHere's the SQL query:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT v.created, v.state, v.phone_number FROM VOTES v JOIN CONTESTANTS c ON v.contestant_number = c.contestant_number WHERE c.contestant_name = 'Tabatha Gehling'\"\n}\n```"
+    }
+  }
+}

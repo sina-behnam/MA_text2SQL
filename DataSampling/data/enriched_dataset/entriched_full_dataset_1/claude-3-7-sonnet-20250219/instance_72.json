@@ -1,0 +1,78 @@
+{
+  "id": 72,
+  "dataset": "spider",
+  "database": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/databases/pets_1/pets_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/schemas/pets_1/pets_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average and maximum age for each pet type?",
+  "sql": "SELECT avg(pet_age) ,  max(pet_age) ,  pettype FROM pets GROUP BY pettype",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 54,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 73,
+    "tables_count": 1,
+    "tables": [
+      "pets"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "AVG",
+      "MAX"
+    ],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT PetType, AVG(pet_age) AS average_age, MAX(pet_age) AS maximum_age FROM Pets GROUP BY PetType",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "The queries perform the same operation: calculating the average and maximum pet age for each pet type. The only differences are: (1) column ordering (pettype is last in the gold query but first in the generated query), (2) column aliases in the generated query (average_age, maximum_age), and (3) capitalization differences (Pets vs. pets, PetType vs. pettype). These differences don't affect the data returned, only how it's presented.",
+      "raw_response": "<think>\nLet's analyze the database schema to create a query that calculates the average and maximum age for each pet type.\n\nFrom the provided schema, we can see there are three tables:\n1. Student - Contains student information\n2. Has_Pet - Links students with their pets\n3. Pets - Contains pet information\n\nFor our query, we're specifically interested in the Pets table since it contains the pet type and age information. The relevant columns are:\n- PetType - The type of pet\n- pet_age - The age of the pet\n\nTo calculate the average and maximum age for each pet type, we need to:\n1. Group the data by PetType\n2. Calculate the average of pet_age for each group\n3. Calculate the maximum of pet_age for each group\n\nHere's the SQL query to do this:\n```sql\nSELECT \n    PetType,\n    AVG(pet_age) AS average_age,\n    MAX(pet_age) AS maximum_age\nFROM \n    Pets\nGROUP BY \n    PetType;\n```\n\nThis query selects the PetType column and calculates the average and maximum age for each pet type by using the AVG() and MAX() aggregate functions, grouped by the PetType.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT PetType, AVG(pet_age) AS average_age, MAX(pet_age) AS maximum_age FROM Pets GROUP BY PetType\"\n}\n```"
+    }
+  }
+}

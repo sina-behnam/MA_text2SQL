@@ -1,0 +1,86 @@
+{
+  "id": 998,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the first name of all the professionals along with the description of the treatment they have done.",
+  "sql": "SELECT DISTINCT T1.first_name ,  T3.treatment_type_description FROM professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id JOIN Treatment_types AS T3 ON T2.treatment_type_code  =  T3.treatment_type_code",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 104,
+    "word_length": 18,
+    "entities": [
+      {
+        "text": "first",
+        "label": "ORDINAL",
+        "start": 9,
+        "end": 14
+      }
+    ],
+    "entity_types": [
+      "ORDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "first"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 234,
+    "tables_count": 3,
+    "tables": [
+      "professionals",
+      "Treatments",
+      "Treatment_types"
+    ],
+    "join_count": 2,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT p.first_name, tt.treatment_type_description FROM Professionals p JOIN Treatments t ON p.professional_id = t.professional_id JOIN Treatment_Types tt ON t.treatment_type_code = tt.treatment_type_code",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to create a SQL query that joins the Professionals table with the Treatments table and the Treatment_Types table to get:\n1. The first names of professionals \n2. The description of the treatments they've performed\n\nLooking at the schema:\n- `Professionals` table has `professional_id`, `first_name`, and other professional information\n- `Treatments` table has `treatment_id`, `professional_id`, `treatment_type_code`, and other treatment details\n- `Treatment_Types` table has `treatment_type_code` and `treatment_type_description`\n\nI need to join these tables to get the required information:\n- Join `Professionals` with `Treatments` on `professional_id`\n- Join `Treatments` with `Treatment_Types` on `treatment_type_code`\n\nThe SQL query would be:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT p.first_name, tt.treatment_type_description FROM Professionals p JOIN Treatments t ON p.professional_id = t.professional_id JOIN Treatment_Types tt ON t.treatment_type_code = tt.treatment_type_code\"\n}\n```"
+    }
+  }
+}

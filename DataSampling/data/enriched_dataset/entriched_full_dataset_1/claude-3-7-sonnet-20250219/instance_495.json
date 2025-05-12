@@ -1,0 +1,75 @@
+{
+  "id": 495,
+  "dataset": "spider",
+  "database": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/databases/battle_death/battle_death.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/schemas/battle_death/battle_death.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average number of injuries caused each time?",
+  "sql": "SELECT avg(injured) FROM death",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 56,
+    "word_length": 10,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 30,
+    "tables_count": 1,
+    "tables": [
+      "death"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(injured) AS average_injuries FROM death",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema to understand the structure and relationships:\n\n1. `battle` table: Contains information about battles with id, name, date, commanders, and result.\n2. `ship` table: Contains information about ships, with a foreign key `lost_in_battle` referencing the `battle` table.\n3. `death` table: Contains information about deaths and injuries caused by ships, with a foreign key `caused_by_ship_id` referencing the `ship` table.\n\nThe question asks for the \"average number of injuries caused each time.\" I need to interpret what \"each time\" means in this context. Based on the schema, it likely refers to each incident recorded in the `death` table.\n\nIn the `death` table, there's an `injured` column that seems to track the number of injuries for each incident. To calculate the average number of injuries, I need to compute the average of the `injured` column from the `death` table.\n\nThe SQL query would be:\n\n```sql\nSELECT AVG(injured) AS average_injuries\nFROM death\n```\n\nThis query will calculate the average number of injuries across all incidents recorded in the `death` table.\n\nAnother interpretation could be \"each time a ship causes injuries\" or \"each time a battle results in injuries\". But since the direct data about injuries is in the `death` table, and the question isn't specific about grouping by ship or battle, I'll go with the simple average across all death records.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(injured) AS average_injuries FROM death\"\n}\n```"
+    }
+  }
+}

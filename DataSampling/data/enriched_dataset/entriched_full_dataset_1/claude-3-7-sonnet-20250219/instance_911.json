@@ -1,0 +1,99 @@
+{
+  "id": 911,
+  "dataset": "spider",
+  "database": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/schemas/network_1/network_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the names of high schoolers who have a grade of over 5 and have 2 or more friends?",
+  "sql": "SELECT T2.name FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id WHERE T2.grade  >  5 GROUP BY T1.student_id HAVING count(*)  >=  2",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 91,
+    "word_length": 20,
+    "entities": [
+      {
+        "text": "over 5",
+        "label": "CARDINAL",
+        "start": 57,
+        "end": 63
+      },
+      {
+        "text": "2",
+        "label": "CARDINAL",
+        "start": 73,
+        "end": 74
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "5",
+      "2"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "more"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 150,
+    "tables_count": 2,
+    "tables": [
+      "Friend",
+      "Highschooler"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT h.name FROM Highschooler h JOIN (SELECT student_id, COUNT(*) as friend_count FROM Friend GROUP BY student_id) f ON h.ID = f.student_id WHERE h.grade > 5 AND f.friend_count >= 2",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema provided:\n\n1. `Highschooler` table:\n   - Columns: ID (primary key), name, grade\n\n2. `Friend` table:\n   - Columns: student_id, friend_id\n   - Both form a composite primary key\n   - student_id is a foreign key referencing Highschooler.ID\n   - friend_id is a foreign key referencing Highschooler.ID\n   - This represents friendship relationships between highschoolers\n\n3. `Likes` table:\n   - Columns: student_id, liked_id\n   - Both form a composite primary key\n   - student_id is a foreign key referencing Highschooler.ID\n   - liked_id is a foreign key referencing Highschooler.ID\n   - This represents which highschooler likes which other highschooler\n\nNow, let's break down the question:\n1. Find highschoolers who have a grade over 5\n2. Among those, find the ones who have 2 or more friends\n\nFor condition 1, we need to filter the Highschooler table for grade > 5.\nFor condition 2, we need to count the number of friends each highschooler has, which requires counting entries in the Friend table where the student_id is the highschooler's ID.\n\nHere's how I'd approach this query:\n\n1. Join the Highschooler table with a subquery that counts friends for each student\n2. Filter for grades > 5 and friend count >= 2\n\nLet's construct the query:\n```sql\nSELECT h.name\nFROM Highschooler h\nJOIN (\n    SELECT student_id, COUNT(*) as friend_count\n    FROM Friend\n    GROUP BY student_id\n) f ON h.ID = f.student_id\nWHERE h.grade > 5 AND f.friend_count >= 2\n```\n\nThis will give us the names of highschoolers who have a grade over 5 and have 2 or more friends.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT h.name FROM Highschooler h JOIN (SELECT student_id, COUNT(*) as friend_count FROM Friend GROUP BY student_id) f ON h.ID = f.student_id WHERE h.grade > 5 AND f.friend_count >= 2\"\n}\n```"
+    }
+  }
+}

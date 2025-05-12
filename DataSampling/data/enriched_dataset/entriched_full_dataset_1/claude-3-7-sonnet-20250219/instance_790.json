@@ -1,0 +1,78 @@
+{
+  "id": 790,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the population, name and leader of the country with the largest area?",
+  "sql": "SELECT Name ,  population ,  HeadOfState FROM country ORDER BY SurfaceArea DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 78,
+    "word_length": 14,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "largest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 87,
+    "tables_count": 1,
+    "tables": [
+      "country"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Population, Name, HeadOfState FROM country ORDER BY SurfaceArea DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "The only difference between these two queries is the ordering of columns in the SELECT statement (Name, population, HeadOfState vs Population, Name, HeadOfState) and the capitalization of 'population' vs 'Population'. Column ordering in SELECT statements only affects the presentation order of the data in the result set but doesn't change which data is returned. SQL is typically case-insensitive for identifiers (depending on database settings). Both queries will return the exact same country record (the one with the largest SurfaceArea), just with columns arranged differently.",
+      "raw_response": "<think>\nThe database schema shows three tables: city, country, and countrylanguage. \n\nFor the question \"What are the population, name and leader of the country with the largest area?\", I need to:\n\n1. Find the country with the largest area\n2. Return its population, name, and leader (which I assume is the HeadOfState column)\n\nLooking at the `country` table, it has the following columns:\n- Code (primary key)\n- Name\n- Continent\n- Region\n- SurfaceArea (this is the area we need to find the maximum of)\n- IndepYear\n- Population\n- LifeExpectancy\n- GNP\n- GNPOld\n- LocalName\n- GovernmentForm\n- HeadOfState (this would represent the leader)\n- Capital\n- Code2\n\nI need to query the country table, order by SurfaceArea in descending order, and limit to the first result to get the country with the largest area. Then I'll return the population, name, and HeadOfState.\n\nHere's the SQL query:\n```sql\nSELECT Name, Population, HeadOfState\nFROM country\nORDER BY SurfaceArea DESC\nLIMIT 1\n```\n\nThis will return the name, population, and head of state of the country with the largest surface area.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Population, Name, HeadOfState FROM country ORDER BY SurfaceArea DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

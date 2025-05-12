@@ -1,0 +1,82 @@
+{
+  "id": 845,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the name of the conductor who has conducted the most orchestras?",
+  "sql": "SELECT T1.Name FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID GROUP BY T2.Conductor_ID ORDER BY COUNT(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 72,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 151,
+    "tables_count": 2,
+    "tables": [
+      "conductor",
+      "orchestra"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT c.Name FROM conductor c JOIN orchestra o ON c.Conductor_ID = o.Conductor_ID GROUP BY c.Conductor_ID, c.Name ORDER BY COUNT(DISTINCT o.Orchestra_ID) DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "These queries are not semantically equivalent due to two key differences: (1) The GROUP BY clause in the gold query groups only by T2.Conductor_ID, while the generated query groups by both c.Conductor_ID and c.Name. (2) More importantly, the gold query uses COUNT(*) which counts all orchestra rows, while the generated query uses COUNT(DISTINCT o.Orchestra_ID) which only counts unique orchestras. If a conductor appears multiple times with the same orchestra in the database, these queries would produce different results.",
+      "raw_response": "<think>\nLet's analyze the schema to find out how to answer this question.\n\nWe have several tables:\n1. `conductor` - information about conductors\n2. `orchestra` - information about orchestras\n3. `performance` - information about performances\n4. `show` - information about shows\n\nTo find out which conductor has conducted the most orchestras, I need to:\n1. Count the number of distinct orchestras each conductor has conducted\n2. Find the conductor with the highest count\n\nIn the `orchestra` table, we have a `Conductor_ID` field that links to the `conductor` table. This represents the primary conductor for each orchestra. \n\nSo the query needs to:\n1. Join the `conductor` and `orchestra` tables\n2. Count the distinct orchestras for each conductor\n3. Order by the count in descending order\n4. Get the conductor with the highest count\n\nHere's the SQL query:\n\n```sql\nSELECT c.Name\nFROM conductor c\nJOIN orchestra o ON c.Conductor_ID = o.Conductor_ID\nGROUP BY c.Conductor_ID, c.Name\nORDER BY COUNT(DISTINCT o.Orchestra_ID) DESC\nLIMIT 1\n```\n\nThis query:\n1. Joins the conductor and orchestra tables\n2. Groups by conductor ID and name\n3. Counts the distinct orchestra IDs for each conductor\n4. Orders by the count in descending order\n5. Limits to the top 1 result (the conductor with the highest count)\n\nThis should give us the name of the conductor who has conducted the most orchestras.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT c.Name FROM conductor c JOIN orchestra o ON c.Conductor_ID = o.Conductor_ID GROUP BY c.Conductor_ID, c.Name ORDER BY COUNT(DISTINCT o.Orchestra_ID) DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

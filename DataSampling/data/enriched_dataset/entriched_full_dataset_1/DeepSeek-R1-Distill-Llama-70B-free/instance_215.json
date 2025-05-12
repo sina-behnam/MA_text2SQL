@@ -1,0 +1,91 @@
+{
+  "id": 215,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many 'United Airlines' flights go to Airport 'ASY'?",
+  "sql": "SELECT count(*) FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T2.Airline  =  T1.uid WHERE T1.Airline  =  \"United Airlines\" AND T2.DestAirport  =  \"ASY\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 55,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "United Airlines'",
+        "label": "ORG",
+        "start": 10,
+        "end": 26
+      },
+      {
+        "text": "Airport",
+        "label": "PERSON",
+        "start": 41,
+        "end": 48
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 147,
+    "tables_count": 2,
+    "tables": [
+      "FLIGHTS",
+      "AIRLINES"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) \nFROM airlines \nJOIN flights ON airlines.uid = flights.Airline \nWHERE airlines.Airline = 'United Airlines' \nAND flights.DestAirport = 'ASY';",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

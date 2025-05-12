@@ -1,0 +1,94 @@
+{
+  "id": 81,
+  "dataset": "bird",
+  "database": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/databases/california_schools/california_schools.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/california_schools/schools.csv",
+      "stratified_output/databases/california_schools/satscores.csv",
+      "stratified_output/databases/california_schools/frpm.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/schemas/california_schools/california_schools.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "In which city can you find the school in the state of California with the lowest latitude coordinates and what is its lowest grade? Indicate the school name.",
+  "sql": "SELECT T2.City, T1.`Low Grade`, T1.`School Name` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.State = 'CA' ORDER BY T2.Latitude ASC LIMIT 1",
+  "evidence": "State of California refers to state = 'CA'",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 157,
+    "word_length": 28,
+    "entities": [
+      {
+        "text": "California",
+        "label": "GPE",
+        "start": 54,
+        "end": 64
+      }
+    ],
+    "entity_types": [
+      "GPE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "lowest",
+      "lowest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 4,
+    "column_overlap_lemma_count": 5
+  },
+  "sql_analysis": {
+    "char_length": 171,
+    "tables_count": 2,
+    "tables": [
+      "schools",
+      "frpm"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.City, s.School AS SchoolName, f.`Low Grade` AS LowestGrade FROM schools s JOIN frpm f ON s.CDSCode = f.CDSCode WHERE s.State = 'CA' ORDER BY s.Latitude ASC LIMIT 1;",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "While the queries are similar, they differ in a critical way: the Gold query selects T1.`School Name` from the frpm table, while the Generated query selects s.School (as SchoolName) from the schools table. These may be different columns containing different data. Additionally, the Generated query includes an alias 'LowestGrade' for the 'Low Grade' column, but this is just a display difference. The main semantic difference is the source of the school name information, which would likely result in different output.",
+      "raw_response": "<think>\nTo answer this question, I need to find the school in California (State = 'CA') with the lowest latitude coordinate, and then return its city, school name, and lowest grade.\n\nThe information I need is spread across multiple tables:\n- The `schools` table has the latitude coordinates, city, state, and school name\n- The `frpm` table has the grade information (Low Grade)\n\nI'll need to:\n1. Filter for schools in California (State = 'CA')\n2. Find the school with the minimum latitude value\n3. Join with the frpm table to get the low grade information\n4. Return the city, school name, and lowest grade\n\nLet me write the SQL query:\n\n```sql\nSELECT \n    s.City,\n    s.School AS SchoolName,\n    f.`Low Grade` AS LowestGrade\nFROM \n    schools s\nJOIN \n    frpm f ON s.CDSCode = f.CDSCode\nWHERE \n    s.State = 'CA'\nORDER BY \n    s.Latitude ASC\nLIMIT 1;\n```\n\nThis query:\n- Joins the schools and frpm tables on the CDSCode\n- Filters for schools in California\n- Orders by latitude in ascending order (lowest latitude first)\n- Limits to just the first result (the school with the lowest latitude)\n- Returns the city, school name, and lowest grade\n\nI believe this query will answer the question correctly. The lowest latitude in California would be the southernmost school in the state.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.City, s.School AS SchoolName, f.`Low Grade` AS LowestGrade FROM schools s JOIN frpm f ON s.CDSCode = f.CDSCode WHERE s.State = 'CA' ORDER BY s.Latitude ASC LIMIT 1;\"\n}\n```"
+    }
+  }
+}

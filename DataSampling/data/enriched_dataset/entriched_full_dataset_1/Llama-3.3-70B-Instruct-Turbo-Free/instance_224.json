@@ -1,0 +1,81 @@
+{
+  "id": 224,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which city is the most frequent source airport?",
+  "sql": "SELECT T1.City FROM AIRPORTS AS T1 JOIN FLIGHTS AS T2 ON T1.AirportCode  =  T2.SourceAirport GROUP BY T1.City ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 47,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 140,
+    "tables_count": 2,
+    "tables": [
+      "FLIGHTS",
+      "AIRPORTS"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT T1.City FROM airports AS T1 INNER JOIN flights AS T2 ON T1.AirportCode = T2.SourceAirport GROUP BY T1.City ORDER BY COUNT(T2.SourceAirport) DESC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

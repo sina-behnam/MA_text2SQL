@@ -1,0 +1,83 @@
+{
+  "id": 253,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are flight numbers of flights arriving at City \"Aberdeen\"?",
+  "sql": "SELECT T1.FlightNo FROM FLIGHTS AS T1 JOIN AIRPORTS AS T2 ON T1.DestAirport   =  T2.AirportCode WHERE T2.City  =  \"Aberdeen\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 63,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "City \"Aberdeen",
+        "label": "FAC",
+        "start": 47,
+        "end": 61
+      }
+    ],
+    "entity_types": [
+      "FAC"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 124,
+    "tables_count": 2,
+    "tables": [
+      "FLIGHTS",
+      "AIRPORTS"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT f.FlightNo FROM flights f JOIN airports a ON f.DestAirport = a.AirportCode WHERE a.City = 'Aberdeen'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. `airlines` table:\n   - uid: Primary key (integer)\n   - Airline: Text (airline name)\n   - Abbreviation: Text\n   - Country: Text\n\n2. `airports` table:\n   - City: Text\n   - AirportCode: Primary key (text)\n   - AirportName: Text\n   - Country: Text\n   - CountryAbbrev: Text\n\n3. `flights` table:\n   - Airline: Integer (Foreign key to airlines.uid)\n   - FlightNo: Integer\n   - SourceAirport: Text (Foreign key to airports.AirportCode)\n   - DestAirport: Text (Foreign key to airports.AirportCode)\n   - Primary key is the combination of (Airline, FlightNo)\n\nThe user wants to find flight numbers of flights arriving at the city \"Aberdeen\".\n\nFirst, I need to determine which airport is located in Aberdeen. Then, I need to find all flights where DestAirport is the airport code for Aberdeen.\n\nHere's my approach:\n1. Look up the AirportCode for Aberdeen in the airports table\n2. Find all flights in the flights table where DestAirport matches the AirportCode for Aberdeen\n3. Return the FlightNo for these flights\n\nLet me construct the SQL query:\n\n```sql\nSELECT f.FlightNo\nFROM flights f\nJOIN airports a ON f.DestAirport = a.AirportCode\nWHERE a.City = 'Aberdeen'\n```\n\nThis query joins the flights table with the airports table on the DestAirport field, and then filters for rows where the City is \"Aberdeen\". It returns the FlightNo for all matching flights.\n\nThis should give us all flight numbers for flights that arrive in Aberdeen.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT f.FlightNo FROM flights f JOIN airports a ON f.DestAirport = a.AirportCode WHERE a.City = 'Aberdeen'\"\n}\n```"
+    }
+  }
+}

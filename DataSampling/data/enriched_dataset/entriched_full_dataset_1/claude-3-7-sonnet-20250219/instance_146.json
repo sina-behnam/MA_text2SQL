@@ -1,0 +1,86 @@
+{
+  "id": 146,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "In 1980, how many cars were made?",
+  "sql": "SELECT count(*) FROM CARS_DATA WHERE YEAR  =  1980;",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 33,
+    "word_length": 7,
+    "entities": [
+      {
+        "text": "1980",
+        "label": "DATE",
+        "start": 3,
+        "end": 7
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "1980"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 51,
+    "tables_count": 1,
+    "tables": [
+      "CARS_DATA"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM cars_data WHERE Year = 1980",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nBased on the database schema provided, I need to write a SQL query to find out how many cars were made in 1980.\n\nLet's analyze the database schema:\n\n1. `continents`: Contains continent information.\n2. `countries`: Contains country information, linked to continents.\n3. `car_makers`: Contains car manufacturer information, linked to countries.\n4. `model_list`: Contains model information, linked to car makers.\n5. `car_names`: Contains car make and model information.\n6. `cars_data`: Contains detailed car data, including the year the car was made, linked to car_names.\n\nTo find out how many cars were made in 1980, I need to look at the `cars_data` table, which has a `Year` column. I need to count how many records there are where the year is 1980.\n\nThe SQL query would be:\n\n```sql\nSELECT COUNT(*) \nFROM cars_data \nWHERE Year = 1980\n```\n\nThis query simply counts the number of rows in the `cars_data` table where the `Year` column is 1980, giving us the total number of cars made in 1980 according to the database.\n</think>\n\n```json\n{\"sql\": \"SELECT COUNT(*) FROM cars_data WHERE Year = 1980\"}\n```"
+    }
+  }
+}

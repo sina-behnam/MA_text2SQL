@@ -1,0 +1,85 @@
+{
+  "id": 893,
+  "dataset": "spider",
+  "database": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/schemas/network_1/network_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Count the number of friends Kyle has.",
+  "sql": "SELECT count(*) FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id WHERE T2.name  =  \"Kyle\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 37,
+    "word_length": 7,
+    "entities": [
+      {
+        "text": "Kyle",
+        "label": "PERSON",
+        "start": 28,
+        "end": 32
+      }
+    ],
+    "entity_types": [
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 109,
+    "tables_count": 2,
+    "tables": [
+      "Friend",
+      "Highschooler"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM Friend WHERE student_id = (SELECT ID FROM Highschooler WHERE name = 'Kyle')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nFrom the database schema, I can see there are three tables:\n1. Highschooler: Contains information about students with ID, name, and grade.\n2. Friend: Contains information about friendships between students, with student_id and friend_id.\n3. Likes: Contains information about which student likes which other student.\n\nTo count the number of friends Kyle has, I need to:\n1. First, find Kyle's ID from the Highschooler table.\n2. Then, count the number of entries in the Friend table where student_id is Kyle's ID.\n\nLet's see how to do this in SQL:\n\n```sql\nSELECT COUNT(*) \nFROM Friend \nWHERE student_id = (SELECT ID FROM Highschooler WHERE name = 'Kyle');\n```\n\nThis query first finds Kyle's ID by querying the Highschooler table, then counts the number of rows in the Friend table where the student_id matches Kyle's ID.\n\nWait, I need to be careful here. The Friend table might record friendships in both directions (A is a friend of B, and B is a friend of A), or it might record them in just one direction (A is a friend of B). Let me think about this more carefully.\n\nIf friendships are recorded in both directions, then Kyle's friends can be found by looking for rows where either student_id or friend_id is Kyle's ID. However, since the DDL specifies a primary key on (student_id, friend_id), it's likely that each friendship is represented by two rows: one where Kyle is the student_id and one where Kyle is the friend_id.\n\nTo be safe, I'll count Kyle's friends as the number of rows in the Friend table where student_id is Kyle's ID. This is a more direct interpretation of the question \"Count the number of friends Kyle has.\"\n\n```sql\nSELECT COUNT(*) \nFROM Friend \nWHERE student_id = (SELECT ID FROM Highschooler WHERE name = 'Kyle');\n```\n\nActually, I need to consider another possibility. Friendships in this database might be recorded as bi-directional relationships, meaning if A is friends with B, there might be a single row in the Friend table representing this friendship. In this case, Kyle's friends would be the count of rows where either student_id or friend_id is Kyle's ID.\n\nHowever, based on the structure of the Friend table with student_id and friend_id, and the primary key constraint on the pair, it seems more likely that each row represents a directional relationship where student_id is a friend of friend_id. In this case, to count Kyle's friends, I should count the number of rows where student_id is Kyle's ID.\n\nTo be safe, I'll go with this interpretation:\n\n```sql\nSELECT COUNT(*) \nFROM Friend \nWHERE student_id = (SELECT ID FROM Highschooler WHERE name = 'Kyle');\n```\n\nThis counts the number of entries in the Friend table where student_id is Kyle's ID, which gives us the number of friends Kyle has.\n</think>\n\nI need to count how many friends Kyle has based on the Friend table. First, I'll find Kyle's ID, then count the relationships in the Friend table.\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM Friend WHERE student_id = (SELECT ID FROM Highschooler WHERE name = 'Kyle')\"\n}\n```"
+    }
+  }
+}

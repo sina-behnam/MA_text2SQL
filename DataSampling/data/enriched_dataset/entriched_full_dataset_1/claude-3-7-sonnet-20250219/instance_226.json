@@ -1,0 +1,99 @@
+{
+  "id": 226,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the percentage of double bonds in the molecule TR008? Please provide your answer as a percentage with five decimal places.",
+  "sql": "SELECT ROUND(CAST(COUNT(CASE WHEN T.bond_type = '=' THEN T.bond_id ELSE NULL END) AS REAL) * 100 / COUNT(T.bond_id),5) FROM bond AS T WHERE T.molecule_id = 'TR008'",
+  "evidence": "double bond refers to bond_type = '='; TR008 is the molecule id; percentage = DIVIDE(SUM(bond_type = '='), COUNT(bond_id)) as percent where molecule_id = 'TR008'",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 130,
+    "word_length": 22,
+    "entities": [
+      {
+        "text": "TR008",
+        "label": "PRODUCT",
+        "start": 55,
+        "end": 60
+      },
+      {
+        "text": "five",
+        "label": "CARDINAL",
+        "start": 110,
+        "end": 114
+      }
+    ],
+    "entity_types": [
+      "PRODUCT",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "five"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 163,
+    "tables_count": 1,
+    "tables": [
+      "bond"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT ROUND((SUM(CASE WHEN bond_type = '=' THEN 1 ELSE 0 END) * 100.0) / COUNT(bond_id), 5) AS percentage FROM bond WHERE molecule_id = 'TR008'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the request and the database schema to formulate the appropriate SQL query.\n\nThe user is asking for the percentage of double bonds in the molecule with ID 'TR008'. They've provided a hint that:\n- Double bonds have bond_type = '='\n- The percentage should be calculated as: (Count of double bonds in the molecule / Total count of bonds in the molecule) * 100\n- The result should be formatted with 5 decimal places\n\nBased on the database schema:\n- We have a `molecule` table with molecule information\n- We have a `bond` table with bond information, including bond_type\n- We need to filter bonds for the specific molecule 'TR008'\n\nTo calculate the percentage, we need to:\n1. Count the total number of bonds for molecule 'TR008'\n2. Count the number of double bonds (bond_type = '=') for molecule 'TR008'\n3. Divide the count of double bonds by the total count of bonds and multiply by 100\n4. Format the result to 5 decimal places\n\nHere's how I'll structure the SQL query:\n\n```sql\nSELECT \n    ROUND(\n        (SUM(CASE WHEN bond_type = '=' THEN 1 ELSE 0 END) * 100.0) / \n        COUNT(bond_id),\n        5\n    ) AS double_bond_percentage\nFROM \n    bond\nWHERE \n    molecule_id = 'TR008';\n```\n\nThis query:\n1. Uses CASE WHEN to count bonds where bond_type = '='\n2. Divides by the total count of bonds and multiplies by 100 to get a percentage\n3. Uses ROUND with 5 decimal places\n4. Filters for only the 'TR008' molecule\n\nSince we're using the COUNT function, we don't need to worry about null values, as COUNT doesn't count them anyway.\n\nI think this query should correctly calculate the percentage of double bonds in the molecule 'TR008' with 5 decimal places.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT ROUND((SUM(CASE WHEN bond_type = '=' THEN 1 ELSE 0 END) * 100.0) / COUNT(bond_id), 5) AS percentage FROM bond WHERE molecule_id = 'TR008'\"\n}\n```"
+    }
+  }
+}

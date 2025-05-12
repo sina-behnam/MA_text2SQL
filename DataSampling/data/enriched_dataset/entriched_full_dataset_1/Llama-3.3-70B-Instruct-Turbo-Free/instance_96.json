@@ -1,0 +1,101 @@
+{
+  "id": 96,
+  "dataset": "bird",
+  "database": {
+    "name": "financial",
+    "path": [
+      "stratified_output/databases/financial/financial.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/financial/loan.csv",
+      "stratified_output/databases/financial/client.csv",
+      "stratified_output/databases/financial/district.csv",
+      "stratified_output/databases/financial/trans.csv",
+      "stratified_output/databases/financial/account.csv",
+      "stratified_output/databases/financial/card.csv",
+      "stratified_output/databases/financial/order.csv",
+      "stratified_output/databases/financial/disp.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "financial",
+    "path": [
+      "stratified_output/schemas/financial/financial.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many customers who choose statement of weekly issuance are Owner?",
+  "sql": "SELECT COUNT(T1.account_id) FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id WHERE T2.type = 'OWNER' AND T1.frequency = 'POPLATEK TYDNE'",
+  "evidence": "'POPLATEK TYDNE' stands for weekly issuance",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 69,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "weekly",
+        "label": "DATE",
+        "start": 43,
+        "end": 49
+      },
+      {
+        "text": "Owner",
+        "label": "ORG",
+        "start": 63,
+        "end": 68
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 161,
+    "tables_count": 2,
+    "tables": [
+      "disp",
+      "account"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT T1.account_id) FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id INNER JOIN client AS T3 ON T2.client_id = T3.client_id WHERE T1.frequency = 'weekly' AND T3.gender = 'M'",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The two queries have different conditions in the WHERE clause. The Gold SQL Query checks for 'OWNER' type in the disp table and 'POPLATEK TYDNE' frequency in the account table, while the Generated SQL Query checks for 'weekly' frequency, 'M' gender in the client table, and joins the client table which is not present in the Gold SQL Query. These differences in conditions and joins make the queries non-equivalent."
+    }
+  }
+}

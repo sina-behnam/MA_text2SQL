@@ -1,0 +1,73 @@
+{
+  "id": 385,
+  "dataset": "spider",
+  "database": {
+    "name": "course_teach",
+    "path": [
+      "spider_stratified_output_200/databases/course_teach/course_teach.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "course_teach",
+    "path": [
+      "spider_stratified_output_200/schemas/course_teach/course_teach.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the age and hometown of teachers?",
+  "sql": "SELECT Age ,  Hometown FROM teacher",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 42,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 35,
+    "tables_count": 1,
+    "tables": [
+      "teacher"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT \"Age\", \"Hometown\" FROM \"teacher\"",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLooking at the provided database schema, we have three tables:\n1. `course` - contains information about courses \n2. `teacher` - contains information about teachers\n3. `course_arrange` - a junction table that links courses to teachers\n\nThe question asks for the age and hometown of teachers.\n\nFrom the schema, I can see that the `teacher` table has the following columns:\n- `Teacher_ID` (primary key)\n- `Name`\n- `Age`\n- `Hometown`\n\nSince the question specifically asks for age and hometown of teachers, I need to query the `teacher` table to get this information.\n\nThe SQL query should be:\n```sql\nSELECT \"Age\", \"Hometown\" FROM \"teacher\"\n```\n\nThis query will return the age and hometown for all teachers in the database.\n\nIf the user had wanted additional information like the teacher's name, or wanted to filter the results in some way, we would need to adjust the query, but based on the specific question asked, this query should provide exactly what's being requested.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT \\\"Age\\\", \\\"Hometown\\\" FROM \\\"teacher\\\"\"\n}\n```"
+    }
+  }
+}

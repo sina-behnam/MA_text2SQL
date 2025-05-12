@@ -1,0 +1,90 @@
+{
+  "id": 1199,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many patients who underwent testing in 1997 had protein levels outside the normal range?",
+  "sql": "SELECT COUNT(ID) FROM Laboratory WHERE (ALB <= 6.0 OR ALB >= 8.5) AND STRFTIME('%Y', Date) = '1997'",
+  "evidence": "underwent testing in 1997 refers to YEAR(DATE) = '1997'; protein levels within the normal range refers to tp > 6 and tp < 8.5",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 92,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "1997",
+        "label": "DATE",
+        "start": 43,
+        "end": 47
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "1997"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 99,
+    "tables_count": 1,
+    "tables": [
+      "Laboratory"
+    ],
+    "join_count": 0,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT ID) AS PatientCount FROM Laboratory WHERE STRFTIME('%Y', Date) = '1997' AND (ALB < 3.5 OR ALB > 5.5) OR (UA < 3.5 OR UA > 7.5)",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The queries differ in the conditions they check. The Gold query checks ALB levels between 6.0 and 8.5, while the Generated query checks both ALB and UA levels with different ranges. Thus, they count different patient sets."
+    }
+  }
+}

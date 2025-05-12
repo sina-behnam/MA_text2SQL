@@ -1,0 +1,102 @@
+{
+  "id": 96,
+  "dataset": "bird",
+  "database": {
+    "name": "financial",
+    "path": [
+      "stratified_output/databases/financial/financial.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/financial/loan.csv",
+      "stratified_output/databases/financial/client.csv",
+      "stratified_output/databases/financial/district.csv",
+      "stratified_output/databases/financial/trans.csv",
+      "stratified_output/databases/financial/account.csv",
+      "stratified_output/databases/financial/card.csv",
+      "stratified_output/databases/financial/order.csv",
+      "stratified_output/databases/financial/disp.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "financial",
+    "path": [
+      "stratified_output/schemas/financial/financial.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many customers who choose statement of weekly issuance are Owner?",
+  "sql": "SELECT COUNT(T1.account_id) FROM account AS T1 INNER JOIN disp AS T2 ON T1.account_id = T2.account_id WHERE T2.type = 'OWNER' AND T1.frequency = 'POPLATEK TYDNE'",
+  "evidence": "'POPLATEK TYDNE' stands for weekly issuance",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 69,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "weekly",
+        "label": "DATE",
+        "start": 43,
+        "end": 49
+      },
+      {
+        "text": "Owner",
+        "label": "ORG",
+        "start": 63,
+        "end": 68
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 161,
+    "tables_count": 2,
+    "tables": [
+      "disp",
+      "account"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT client.client_id) FROM client JOIN disp ON client.client_id = disp.client_id JOIN account ON disp.account_id = account.account_id WHERE account.frequency = 'POPLATEK TYDNE' AND disp.type = 'OWNER'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's break down the question and the schema to understand what we need to do:\n\n1. We need to count customers who have:\n   - Statement/issuance frequency as \"weekly\" (which is noted as 'POPLATEK TYDNE')\n   - Type as \"Owner\"\n\nFrom the schema, we can see that:\n- `account` table has a `frequency` column which would likely have the statement issuance frequency\n- `disp` table has a `type` column which would likely have the type of account relationship (like \"Owner\")\n- `client` table would have the customer information\n\nSo, we need to count the number of clients who have accounts with weekly statement issuance and are owners of those accounts.\n\nLet's create the SQL query:\n\n1. Join `client`, `disp`, and `account` tables.\n2. Filter for `frequency` = 'POPLATEK TYDNE' (weekly issuance) in the `account` table.\n3. Filter for `type` = 'OWNER' in the `disp` table.\n4. Count distinct clients.\n\nThe query would look like:\n\n```sql\nSELECT COUNT(DISTINCT client.client_id)\nFROM client\nJOIN disp ON client.client_id = disp.client_id\nJOIN account ON disp.account_id = account.account_id\nWHERE account.frequency = 'POPLATEK TYDNE'\n  AND disp.type = 'OWNER';\n```\n\nBut I'm not entirely certain about the exact values for 'POPLATEK TYDNE' and 'OWNER' in the database. Let's adjust the query to handle potential case sensitivity:\n\n```sql\nSELECT COUNT(DISTINCT client.client_id)\nFROM client\nJOIN disp ON client.client_id = disp.client_id\nJOIN account ON disp.account_id = account.account_id\nWHERE UPPER(account.frequency) = 'POPLATEK TYDNE'\n  AND UPPER(disp.type) = 'OWNER';\n```\n\nActually, the question says 'POPLATEK TYDNE' stands for weekly issuance, so it's likely that 'POPLATEK TYDNE' is the actual value in the database. But for the \"Owner\" value, I'll still use UPPER to make it case-insensitive.\n\n```sql\nSELECT COUNT(DISTINCT client.client_id)\nFROM client\nJOIN disp ON client.client_id = disp.client_id\nJOIN account ON disp.account_id = account.account_id\nWHERE account.frequency = 'POPLATEK TYDNE'\n  AND UPPER(disp.type) = 'OWNER';\n```\n\nOn second thought, the exact value for \"Owner\" in the database might be different. To be safe, let's assume it's 'OWNER' (all caps) since that seems to be the common format in this database:\n\n```sql\nSELECT COUNT(DISTINCT client.client_id)\nFROM client\nJOIN disp ON client.client_id = disp.client_id\nJOIN account ON disp.account_id = account.account_id\nWHERE account.frequency = 'POPLATEK TYDNE'\n  AND disp.type = 'OWNER';\n```\n\nThis query should count the number of distinct clients who are owners of accounts with weekly statement issuance.\n</think>\n\nI need to count customers who have both \"weekly issuance\" (POPLATEK TYDNE) for their account frequency and are designated as \"OWNER\" in the disposition type.\n\nLooking at the schema:\n- The `account` table has the `frequency` field\n- The `disp` table has the relationship type (OWNER)\n- The `client` table contains the customer information\n\nI'll construct a query that joins these tables and applies the appropriate filters:\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT client.client_id) FROM client JOIN disp ON client.client_id = disp.client_id JOIN account ON disp.account_id = account.account_id WHERE account.frequency = 'POPLATEK TYDNE' AND disp.type = 'OWNER'\"\n}\n```"
+    }
+  }
+}

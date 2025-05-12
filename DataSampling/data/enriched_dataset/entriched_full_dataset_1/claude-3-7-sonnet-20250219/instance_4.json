@@ -1,0 +1,86 @@
+{
+  "id": 4,
+  "dataset": "spider",
+  "database": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average, minimum, and maximum age of all singers from France?",
+  "sql": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 73,
+    "word_length": 13,
+    "entities": [
+      {
+        "text": "France",
+        "label": "GPE",
+        "start": 66,
+        "end": 72
+      }
+    ],
+    "entity_types": [
+      "GPE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 78,
+    "tables_count": 1,
+    "tables": [
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 3,
+    "aggregation_functions": [
+      "AVG",
+      "MIN",
+      "MAX"
+    ],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(Age) as average_age, MIN(Age) as minimum_age, MAX(Age) as maximum_age FROM singer WHERE Country = 'France'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's break down the question:\n- I need to find the average, minimum, and maximum age of singers from France.\n- Looking at the schema, I have a `singer` table that contains:\n  - `Singer_ID`: Primary key\n  - `Name`: The name of the singer\n  - `Country`: The country of the singer\n  - `Song_Name`: Name of the song\n  - `Song_release_year`: Year the song was released\n  - `Age`: The age of the singer\n  - `Is_male`: Gender flag (true if male, false if female)\n\nSince I need to filter by country (France) and get the average, minimum, and maximum age, I'll use the AVG, MIN, and MAX functions on the `Age` column where `Country` is 'France'.\n\nThe SQL query would be:\n```sql\nSELECT AVG(Age) as average_age, MIN(Age) as minimum_age, MAX(Age) as maximum_age\nFROM singer\nWHERE Country = 'France'\n```\n\nThis will return a single row with three columns: the average age, minimum age, and maximum age of all singers from France.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(Age) as average_age, MIN(Age) as minimum_age, MAX(Age) as maximum_age FROM singer WHERE Country = 'France'\"\n}\n```"
+    }
+  }
+}

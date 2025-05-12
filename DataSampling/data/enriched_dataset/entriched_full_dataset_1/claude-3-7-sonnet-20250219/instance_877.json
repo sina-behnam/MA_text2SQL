@@ -1,0 +1,105 @@
+{
+  "id": 877,
+  "dataset": "bird",
+  "database": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/databases/formula_1/formula_1.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/formula_1/circuits.csv",
+      "stratified_output/databases/formula_1/status.csv",
+      "stratified_output/databases/formula_1/drivers.csv",
+      "stratified_output/databases/formula_1/driverStandings.csv",
+      "stratified_output/databases/formula_1/races.csv",
+      "stratified_output/databases/formula_1/constructors.csv",
+      "stratified_output/databases/formula_1/constructorResults.csv",
+      "stratified_output/databases/formula_1/lapTimes.csv",
+      "stratified_output/databases/formula_1/qualifying.csv",
+      "stratified_output/databases/formula_1/pitStops.csv",
+      "stratified_output/databases/formula_1/seasons.csv",
+      "stratified_output/databases/formula_1/constructorStandings.csv",
+      "stratified_output/databases/formula_1/results.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/schemas/formula_1/formula_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For all the drivers who finished the game in race No. 872, who is the youngest?",
+  "sql": "SELECT T1.forename, T1.surname FROM drivers AS T1 INNER JOIN results AS T2 ON T2.driverId = T1.driverId WHERE T2.raceId = 872 AND T2.time IS NOT NULL ORDER BY T1.dob DESC LIMIT 1",
+  "evidence": "race number refers to raceId; drivers who finished the race refers to time has value; the youngest is a driver where MAX(dob);",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 79,
+    "word_length": 16,
+    "entities": [
+      {
+        "text": "872",
+        "label": "CARDINAL",
+        "start": 54,
+        "end": 57
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "872"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "youngest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 178,
+    "tables_count": 2,
+    "tables": [
+      "drivers",
+      "results"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT d.forename, d.surname, d.dob FROM drivers d JOIN results r ON d.driverId = r.driverId WHERE r.raceId = 872 AND r.time IS NOT NULL ORDER BY d.dob DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 2) vs predicted (1, 3)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 2) vs predicted (1, 3)",
+      "raw_response": "<think>\nLet's understand the requirements:\n1. We need to find the youngest driver who finished race No. 872.\n2. A driver who finished the race is defined as having a value in the 'time' column of the 'results' table.\n3. The youngest driver is the one with the maximum (most recent) date of birth (dob) from the 'drivers' table.\n\nNow let's analyze the relevant tables:\n- 'races' table: contains information about races, identified by 'raceId'.\n- 'results' table: contains information about race results, including 'time' which indicates if a driver finished.\n- 'drivers' table: contains information about drivers, including their date of birth ('dob').\n\nFrom the description, we need to:\n1. Filter results where 'raceId' = 872\n2. Filter results where 'time' is not NULL (indicating the driver finished)\n3. Join with the 'drivers' table to get their 'dob'\n4. Find the driver with the maximum 'dob' (youngest)\n\nLet's write the SQL query:\n```sql\nSELECT d.forename, d.surname, d.dob\nFROM results r\nJOIN drivers d ON r.driverId = d.driverId\nWHERE r.raceId = 872\nAND r.time IS NOT NULL\nORDER BY d.dob DESC\nLIMIT 1;\n```\n\nThis query:\n1. Joins the 'results' and 'drivers' tables\n2. Filters for race 872\n3. Filters for drivers who have a value in the 'time' column\n4. Orders by date of birth in descending order (most recent first)\n5. Limits to 1 result - the youngest driver\n\nLet me review if this is correct for the requirements:\n- We're filtering for race 872: \u2713\n- We're ensuring 'time' has a value: \u2713\n- We're finding the driver with the maximum dob: \u2713\n\nThe query looks correct based on the requirements. It will return the youngest driver who finished race 872.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT d.forename, d.surname, d.dob FROM drivers d JOIN results r ON d.driverId = r.driverId WHERE r.raceId = 872 AND r.time IS NOT NULL ORDER BY d.dob DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

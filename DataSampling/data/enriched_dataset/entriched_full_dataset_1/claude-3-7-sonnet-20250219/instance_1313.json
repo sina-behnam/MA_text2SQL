@@ -1,0 +1,95 @@
+{
+  "id": 1313,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many students in the Student_Club are from the College of Engineering?",
+  "sql": "SELECT COUNT(T1.member_id) FROM member AS T1 INNER JOIN major AS T2 ON T1.link_to_major = T2.major_id WHERE T2.college = 'College of Engineering'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 74,
+    "word_length": 12,
+    "entities": [
+      {
+        "text": "the College of Engineering",
+        "label": "ORG",
+        "start": 47,
+        "end": 73
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 145,
+    "tables_count": 2,
+    "tables": [
+      "member",
+      "major"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(m.member_id) FROM member m JOIN major mj ON m.link_to_major = mj.major_id WHERE mj.college = 'College of Engineering'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to analyze the database schema to understand how to count students in the Student_Club who are from the College of Engineering.\n\nFrom the schema, I can see the following relevant tables:\n1. `member` - contains student information\n2. `major` - contains major information, including the college\n\nThe connection between these tables is:\n- `member` has a `link_to_major` field that references `major_id` in the `major` table\n\nTo find students from the College of Engineering, I need to:\n1. Join the `member` table with the `major` table\n2. Filter for majors where the `college` field is 'College of Engineering'\n3. Count the number of students (members)\n\nBased on this understanding, I'll write a SQL query:\n\n```sql\nSELECT COUNT(m.member_id) \nFROM member m\nJOIN major mj ON m.link_to_major = mj.major_id\nWHERE mj.college = 'College of Engineering';\n```\n\nHowever, I realize the column name in the major table might not be exactly 'College of Engineering' but rather have a value like 'Engineering'. Let me adjust the query to be more general:\n\n```sql\nSELECT COUNT(m.member_id) \nFROM member m\nJOIN major mj ON m.link_to_major = mj.major_id\nWHERE mj.college = 'Engineering';\n```\n\nActually, since I'm not sure of the exact value in the college field, I should write a query that would work with either name format:\n\n```sql\nSELECT COUNT(m.member_id) \nFROM member m\nJOIN major mj ON m.link_to_major = mj.major_id\nWHERE mj.college = 'College of Engineering' OR mj.college = 'Engineering';\n```\n\nBut that approach isn't ideal. Since the question specifically asks about the \"College of Engineering,\" I'll stick with that value in my query. If the actual value in the database is different, the query would need to be adjusted accordingly:\n\n```sql\nSELECT COUNT(m.member_id) \nFROM member m\nJOIN major mj ON m.link_to_major = mj.major_id\nWHERE mj.college = 'College of Engineering';\n```\n\nThis query will count all members (students) who have a major in the College of Engineering.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(m.member_id) FROM member m JOIN major mj ON m.link_to_major = mj.major_id WHERE mj.college = 'College of Engineering'\"\n}\n```"
+    }
+  }
+}

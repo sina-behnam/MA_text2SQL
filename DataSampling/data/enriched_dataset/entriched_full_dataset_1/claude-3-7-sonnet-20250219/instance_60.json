@@ -1,0 +1,87 @@
+{
+  "id": 60,
+  "dataset": "bird",
+  "database": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/databases/california_schools/california_schools.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/california_schools/schools.csv",
+      "stratified_output/databases/california_schools/satscores.csv",
+      "stratified_output/databases/california_schools/frpm.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/schemas/california_schools/california_schools.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the websites for all the partially virtual chartered schools located in San Joaquin?",
+  "sql": "SELECT Website FROM schools WHERE County = 'San Joaquin' AND Virtual = 'P' AND Charter = 1",
+  "evidence": "Virtual = 'P' means partially virtual; Charter schools refers to Charter = 1 in the table schools",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 93,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "San Joaquin",
+        "label": "GPE",
+        "start": 81,
+        "end": 92
+      }
+    ],
+    "entity_types": [
+      "GPE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 4
+  },
+  "sql_analysis": {
+    "char_length": 90,
+    "tables_count": 1,
+    "tables": [
+      "schools"
+    ],
+    "join_count": 0,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Website FROM schools WHERE Virtual = 'P' AND Charter = 1 AND County = 'San Joaquin'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's break down the question:\n\n1. I need to find all schools that are partially virtual (Virtual = 'P')\n2. These should be charter schools (Charter = 1)\n3. The schools should be located in San Joaquin county (County = 'San Joaquin')\n4. I need to return the websites for these schools (Website column)\n\nLooking at the schema:\n\n- All the required data is in the \"schools\" table\n- \"Virtual = 'P'\" indicates partially virtual schools\n- \"Charter = 1\" indicates charter schools\n- \"County = 'San Joaquin'\" limits to schools in San Joaquin county\n- I need to select the \"Website\" column\n\nLet me write the SQL query:\n\n```sql\nSELECT School, Website\nFROM schools\nWHERE Virtual = 'P'\nAND Charter = 1\nAND County = 'San Joaquin'\n```\n\nThis query will select the school names and their websites for all partially virtual charter schools in San Joaquin county.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Website FROM schools WHERE Virtual = 'P' AND Charter = 1 AND County = 'San Joaquin'\"\n}\n```"
+    }
+  }
+}

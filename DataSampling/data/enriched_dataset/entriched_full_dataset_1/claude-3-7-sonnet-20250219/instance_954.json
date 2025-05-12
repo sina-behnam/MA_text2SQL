@@ -1,0 +1,118 @@
+{
+  "id": 954,
+  "dataset": "bird",
+  "database": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/databases/formula_1/formula_1.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/formula_1/circuits.csv",
+      "stratified_output/databases/formula_1/status.csv",
+      "stratified_output/databases/formula_1/drivers.csv",
+      "stratified_output/databases/formula_1/driverStandings.csv",
+      "stratified_output/databases/formula_1/races.csv",
+      "stratified_output/databases/formula_1/constructors.csv",
+      "stratified_output/databases/formula_1/constructorResults.csv",
+      "stratified_output/databases/formula_1/lapTimes.csv",
+      "stratified_output/databases/formula_1/qualifying.csv",
+      "stratified_output/databases/formula_1/pitStops.csv",
+      "stratified_output/databases/formula_1/seasons.csv",
+      "stratified_output/databases/formula_1/constructorStandings.csv",
+      "stratified_output/databases/formula_1/results.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/schemas/formula_1/formula_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Please calculate the race completion percentage of Japanese drivers from 2007 to 2009.",
+  "sql": "SELECT CAST(SUM(IIF(T1.time IS NOT NULL, 1, 0)) AS REAL) * 100 / COUNT(T1.raceId) FROM results AS T1 INNER JOIN races AS T2 on T1.raceId = T2.raceId INNER JOIN drivers AS T3 on T1.driverId = T3.driverId WHERE T3.nationality = 'Japanese' AND T2.year BETWEEN 2007 AND 2009",
+  "evidence": "from 2007 to 2009 refers to year between 2007 and 2009; race completion refers to time is not null; percentage = Divide(COUNT(DriverID where time is not null and year between 2007 and 2009),Count (DriverID where year between 2007 and 2009))*100; ",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 86,
+    "word_length": 13,
+    "entities": [
+      {
+        "text": "Japanese",
+        "label": "NORP",
+        "start": 51,
+        "end": 59
+      },
+      {
+        "text": "2007",
+        "label": "DATE",
+        "start": 73,
+        "end": 77
+      },
+      {
+        "text": "2009",
+        "label": "DATE",
+        "start": 81,
+        "end": 85
+      }
+    ],
+    "entity_types": [
+      "DATE",
+      "NORP"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2007",
+      "2009"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 270,
+    "tables_count": 3,
+    "tables": [
+      "races",
+      "drivers",
+      "results"
+    ],
+    "join_count": 2,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT",
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT (COUNT(CASE WHEN r.time IS NOT NULL THEN 1 ELSE NULL END) * 100.0 / COUNT(*)) AS completion_percentage FROM results r JOIN races ra ON r.raceId = ra.raceId JOIN drivers d ON r.driverId = d.driverId WHERE d.nationality = 'Japanese' AND ra.year BETWEEN 2007 AND 2009",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nAlright, I need to calculate the race completion percentage of Japanese drivers from 2007 to 2009. Let me break down what I need to do:\n\n1. Identify Japanese drivers from the `drivers` table using the `nationality` column\n2. Find all races they participated in from 2007 to 2009 using the `results` table joined with the `races` table\n3. Calculate the percentage of races where they completed the race (where `time` is not null in the `results` table)\n\nFrom the schema, I can see that:\n- The `drivers` table has a `nationality` column\n- The `results` table has a `time` column that indicates race completion\n- The `races` table has a `year` column to filter for 2007-2009\n\nThe formula for the percentage is:\n(Count of races where time is not null and year between 2007 and 2009) / (Total count of races where year between 2007 and 2009) * 100\n\nLet me write the SQL query:\n\n```sql\nSELECT \n    (COUNT(CASE WHEN r.time IS NOT NULL THEN 1 ELSE NULL END) * 100.0 / COUNT(*)) AS completion_percentage\nFROM \n    results r\nJOIN \n    races ra ON r.raceId = ra.raceId\nJOIN \n    drivers d ON r.driverId = d.driverId\nWHERE \n    d.nationality = 'Japanese'\n    AND ra.year BETWEEN 2007 AND 2009\n```\n\nThis query:\n1. Joins the `results`, `races`, and `drivers` tables\n2. Filters for Japanese drivers and races between 2007-2009\n3. Calculates the percentage by:\n   - Counting cases where time is not null (completed races)\n   - Dividing by the total count of races\n   - Multiplying by 100 to get a percentage\n\nLet me double-check to make sure this is correct:\n- The joins look correct: `results` to `races` on `raceId` and `results` to `drivers` on `driverId`\n- The filters look correct: `nationality = 'Japanese'` and `year BETWEEN 2007 AND 2009`\n- The calculation seems to match the formula given in the problem\n\nYes, this query should calculate the race completion percentage for Japanese drivers from 2007 to 2009.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT (COUNT(CASE WHEN r.time IS NOT NULL THEN 1 ELSE NULL END) * 100.0 / COUNT(*)) AS completion_percentage FROM results r JOIN races ra ON r.raceId = ra.raceId JOIN drivers d ON r.driverId = d.driverId WHERE d.nationality = 'Japanese' AND ra.year BETWEEN 2007 AND 2009\"\n}\n```"
+    }
+  }
+}

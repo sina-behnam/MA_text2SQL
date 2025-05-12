@@ -1,0 +1,86 @@
+{
+  "id": 455,
+  "dataset": "spider",
+  "database": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the first and last name of all players in the order of birth date.",
+  "sql": "SELECT first_name ,  last_name FROM players ORDER BY birth_date",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 71,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "first",
+        "label": "ORDINAL",
+        "start": 9,
+        "end": 14
+      }
+    ],
+    "entity_types": [
+      "ORDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "first"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 63,
+    "tables_count": 1,
+    "tables": [
+      "players"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT first_name, last_name FROM players ORDER BY birth_date",
+      "execution_correct": false,
+      "execution_error": "Ground truth execution error: Could not decode to UTF-8 column 'last_name' with text 'Treyes Albarrac\ufffd\ufffdN'",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nTo solve this query, I need to list the first and last name of all players, ordered by their birth date.\n\nLooking at the database schema:\n\n1. The `players` table has columns:\n   - player_id (INT, primary key)\n   - first_name (TEXT)\n   - last_name (TEXT)\n   - hand (TEXT)\n   - birth_date (DATE)\n   - country_code (TEXT)\n\nThe query should:\n1. SELECT the first_name and last_name columns from the players table\n2. ORDER BY the birth_date column\n\nThe SQL query would be:\n```sql\nSELECT first_name, last_name\nFROM players\nORDER BY birth_date\n```\n\nThis will retrieve all players' first and last names, sorted by their birth date from oldest to youngest (ascending order). If we wanted them sorted from youngest to oldest, we would add DESC after birth_date.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT first_name, last_name FROM players ORDER BY birth_date\"\n}\n```"
+    }
+  }
+}

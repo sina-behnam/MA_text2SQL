@@ -1,0 +1,81 @@
+{
+  "id": 375,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the document id with least number of paragraphs?",
+  "sql": "SELECT document_id FROM Paragraphs GROUP BY document_id ORDER BY count(*) ASC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 56,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "least"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 85,
+    "tables_count": 1,
+    "tables": [
+      "Paragraphs"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Document_ID FROM Documents d LEFT JOIN Paragraphs p ON d.Document_ID = p.Document_ID GROUP BY d.Document_ID ORDER BY COUNT(p.Paragraph_ID) ASC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "Execution error: ambiguous column name: Document_ID",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: ambiguous column name: Document_ID",
+      "raw_response": "<think>\nI need to determine the document ID that has the smallest number of paragraphs. Let's break down the problem:\n\n1. We need to count the paragraphs for each document\n2. Group them by Document_ID\n3. Order by the count in ascending order\n4. Retrieve the Document_ID with the minimum count\n\nLooking at the provided schema:\n- `Documents` table has a primary key `Document_ID`\n- `Paragraphs` table has a foreign key `Document_ID` referencing the `Documents` table\n\nTo find the document with the least number of paragraphs, I'll:\n1. Count paragraphs for each Document_ID\n2. Order by the count in ascending order\n3. Limit to 1 result to get the document with the minimum count\n\nHere's the SQL query:\n\n```sql\nSELECT \n    d.Document_ID,\n    COUNT(p.Paragraph_ID) AS paragraph_count\nFROM \n    Documents d\nLEFT JOIN \n    Paragraphs p ON d.Document_ID = p.Document_ID\nGROUP BY \n    d.Document_ID\nORDER BY \n    paragraph_count ASC\nLIMIT 1;\n```\n\nActually, there's a potential issue with the above query. If a document has no paragraphs at all, the COUNT would be 0, which would likely be the minimum. To ensure we're getting the document with the least non-zero number of paragraphs, we should use LEFT JOIN to include documents with no paragraphs.\n\nActually, on second thought, I think the original query is fine. If we're looking for the document with the least number of paragraphs, that could indeed be a document with 0 paragraphs.\n\nBut to make it clearer and ensure I'm getting exactly what the question asks for, I'll refine the query:\n\n```sql\nSELECT \n    Document_ID\nFROM \n    (\n    SELECT \n        d.Document_ID,\n        COUNT(p.Paragraph_ID) AS paragraph_count\n    FROM \n        Documents d\n    LEFT JOIN \n        Paragraphs p ON d.Document_ID = p.Document_ID\n    GROUP BY \n        d.Document_ID\n    ORDER BY \n        paragraph_count ASC\n    LIMIT 1\n    ) AS subquery;\n```\n\nActually, I can simplify this query:\n\n```sql\nSELECT \n    Document_ID\nFROM \n    Documents d\nLEFT JOIN \n    Paragraphs p ON d.Document_ID = p.Document_ID\nGROUP BY \n    d.Document_ID\nORDER BY \n    COUNT(p.Paragraph_ID) ASC\nLIMIT 1;\n```\n\nThis should give us the Document_ID with the least number of paragraphs.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Document_ID FROM Documents d LEFT JOIN Paragraphs p ON d.Document_ID = p.Document_ID GROUP BY d.Document_ID ORDER BY COUNT(p.Paragraph_ID) ASC LIMIT 1\"\n}\n```"
+    }
+  }
+}

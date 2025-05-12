@@ -1,0 +1,97 @@
+{
+  "id": 1211,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Provide the ID and age of patient with lactate dehydrogenase (LDH) between 100-300 index above the normal range.",
+  "sql": "SELECT DISTINCT T1.ID, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.LDH > 600 AND T2.LDH < 800",
+  "evidence": "age refers to SUBTRACT(year(current_timestamp), year(Birthday)); lactate dehydrogenase (LDH) between 100-300 index above the normal range refers to LDH between 600 and 800;",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 112,
+    "word_length": 19,
+    "entities": [
+      {
+        "text": "ID",
+        "label": "ORG",
+        "start": 12,
+        "end": 14
+      },
+      {
+        "text": "100-300",
+        "label": "CARDINAL",
+        "start": 75,
+        "end": 82
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "100",
+      "300"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 186,
+    "tables_count": 2,
+    "tables": [
+      "Laboratory",
+      "Patient"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT P.ID, TIMESTAMPDIFF(YEAR, P.Birthday, L.Date) AS age FROM Patient P JOIN Laboratory L ON P.ID = L.ID WHERE L.LDH BETWEEN 100 AND 300",
+      "execution_correct": false,
+      "execution_error": "Execution error: no such column: YEAR",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: no such column: YEAR"
+    }
+  }
+}

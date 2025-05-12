@@ -1,0 +1,79 @@
+{
+  "id": 795,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many cities in each district have a population that is above the average population across all cities?",
+  "sql": "SELECT count(*) ,  District FROM city WHERE Population  >  (SELECT avg(Population) FROM city) GROUP BY District",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 106,
+    "word_length": 18,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 111,
+    "tables_count": 2,
+    "tables": [
+      "city)",
+      "city"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT",
+      "AVG"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT District, COUNT(*) as CitiesAboveAverage FROM city WHERE Population > (SELECT AVG(Population) FROM city) GROUP BY District ORDER BY CitiesAboveAverage DESC",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "While the main logic is the same (counting cities in each district where population exceeds the average), the generated query adds an 'ORDER BY CitiesAboveAverage DESC' clause that sorts the results in descending order based on count. This sorting clause changes the order of the returned rows, making the queries semantically different even though they return the same data points.",
+      "raw_response": "<think>\nI need to write a SQL query that counts the number of cities in each district that have a population above the average population across all cities.\n\nLet's break down the problem:\n1. First, I need to calculate the average population across all cities\n2. Then, I need to filter cities that have a population greater than this average\n3. Finally, I need to count them, grouped by district\n\nHere's how we can approach this:\n\n```sql\nSELECT District, COUNT(*) as CityCount\nFROM city\nWHERE Population > (SELECT AVG(Population) FROM city)\nGROUP BY District\n```\n\nThis query:\n1. Calculates the average population across all cities using a subquery: `(SELECT AVG(Population) FROM city)`\n2. Filters the city table to only include cities with populations above this average: `WHERE Population > (SELECT AVG(Population) FROM city)`\n3. Groups the results by district: `GROUP BY District`\n4. Counts the number of cities in each district that meet the criteria: `COUNT(*) as CityCount`\n\nThe result will give us each district and the count of cities in that district that have a population above the average city population.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT District, COUNT(*) as CitiesAboveAverage FROM city WHERE Population > (SELECT AVG(Population) FROM city) GROUP BY District ORDER BY CitiesAboveAverage DESC\"\n}\n```"
+    }
+  }
+}

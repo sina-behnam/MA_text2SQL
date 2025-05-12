@@ -1,0 +1,107 @@
+{
+  "id": 798,
+  "dataset": "bird",
+  "database": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/databases/superhero/superhero.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/superhero/gender.csv",
+      "stratified_output/databases/superhero/superpower.csv",
+      "stratified_output/databases/superhero/publisher.csv",
+      "stratified_output/databases/superhero/superhero.csv",
+      "stratified_output/databases/superhero/colour.csv",
+      "stratified_output/databases/superhero/attribute.csv",
+      "stratified_output/databases/superhero/hero_power.csv",
+      "stratified_output/databases/superhero/race.csv",
+      "stratified_output/databases/superhero/alignment.csv",
+      "stratified_output/databases/superhero/hero_attribute.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/schemas/superhero/superhero.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the publisher for Hawkman, Karate Kid and Speedy?",
+  "sql": "SELECT T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.superhero_name IN ('Hawkman', 'Karate Kid', 'Speedy')",
+  "evidence": "publisher refers to publisher_name; Hawkman refers to superhero_name = 'Hawkman'; Karate Kid refers to superhero_name = 'Karate Kid'; Speedy refers to superhero_name = 'Speedy';",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 57,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "Hawkman",
+        "label": "ORG",
+        "start": 26,
+        "end": 33
+      },
+      {
+        "text": "Karate Kid",
+        "label": "PERSON",
+        "start": 35,
+        "end": 45
+      },
+      {
+        "text": "Speedy",
+        "label": "PERSON",
+        "start": 50,
+        "end": 56
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 162,
+    "tables_count": 2,
+    "tables": [
+      "superhero",
+      "publisher"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.superhero_name IN ('Hawkman', 'Karate Kid', 'Speedy')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "id": 500,
+  "dataset": "spider",
+  "database": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/databases/battle_death/battle_death.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/schemas/battle_death/battle_death.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the ship id and name that caused most total injuries?",
+  "sql": "SELECT T2.id ,  T2.name FROM death AS T1 JOIN ship AS t2 ON T1.caused_by_ship_id  =  T2.id GROUP BY T2.id ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 61,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 136,
+    "tables_count": 2,
+    "tables": [
+      "ship",
+      "death"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.id, s.name FROM ship s INNER JOIN death d ON s.id = d.caused_by_ship_id GROUP BY s.id, s.name ORDER BY SUM(d.injured) DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The Gold query counts the number of incidents, while the Generated query sums the total injuries. They measure different metrics, so their results differ."
+    }
+  }
+}

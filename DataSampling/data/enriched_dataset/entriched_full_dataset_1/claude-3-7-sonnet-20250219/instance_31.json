@@ -1,0 +1,85 @@
+{
+  "id": 31,
+  "dataset": "spider",
+  "database": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show names for all stadiums except for stadiums having a concert in year 2014.",
+  "sql": "SELECT name FROM stadium EXCEPT SELECT T2.name FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id WHERE T1.year  =  2014",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 78,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "year 2014",
+        "label": "DATE",
+        "start": 68,
+        "end": 77
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2014"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 142,
+    "tables_count": 2,
+    "tables": [
+      "concert",
+      "stadium"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.Name FROM stadium s WHERE s.Stadium_ID NOT IN (SELECT c.Stadium_ID FROM concert c WHERE c.Year = '2014')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the database schema and the query requirement:\n\n1. We need to show names of all stadiums except for those that had a concert in the year 2014.\n\nThe relevant tables in the schema are:\n- `stadium`: Contains details about stadiums including names.\n- `concert`: Contains details about concerts, including the stadium where they were held and the year.\n\nTo get stadium names except for those having a concert in 2014, we can use a query that selects all stadium names and filters out those that are in the list of stadiums with concerts in 2014.\n\nWe'll need to join the `stadium` table with the `concert` table based on `Stadium_ID` and then filter out stadiums that hosted concerts in 2014.\n\nHowever, looking at the schema, there's a slight mismatch: in the `concert` table, `Stadium_ID` is defined as `text`, but in the `stadium` table, it's an `int`. This looks like a potential issue in the schema, but for our query, we'll proceed assuming they can be joined correctly.\n\nHere's the SQL query I'm thinking of:\n\n```sql\nSELECT s.Name\nFROM stadium s\nWHERE s.Stadium_ID NOT IN (\n    SELECT c.Stadium_ID\n    FROM concert c\n    WHERE c.Year = '2014'\n);\n```\n\nThis query selects all stadium names where the Stadium_ID is not in the list of Stadium_IDs that had a concert in 2014.\n\nActually, I noticed that `Year` in the `concert` table is defined as `text`, so we need to compare it with a string value '2014' rather than a numeric value.\n\nLet's double-check: We want all stadiums that didn't have a concert in 2014. So we're selecting from the stadium table, and excluding those that are found in the concert table with Year='2014'.\n\nI think the query above is correct.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.Name FROM stadium s WHERE s.Stadium_ID NOT IN (SELECT c.Stadium_ID FROM concert c WHERE c.Year = '2014')\"\n}\n```"
+    }
+  }
+}

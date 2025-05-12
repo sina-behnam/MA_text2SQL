@@ -1,0 +1,75 @@
+{
+  "id": 688,
+  "dataset": "spider",
+  "database": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/databases/voter_1/voter_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/schemas/voter_1/voter_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the contestant numbers and names, ordered by contestant name descending.",
+  "sql": "SELECT contestant_number ,  contestant_name FROM contestants ORDER BY contestant_name DESC",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 77,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 90,
+    "tables_count": 1,
+    "tables": [
+      "contestants"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT contestant_number, contestant_name FROM CONTESTANTS ORDER BY contestant_name DESC",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nFirst, let's understand what the user is asking for. The user wants to list contestant numbers and names ordered by contestant name in descending order.\n\nThe relevant table is CONTESTANTS, which has the following schema:\n- contestant_number (integer, primary key)\n- contestant_name (varchar(50))\n\nTo retrieve contestant numbers and names ordered by contestant name in descending order, I can write a SQL query like this:\n\n```sql\nSELECT contestant_number, contestant_name\nFROM CONTESTANTS\nORDER BY contestant_name DESC;\n```\n\nThis query selects two columns: contestant_number and contestant_name from the CONTESTANTS table, and orders the results by contestant_name in descending order (DESC).\n\nThis seems like a straightforward query that should meet the requirements.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT contestant_number, contestant_name FROM CONTESTANTS ORDER BY contestant_name DESC\"\n}\n```"
+    }
+  }
+}

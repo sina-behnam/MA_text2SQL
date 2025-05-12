@@ -1,0 +1,83 @@
+{
+  "id": 451,
+  "dataset": "bird",
+  "database": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/databases/card_games/card_games.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/card_games/legalities.csv",
+      "stratified_output/databases/card_games/cards.csv",
+      "stratified_output/databases/card_games/rulings.csv",
+      "stratified_output/databases/card_games/set_translations.csv",
+      "stratified_output/databases/card_games/sets.csv",
+      "stratified_output/databases/card_games/foreign_data.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/schemas/card_games/card_games.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many cards available in paper have a positive starting maximum hand size?",
+  "sql": "SELECT SUM(CASE WHEN availability = 'paper' AND hAND = '3' THEN 1 ELSE 0 END) FROM cards",
+  "evidence": "available in paper refers to availability like '%paper%'; have a positive starting maximum hand size refers to hand = '3'",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 77,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 88,
+    "tables_count": 1,
+    "tables": [
+      "cards"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM cards WHERE availability LIKE '%paper%' AND hand = '3'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to write a SQL query to find how many cards are available in paper format and have a positive starting maximum hand size. Let's break down the requirements:\n\n1. Available in paper: The `availability` column should contain the string 'paper'. The user mentioned \"availability like '%paper%'\", which suggests using the LIKE operator to find 'paper' anywhere in the availability field.\n\n2. Positive starting maximum hand size: The user specified this refers to `hand = '3'`. \n\nNow, let's check the cards table schema to confirm these fields:\n- `availability` is a TEXT column\n- `hand` is a TEXT column\n\nBoth fields exist in the \"cards\" table, so I can proceed with the query.\n\nThe query should:\n1. Count the number of cards\n2. Filter for cards where availability contains 'paper'\n3. Filter for cards where hand equals '3'\n\nHere's the SQL query:\n\n```sql\nSELECT COUNT(*) \nFROM cards \nWHERE availability LIKE '%paper%' \nAND hand = '3'\n```\n\nThis query will count the number of cards that meet both conditions.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM cards WHERE availability LIKE '%paper%' AND hand = '3'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "id": 590,
+  "dataset": "spider",
+  "database": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the number of cartoones written by Joseph Kuhr?",
+  "sql": "SELECT count(*) FROM Cartoon WHERE Written_by = \"Joseph Kuhr\";",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 55,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "Joseph Kuhr",
+        "label": "PERSON",
+        "start": 43,
+        "end": 54
+      }
+    ],
+    "entity_types": [
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 62,
+    "tables_count": 1,
+    "tables": [
+      "Cartoon"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM Cartoon WHERE Written_by = 'Joseph Kuhr'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to provide a SQL query to count the number of cartoons written by Joseph Kuhr based on the database schema provided.\n\nLooking at the schema, I can see there's a table called \"Cartoon\" with a column \"Written_by\" which would contain the names of the writers. I need to count the number of rows in this table where \"Written_by\" is equal to \"Joseph Kuhr\".\n\nHere's the query I'll construct:\n\n```sql\nSELECT COUNT(*) \nFROM \"Cartoon\" \nWHERE \"Written_by\" = 'Joseph Kuhr'\n```\n\nThis query will:\n1. Count the number of rows (COUNT(*))\n2. From the Cartoon table\n3. Where the Written_by column equals 'Joseph Kuhr'\n\nThe COUNT(*) function will return the total number of cartoons that match the condition.\n\nI should note that if Joseph Kuhr is a co-writer and his name appears as part of a list of writers (e.g., \"Joseph Kuhr, Jane Smith\"), then this exact match might not work. In that case, we might need to use a LIKE operator or a more complex string matching logic. But since I don't have more information about how the data is stored, I'll assume that \"Written_by\" contains only one writer's name per record.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM Cartoon WHERE Written_by = 'Joseph Kuhr'\"\n}\n```"
+    }
+  }
+}

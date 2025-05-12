@@ -1,0 +1,91 @@
+{
+  "id": 985,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the dog name, age and weight of the dogs that were abandoned? Note that 1 stands for yes, and 0 stands for no in the tables.",
+  "sql": "SELECT name ,  age ,  weight FROM Dogs WHERE abandoned_yn  =  1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 133,
+    "word_length": 28,
+    "entities": [
+      {
+        "text": "1",
+        "label": "CARDINAL",
+        "start": 81,
+        "end": 82
+      },
+      {
+        "text": "0",
+        "label": "CARDINAL",
+        "start": 103,
+        "end": 104
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "1",
+      "0"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 63,
+    "tables_count": 1,
+    "tables": [
+      "Dogs"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT name, age, weight FROM Dogs WHERE abandoned_yn = '1'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the schema first:\n\n1. The key table for this query is `Dogs` since we need information about dogs that were abandoned.\n2. In the `Dogs` table, there's a field called `abandoned_yn` which likely indicates if a dog was abandoned (with 'Y' for yes, 'N' for no, or possibly 1 for yes, 0 for no).\n3. We need to get the dog's name, age, and weight.\n\nThe user mentioned that 1 stands for yes and 0 stands for no in the tables. So, we need to find dogs where `abandoned_yn` is '1' or possibly 'Y'.\n\nHere's the SQL query I would use:\n\n```sql\nSELECT name, age, weight\nFROM Dogs\nWHERE abandoned_yn = '1'\n```\n\nIf `abandoned_yn` uses 'Y' for yes instead of '1', the query would be:\n\n```sql\nSELECT name, age, weight\nFROM Dogs\nWHERE abandoned_yn = 'Y'\n```\n\nBut since the user specifically mentioned that 1 stands for yes in the tables, I'll go with the first query.\n\nActually I see in the DDL that `abandoned_yn` is a VARCHAR(1), so it's probably storing 'Y' or 'N' rather than 1 or 0. Let's check to be safe and cover both possibilities:\n\n```sql\nSELECT name, age, weight\nFROM Dogs\nWHERE abandoned_yn = '1' OR abandoned_yn = 'Y'\n```\n\nActually, let me read the user's prompt again. The user says \"1 stands for yes, and 0 stands for no in the tables\", so it seems the `abandoned_yn` column contains '1' for yes and '0' for no. In that case, the query should be:\n\n```sql\nSELECT name, age, weight\nFROM Dogs\nWHERE abandoned_yn = '1'\n```\n\nI'll use this one for the final answer.\n</think>\n\n```json\n{\"sql\": \"SELECT name, age, weight FROM Dogs WHERE abandoned_yn = '1'\"}\n```"
+    }
+  }
+}

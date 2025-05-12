@@ -1,0 +1,104 @@
+{
+  "id": 1526,
+  "dataset": "bird",
+  "database": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/debit_card_specializing/customers.csv",
+      "stratified_output/databases/debit_card_specializing/gasstations.csv",
+      "stratified_output/databases/debit_card_specializing/products.csv",
+      "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+      "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For the customer who paid 634.8 in 2012/8/25, what was the consumption decrease rate from Year 2012 to 2013?",
+  "sql": "SELECT CAST(SUM(IIF(SUBSTR(Date, 1, 4) = '2012', Consumption, 0)) - SUM(IIF(SUBSTR(Date, 1, 4) = '2013', Consumption, 0)) AS FLOAT) / SUM(IIF(SUBSTR(Date, 1, 4) = '2012', Consumption, 0)) FROM yearmonth WHERE CustomerID = ( SELECT T1.CustomerID FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T1.Date = '2012-08-25' AND T1.Price = 634.8 )",
+  "evidence": "'2012/8/24' can be represented by '2012-08-24'; Consumption decrease rate = (consumption_2012 - consumption_2013) / consumption_2012",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 108,
+    "word_length": 19,
+    "entities": [
+      {
+        "text": "634.8",
+        "label": "CARDINAL",
+        "start": 26,
+        "end": 31
+      },
+      {
+        "text": "Year 2012 to 2013",
+        "label": "DATE",
+        "start": 90,
+        "end": 107
+      }
+    ],
+    "entity_types": [
+      "DATE",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "634.8",
+      "2012",
+      "2013"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 389,
+    "tables_count": 3,
+    "tables": [
+      "gasstations",
+      "transactions_1k",
+      "yearmonth"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 3,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"WITH customer_paid AS (\n    SELECT CustomerID\n    FROM transactions_1k\n    WHERE Date = '2012-08-25' AND Price = 634.8\n),\nyearly_consumption AS (\n    SELECT \n        CustomerID,\n        SUM(CASE WHEN substr(Date, 1, 4) = '2012' THEN Consumption ELSE 0 END) AS consumption_2012,\n        SUM(CASE WHEN substr(Date, 1, 4) = '2013' THEN Consumption ELSE 0 END) AS consumption_2013\n    FROM yearmonth\n    WHERE CustomerID = (SELECT CustomerID FROM customer_paid)\n    GROUP BY CustomerID\n)\nSELECT \n    CustomerID,\n    consumption_2012,\n    consumption_2013,\n    (consumption_2012 - consumption_2013) / consumption_2012 AS consumption_decrease_rate\nFROM yearly_consumption\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet me analyze the database schema and the question:\n\n1. The question asks about a customer who paid 634.8 on August 25, 2012 (2012-08-25).\n2. It asks for the consumption decrease rate from 2012 to 2013, which is defined as (consumption_2012 - consumption_2013) / consumption_2012.\n\nLooking at the schema:\n- We have a `transactions_1k` table that contains transaction data with date, customer ID, and price information.\n- We have a `yearmonth` table that seems to contain consumption data by customer and date.\n\nFirst, I need to identify the customer who paid 634.8 on 2012-08-25 from the `transactions_1k` table. I'll look for a transaction with that amount and date.\n\nOnce I have the customer ID, I need to calculate:\n1. The total consumption for 2012\n2. The total consumption for 2013\n3. The decrease rate using the formula (consumption_2012 - consumption_2013) / consumption_2012\n\nI'm not sure if the `Price` field in `transactions_1k` represents what was paid, or if there's another interpretation. Let's assume it is.\n\nLooking at the yearmonth table, it seems designed to aggregate consumption data by month. The Date field is described as TEXT, so it might be in a format like 'YYYY-MM'. I'll need to filter this table to get all entries for the specific customer for years 2012 and 2013.\n\nLet me write the SQL query:\n\n1. First, find the customer who paid 634.8 on 2012-08-25:\n```sql\nSELECT CustomerID \nFROM transactions_1k \nWHERE Date = '2012-08-25' AND Price = 634.8\n```\n\n2. Then, calculate the consumption for 2012 and 2013 for this customer from the yearmonth table:\n```sql\nSELECT \n    SUM(CASE WHEN strftime('%Y', Date) = '2012' THEN Consumption ELSE 0 END) as consumption_2012,\n    SUM(CASE WHEN strftime('%Y', Date) = '2013' THEN Consumption ELSE 0 END) as consumption_2013\nFROM yearmonth\nWHERE CustomerID = (SELECT CustomerID FROM transactions_1k WHERE Date = '2012-08-25' AND Price = 634.8)\n```\n\n3. Calculate the decrease rate:\n```sql\nSELECT \n    (SUM(CASE WHEN strftime('%Y', Date) = '2012' THEN Consumption ELSE 0 END) - \n     SUM(CASE WHEN strftime('%Y', Date) = '2013' THEN Consumption ELSE 0 END)) / \n    SUM(CASE WHEN strftime('%Y', Date) = '2012' THEN Consumption ELSE 0 END) as decrease_rate\nFROM yearmonth\nWHERE CustomerID = (SELECT CustomerID FROM transactions_1k WHERE Date = '2012-08-25' AND Price = 634.8)\n```\n\nHowever, looking at the schema more closely, I notice that the Date field in the yearmonth table is TEXT, not a DATE type. It might not work with strftime directly. Let's assume it's stored in a format that allows us to extract the year using substring or parsing functions.\n\nAlso, looking at the question again, it's not entirely clear if we're looking for a specific transaction worth 634.8 or a sum of transactions on that day for a customer.\n\nLet me adjust the query with these considerations:\n</think>\n\nTo solve this problem, I need to:\n1. Find the customer who paid 634.8 on August 25, 2012\n2. Calculate their consumption in 2012 and 2013\n3. Calculate the consumption decrease rate\n\n```json\n{\n  \"sql\": \"WITH customer_paid AS (\n    SELECT CustomerID\n    FROM transactions_1k\n    WHERE Date = '2012-08-25' AND Price = 634.8\n),\nyearly_consumption AS (\n    SELECT \n        CustomerID,\n        SUM(CASE WHEN substr(Date, 1, 4) = '2012' THEN Consumption ELSE 0 END) AS consumption_2012,\n        SUM(CASE WHEN substr(Date, 1, 4) = '2013' THEN Consumption ELSE 0 END) AS consumption_2013\n    FROM yearmonth\n    WHERE CustomerID = (SELECT CustomerID FROM customer_paid)\n    GROUP BY CustomerID\n)\nSELECT \n    CustomerID,\n    consumption_2012,\n    consumption_2013,\n    (consumption_2012 - consumption_2013) / consumption_2012 AS consumption_decrease_rate\nFROM yearly_consumption\"\n}\n```"
+    }
+  }
+}

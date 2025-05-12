@@ -1,0 +1,80 @@
+{
+  "id": 43,
+  "dataset": "spider",
+  "database": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the number of concerts happened in the stadium with the highest capacity .",
+  "sql": "select count(*) from concert where stadium_id = (select stadium_id from stadium order by capacity desc limit 1)",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 79,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "highest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 111,
+    "tables_count": 2,
+    "tables": [
+      "stadium",
+      "concert"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(concert_ID) FROM concert WHERE CAST(Stadium_ID AS integer) IN (SELECT Stadium_ID FROM stadium WHERE Capacity = (SELECT MAX(Capacity) FROM stadium))",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

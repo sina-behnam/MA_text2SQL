@@ -1,0 +1,92 @@
+{
+  "id": 1070,
+  "dataset": "bird",
+  "database": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/databases/european_football_2/european_football_2.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/european_football_2/Team_Attributes.csv",
+      "stratified_output/databases/european_football_2/Player.csv",
+      "stratified_output/databases/european_football_2/Match.csv",
+      "stratified_output/databases/european_football_2/League.csv",
+      "stratified_output/databases/european_football_2/Country.csv",
+      "stratified_output/databases/european_football_2/Player_Attributes.csv",
+      "stratified_output/databases/european_football_2/Team.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/schemas/european_football_2/european_football_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which country is the league Italy Serie A from?",
+  "sql": "SELECT t1.name FROM Country AS t1 INNER JOIN League AS t2 ON t1.id = t2.country_id WHERE t2.name = 'Italy Serie A'",
+  "evidence": "Italy Serie A from refers to League.name = 'Italy Serie A';",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 47,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "Italy Serie",
+        "label": "ORG",
+        "start": 28,
+        "end": 39
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 114,
+    "tables_count": 2,
+    "tables": [
+      "League",
+      "Country"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Country.name FROM League JOIN Country ON League.country_id = Country.id WHERE League.name = 'Italy Serie A'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLooking at the database schema, I need to find the country for the league named 'Italy Serie A'.\n\nFrom the schema, I can see the relevant tables are:\n1. `League` - Contains league information including name and a foreign key to country_id\n2. `Country` - Contains country information including the country name\n\nThe `League` table has a `country_id` column which is a foreign key to the `id` column in the `Country` table. So I need to join these two tables to find the country name for the league 'Italy Serie A'.\n\nThe SQL query should:\n1. Join `League` and `Country` tables on `country_id`\n2. Filter for where the league name is 'Italy Serie A'\n3. Select the country name\n\nHere's how the SQL query would look:\n```sql\nSELECT Country.name\nFROM League\nJOIN Country ON League.country_id = Country.id\nWHERE League.name = 'Italy Serie A'\n```\n\nThis will return the name of the country that the 'Italy Serie A' league is from.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Country.name FROM League JOIN Country ON League.country_id = Country.id WHERE League.name = 'Italy Serie A'\"\n}\n```"
+    }
+  }
+}

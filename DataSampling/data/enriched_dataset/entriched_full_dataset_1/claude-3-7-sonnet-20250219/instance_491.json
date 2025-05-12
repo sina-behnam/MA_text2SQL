@@ -1,0 +1,84 @@
+{
+  "id": 491,
+  "dataset": "spider",
+  "database": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/databases/battle_death/battle_death.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/schemas/battle_death/battle_death.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many ships ended up being 'Captured'?",
+  "sql": "SELECT count(*) FROM ship WHERE disposition_of_ship  =  'Captured'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 41,
+    "word_length": 7,
+    "entities": [
+      {
+        "text": "'Captured'",
+        "label": "WORK_OF_ART",
+        "start": 30,
+        "end": 40
+      }
+    ],
+    "entity_types": [
+      "WORK_OF_ART"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 66,
+    "tables_count": 1,
+    "tables": [
+      "ship"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM ship WHERE disposition_of_ship = 'Captured'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nFrom the database schema provided, we can see that there are three tables:\n1. `battle`: Contains information about battles.\n2. `ship`: Contains information about ships, including a `disposition_of_ship` column which likely tells us the status of the ship after a battle (e.g., sunk, captured, etc.).\n3. `death`: Contains information about casualties, linked to ships via `caused_by_ship_id`.\n\nFor the question \"How many ships ended up being 'Captured'?\", we need to count the number of ships in the `ship` table where the `disposition_of_ship` column value is 'Captured'.\n\nHere's the SQL query to do this:\n\n```sql\nSELECT COUNT(*) \nFROM ship \nWHERE disposition_of_ship = 'Captured';\n```\n\nThis query will count the number of rows in the `ship` table where the `disposition_of_ship` column value is 'Captured', which gives us the total number of ships that ended up being captured.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM ship WHERE disposition_of_ship = 'Captured'\"\n}\n```"
+    }
+  }
+}

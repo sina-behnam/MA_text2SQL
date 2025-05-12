@@ -1,0 +1,77 @@
+{
+  "id": 95,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which model of the car has the minimum horsepower?",
+  "sql": "SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.horsepower ASC LIMIT 1;",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 50,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 116,
+    "tables_count": 2,
+    "tables": [
+      "CAR_NAMES",
+      "CARS_DATA"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT ml.Model FROM cars_data cd JOIN car_names cn ON cd.Id = cn.MakeId JOIN model_list ml ON cn.Model = ml.Model WHERE cd.Horsepower != 'null' ORDER BY CAST(cd.Horsepower AS INTEGER) ASC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "These queries are not semantically equivalent for several reasons: 1) The generated query includes an additional join with model_list table that doesn't exist in the gold query, 2) The generated query filters out null horsepower values with 'WHERE cd.Horsepower != 'null'' while the gold query does not, 3) The generated query casts horsepower to INTEGER before ordering while the gold query uses the raw horsepower value, 4) The gold query selects Model from CAR_NAMES, while the generated query selects it from model_list, which could contain different data. These differences would likely produce different results.",
+      "raw_response": "<think>\nLet's analyze the database schema to understand the structure and relationships between tables.\n\nTables and their relationships:\n1. `continents` - Holds continent information\n2. `countries` - Links to continents through Continent foreign key\n3. `car_makers` - Links to countries through Country foreign key \n4. `model_list` - Links to car_makers through Maker foreign key\n5. `car_names` - Links to model_list through Model foreign key\n6. `cars_data` - Links to car_names through Id foreign key to MakeId\n\nThe question asks for the model of the car that has the minimum horsepower.\n\nTo answer this question, I need to:\n1. Find the minimum horsepower from the `cars_data` table\n2. Link that to the corresponding car model through the relationships\n\nLooking at the schema:\n- `cars_data` has the Horsepower field\n- `cars_data` links to `car_names` through Id = MakeId\n- `car_names` has the Model field, which links to `model_list`\n\nI notice that the \"Model\" in `car_names` references the \"Model\" in `model_list`, not the \"ModelId\". This is a bit unusual but I'll work with it.\n\nTo get the model with minimum horsepower, I'll need to:\n1. Join `cars_data` with `car_names`\n2. Find the minimum value of Horsepower\n3. Return the Model corresponding to that minimum value\n\nLet's construct the SQL query:\n</think>\n\nLooking at the schema, I need to find the car model with the minimum horsepower by joining the relevant tables.\n\n```json\n{\n  \"sql\": \"SELECT ml.Model FROM cars_data cd JOIN car_names cn ON cd.Id = cn.MakeId JOIN model_list ml ON cn.Model = ml.Model WHERE cd.Horsepower != 'null' ORDER BY CAST(cd.Horsepower AS INTEGER) ASC LIMIT 1\"\n}\n```"
+    }
+  }
+}

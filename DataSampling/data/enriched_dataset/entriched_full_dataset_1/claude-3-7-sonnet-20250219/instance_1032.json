@@ -1,0 +1,76 @@
+{
+  "id": 1032,
+  "dataset": "spider",
+  "database": {
+    "name": "real_estate_properties",
+    "path": [
+      "spider_stratified_output_200/databases/real_estate_properties/real_estate_properties.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "real_estate_properties",
+    "path": [
+      "spider_stratified_output_200/schemas/real_estate_properties/real_estate_properties.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show the property type descriptions of properties belonging to that code.",
+  "sql": "SELECT T2.property_type_description FROM Properties AS T1 JOIN Ref_Property_Types AS T2 ON T1.property_type_code  =  T2.property_type_code GROUP BY T1.property_type_code",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 73,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 169,
+    "tables_count": 2,
+    "tables": [
+      "Ref_Property_Types",
+      "Properties"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT r.property_type_code, r.property_type_description, COUNT(p.property_id) as property_count FROM Ref_Property_Types r LEFT JOIN Properties p ON r.property_type_code = p.property_type_code GROUP BY r.property_type_code, r.property_type_description",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (5, 1) vs predicted (5, 3)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (5, 1) vs predicted (5, 3)",
+      "raw_response": "<think>\nLet me analyze the user's request and the provided database schema to create an appropriate SQL query.\n\nThe user's request is: \"Show the property type descriptions of properties belonging to that code.\"\n\nHowever, the request is not completely clear about which code they're referring to when they say \"that code\". Based on the database schema, I can see that:\n\n1. We have a `Ref_Property_Types` table which has `property_type_code` as the primary key and `property_type_description` as a field.\n2. The `Properties` table has a `property_type_code` field that references the `Ref_Property_Types` table.\n\nSince the user wants to see property type descriptions and mentions a code, they likely want to see the property type descriptions for properties that have a specific `property_type_code`.\n\nBut since the specific code was not provided, I should probably retrieve all property type descriptions from the `Ref_Property_Types` table, and perhaps join it with the `Properties` table to show which properties belong to each property type.\n\nLet's create a SQL query that retrieves property type descriptions and counts how many properties belong to each property type:\n</think>\n\nThe user's request is a bit ambiguous, as it mentions \"that code\" without specifying which code. Based on the database schema, I'll assume they want to see property type descriptions for all property types that have associated properties.\n\n```json\n{\n  \"sql\": \"SELECT r.property_type_code, r.property_type_description, COUNT(p.property_id) as property_count FROM Ref_Property_Types r LEFT JOIN Properties p ON r.property_type_code = p.property_type_code GROUP BY r.property_type_code, r.property_type_description\"\n}\n```"
+    }
+  }
+}

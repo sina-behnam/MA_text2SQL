@@ -1,0 +1,84 @@
+{
+  "id": 31,
+  "dataset": "spider",
+  "database": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show names for all stadiums except for stadiums having a concert in year 2014.",
+  "sql": "SELECT name FROM stadium EXCEPT SELECT T2.name FROM concert AS T1 JOIN stadium AS T2 ON T1.stadium_id  =  T2.stadium_id WHERE T1.year  =  2014",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 78,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "year 2014",
+        "label": "DATE",
+        "start": 68,
+        "end": 77
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2014"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 142,
+    "tables_count": 2,
+    "tables": [
+      "concert",
+      "stadium"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.Name FROM stadium s WHERE s.Stadium_ID NOT IN (SELECT c.Stadium_ID FROM concert c WHERE c.Year = '2014')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

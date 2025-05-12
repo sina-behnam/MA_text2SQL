@@ -1,0 +1,73 @@
+{
+  "id": 991,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List each charge type and its amount.",
+  "sql": "SELECT charge_type ,  charge_amount FROM Charges",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 37,
+    "word_length": 7,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 48,
+    "tables_count": 1,
+    "tables": [
+      "Charges"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT charge_type, charge_amount FROM Charges",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nThe user wants to list each charge type and its amount from the database. Looking at the provided schema, I can see a table called `Charges` with the following columns:\n- `charge_id` (INTEGER, PRIMARY KEY)\n- `charge_type` (VARCHAR(10))\n- `charge_amount` (DECIMAL(19,4))\n\nThis table seems to contain the information the user is looking for. To list each charge type and its amount, I need to query the `Charges` table and select the `charge_type` and `charge_amount` columns.\n\nHere's the SQL query to do that:\n\n```sql\nSELECT charge_type, charge_amount\nFROM Charges\n```\n\nThis query will return all rows from the `Charges` table, showing the charge type and amount for each charge record.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT charge_type, charge_amount FROM Charges\"\n}\n```"
+    }
+  }
+}

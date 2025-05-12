@@ -1,0 +1,120 @@
+{
+  "id": 973,
+  "dataset": "bird",
+  "database": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/databases/formula_1/formula_1.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/formula_1/circuits.csv",
+      "stratified_output/databases/formula_1/status.csv",
+      "stratified_output/databases/formula_1/drivers.csv",
+      "stratified_output/databases/formula_1/driverStandings.csv",
+      "stratified_output/databases/formula_1/races.csv",
+      "stratified_output/databases/formula_1/constructors.csv",
+      "stratified_output/databases/formula_1/constructorResults.csv",
+      "stratified_output/databases/formula_1/lapTimes.csv",
+      "stratified_output/databases/formula_1/qualifying.csv",
+      "stratified_output/databases/formula_1/pitStops.csv",
+      "stratified_output/databases/formula_1/seasons.csv",
+      "stratified_output/databases/formula_1/constructorStandings.csv",
+      "stratified_output/databases/formula_1/results.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/schemas/formula_1/formula_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List out top 10 Spanish drivers who were born before 1982 and have the latest lap time.",
+  "sql": "SELECT T2.driverId FROM pitStops AS T1 INNER JOIN drivers AS T2 on T1.driverId = T2.driverId WHERE T2.nationality = 'Spanish' AND STRFTIME('%Y', T2.dob) < '1982' ORDER BY T1.time DESC LIMIT 10",
+  "evidence": "born before 1982 refers to year(dob) < 1982; latest lap time refers to Max(time);",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 87,
+    "word_length": 17,
+    "entities": [
+      {
+        "text": "10",
+        "label": "CARDINAL",
+        "start": 13,
+        "end": 15
+      },
+      {
+        "text": "Spanish",
+        "label": "NORP",
+        "start": 16,
+        "end": 23
+      },
+      {
+        "text": "1982",
+        "label": "DATE",
+        "start": 53,
+        "end": 57
+      }
+    ],
+    "entity_types": [
+      "DATE",
+      "NORP",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "10",
+      "1982"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "latest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 192,
+    "tables_count": 2,
+    "tables": [
+      "drivers",
+      "pitStops"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT d.driverId, d.forename, d.surname, d.dob, MAX(lt.time) as latest_lap_time FROM drivers d JOIN lapTimes lt ON d.driverId = lt.driverId WHERE d.nationality = 'Spanish' AND strftime('%Y', d.dob) < '1982' GROUP BY d.driverId, d.forename, d.surname, d.dob ORDER BY latest_lap_time DESC LIMIT 10",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (10, 1) vs predicted (3, 5)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (10, 1) vs predicted (3, 5)",
+      "raw_response": "<think>\nLet me understand the requirements:\n\n1. We need to find the top 10 Spanish drivers.\n2. These drivers must have been born before 1982 (year(dob) < 1982).\n3. We are interested in their latest lap time, which means the maximum value of the 'time' field.\n\nNow, let's look at the relevant tables in the schema:\n\n1. `drivers` table - This contains information about the drivers, including their nationality and date of birth.\n2. `lapTimes` table - This contains the lap times for each driver in each race.\n\nLet's build the SQL query step by step:\n\n1. First, we need to identify Spanish drivers:\n```sql\nSELECT * FROM drivers WHERE nationality = 'Spanish'\n```\n\n2. Next, we need to filter for drivers born before 1982:\n```sql\nSELECT * FROM drivers WHERE nationality = 'Spanish' AND YEAR(dob) < 1982\n```\n\n3. Now, we need to join this with the `lapTimes` table to get the lap times for these drivers:\n```sql\nSELECT d.forename, d.surname, lt.time \nFROM drivers d\nJOIN lapTimes lt ON d.driverId = lt.driverId\nWHERE d.nationality = 'Spanish' AND YEAR(d.dob) < 1982\n```\n\n4. We want the latest (maximum) lap time for each driver:\n```sql\nSELECT d.forename, d.surname, MAX(lt.time) as latest_lap_time\nFROM drivers d\nJOIN lapTimes lt ON d.driverId = lt.driverId\nWHERE d.nationality = 'Spanish' AND YEAR(d.dob) < 1982\nGROUP BY d.driverId\n```\n\n5. Finally, we want the top 10 drivers based on this latest lap time, which we would order by the latest lap time. However, I'm not sure if \"top 10\" means the 10 drivers with the fastest (smallest) lap times or the 10 drivers with the slowest (largest) lap times. Since lap times are usually measured from smallest to largest, I'll assume we want the 10 Spanish drivers with the smallest latest lap times:\n\n```sql\nSELECT d.forename, d.surname, MAX(lt.time) as latest_lap_time\nFROM drivers d\nJOIN lapTimes lt ON d.driverId = lt.driverId\nWHERE d.nationality = 'Spanish' AND YEAR(d.dob) < 1982\nGROUP BY d.driverId\nORDER BY latest_lap_time ASC\nLIMIT 10\n```\n\nHowever, if you want the 10 drivers with the slowest latest lap times, you would change the ORDER BY to DESC:\n\n```sql\nSELECT d.forename, d.surname, MAX(lt.time) as latest_lap_time\nFROM drivers d\nJOIN lapTimes lt ON d.driverId = lt.driverId\nWHERE d.nationality = 'Spanish' AND YEAR(d.dob) < 1982\nGROUP BY d.driverId\nORDER BY latest_lap_time DESC\nLIMIT 10\n```\n\nActually, I realized we might want to include more details about the drivers, such as their driver IDs and full dates of birth, in case those are useful:\n\n```sql\nSELECT d.driverId, d.forename, d.surname, d.dob, MAX(lt.time) as latest_lap_time\nFROM drivers d\nJOIN lapTimes lt ON d.driverId = lt.driverId\nWHERE d.nationality = 'Spanish' AND strftime('%Y', d.dob) < '1982'\nGROUP BY d.driverId\nORDER BY latest_lap_time ASC\nLIMIT 10\n```\n\nLet's go with this query. Though I'm a bit unsure about the YEAR() function in SQL, it might be specific to certain SQL dialects. If we're using SQLite, we might need to use the strftime function instead, which is what I've used in the final query.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT d.driverId, d.forename, d.surname, d.dob, MAX(lt.time) as latest_lap_time FROM drivers d JOIN lapTimes lt ON d.driverId = lt.driverId WHERE d.nationality = 'Spanish' AND strftime('%Y', d.dob) < '1982' GROUP BY d.driverId, d.forename, d.surname, d.dob ORDER BY latest_lap_time DESC LIMIT 10\"\n}\n```"
+    }
+  }
+}

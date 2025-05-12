@@ -1,0 +1,75 @@
+{
+  "id": 261,
+  "dataset": "spider",
+  "database": {
+    "name": "employee_hire_evaluation",
+    "path": [
+      "spider_stratified_output_200/databases/employee_hire_evaluation/employee_hire_evaluation.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "employee_hire_evaluation",
+    "path": [
+      "spider_stratified_output_200/schemas/employee_hire_evaluation/employee_hire_evaluation.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Sort employee names by their age in ascending order.",
+  "sql": "SELECT name FROM employee ORDER BY age",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 52,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 38,
+    "tables_count": 1,
+    "tables": [
+      "employee"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name FROM employee ORDER BY Age ASC",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema and user query:\n\nThe user wants to sort employee names by their age in ascending order.\n\nFrom the database schema, I can see that there's an `employee` table with the following columns:\n- `Employee_ID` (int, primary key)\n- `Name` (text)\n- `Age` (int)\n- `City` (text)\n\nTo sort employee names by age in ascending order, I need to:\n1. Query the `employee` table\n2. Select the `Name` column (and potentially `Age` to show it in the results)\n3. Order the results by `Age` in ascending order\n\nHere's the SQL query I'd use:\n\n```sql\nSELECT Name, Age \nFROM employee \nORDER BY Age ASC;\n```\n\nI'm selecting both `Name` and `Age` so the user can see the age of each employee, which seems useful. The `ORDER BY Age ASC` clause sorts the results by age in ascending order. The `ASC` keyword is actually optional since ascending order is the default, but I'll include it for clarity.\n</think>\n\n```json\n{\"sql\": \"SELECT Name FROM employee ORDER BY Age ASC\"}\n```"
+    }
+  }
+}

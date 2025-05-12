@@ -1,0 +1,103 @@
+{
+  "id": 1101,
+  "dataset": "bird",
+  "database": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/databases/european_football_2/european_football_2.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/european_football_2/Team_Attributes.csv",
+      "stratified_output/databases/european_football_2/Player.csv",
+      "stratified_output/databases/european_football_2/Match.csv",
+      "stratified_output/databases/european_football_2/League.csv",
+      "stratified_output/databases/european_football_2/Country.csv",
+      "stratified_output/databases/european_football_2/Player_Attributes.csv",
+      "stratified_output/databases/european_football_2/Team.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/schemas/european_football_2/european_football_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average number of goals made by Parma as the away team while playing in Italy?",
+  "sql": "SELECT CAST(SUM(T1.away_team_goal) AS REAL) / COUNT(T1.id) FROM \"Match\" AS T1 INNER JOIN TEAM AS T2 ON T1.away_team_api_id = T2.team_api_id INNER JOIN Country AS T3 ON T1.country_id = T3.id WHERE T2.team_long_name = 'Parma' AND T3.name = 'Italy'",
+  "evidence": "Parma refers to team_long_name = 'Parma'; average number of goals refers to AVG(away_team_goal)",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 90,
+    "word_length": 18,
+    "entities": [
+      {
+        "text": "Parma",
+        "label": "PERSON",
+        "start": 44,
+        "end": 49
+      },
+      {
+        "text": "Italy",
+        "label": "GPE",
+        "start": 84,
+        "end": 89
+      }
+    ],
+    "entity_types": [
+      "GPE",
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 245,
+    "tables_count": 3,
+    "tables": [
+      "Match",
+      "TEAM",
+      "Country"
+    ],
+    "join_count": 2,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT",
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(m.away_team_goal) as avg_goals FROM Match m JOIN Team t ON m.away_team_api_id = t.team_api_id JOIN Country c ON m.country_id = c.id WHERE t.team_long_name = 'Parma' AND c.name = 'Italy'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nTo solve this problem, I need to query for matches where Parma was the away team and the match was played in Italy, then calculate the average number of away team goals.\n\nHere's how I'll approach this:\n\n1. Identify Parma's team_api_id from the Team table using the team_long_name = 'Parma' condition\n2. Join the Match table with the Team table to find matches where Parma was the away team\n3. Join with the Country table to filter matches played in Italy\n4. Calculate the average of away_team_goal for those matches\n\nFrom the schema:\n- The Match table has away_team_api_id which links to team_api_id in the Team table\n- Match table also has country_id which links to the Country table\n- Team table has team_long_name which we'll use to identify 'Parma'\n- Country table has name which we'll use to identify 'Italy'\n\nHere's the SQL query:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(m.away_team_goal) as avg_goals FROM Match m JOIN Team t ON m.away_team_api_id = t.team_api_id JOIN Country c ON m.country_id = c.id WHERE t.team_long_name = 'Parma' AND c.name = 'Italy'\"\n}\n```"
+    }
+  }
+}

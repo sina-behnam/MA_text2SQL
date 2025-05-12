@@ -1,0 +1,84 @@
+{
+  "id": 691,
+  "dataset": "spider",
+  "database": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/databases/voter_1/voter_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/schemas/voter_1/voter_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is last date created of votes from the state 'CA'?",
+  "sql": "SELECT max(created) FROM votes WHERE state  =  'CA'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 55,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "CA",
+        "label": "PRODUCT",
+        "start": 51,
+        "end": 53
+      }
+    ],
+    "entity_types": [
+      "PRODUCT"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 51,
+    "tables_count": 1,
+    "tables": [
+      "votes"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "MAX"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT MAX(created) AS last_created_date FROM VOTES WHERE state = 'CA'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema to understand the structure of the tables:\n\n1. `AREA_CODE_STATE`: Contains area codes and their corresponding states.\n   - Columns: `area_code` (integer, PK), `state` (varchar(2))\n\n2. `CONTESTANTS`: Contains information about contestants.\n   - Columns: `contestant_number` (integer, PK), `contestant_name` (varchar(50))\n\n3. `VOTES`: Contains voting information.\n   - Columns: `vote_id` (integer, PK), `phone_number` (integer), `state` (varchar(2)), `contestant_number` (integer), `created` (timestamp)\n   - Foreign key relationships: `state` references `AREA_CODE_STATE.state`, `contestant_number` references `CONTESTANTS.contestant_number`\n\nThe question asks for the last date created of votes from the state 'CA'. Let's break down what we need to do:\n\n1. We need to select from the `VOTES` table.\n2. We need to filter for records where `state` is 'CA'.\n3. We need to find the latest (maximum) value of the `created` column.\n\nThe SQL query should look like:\n```sql\nSELECT MAX(created) AS last_created_date\nFROM VOTES\nWHERE state = 'CA'\n```\n\nThis query selects the maximum value of the `created` column from the `VOTES` table where the `state` column equals 'CA'.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT MAX(created) AS last_created_date FROM VOTES WHERE state = 'CA'\"\n}\n```"
+    }
+  }
+}

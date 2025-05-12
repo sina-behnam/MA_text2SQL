@@ -1,0 +1,74 @@
+{
+  "id": 863,
+  "dataset": "spider",
+  "database": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/schemas/network_1/network_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Count the number of high schoolers.",
+  "sql": "SELECT count(*) FROM Highschooler",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 35,
+    "word_length": 6,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 33,
+    "tables_count": 1,
+    "tables": [
+      "Highschooler"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM Highschooler",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

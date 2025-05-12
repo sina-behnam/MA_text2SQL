@@ -1,0 +1,83 @@
+{
+  "id": 1130,
+  "dataset": "bird",
+  "database": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/databases/european_football_2/european_football_2.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/european_football_2/Team_Attributes.csv",
+      "stratified_output/databases/european_football_2/Player.csv",
+      "stratified_output/databases/european_football_2/Match.csv",
+      "stratified_output/databases/european_football_2/League.csv",
+      "stratified_output/databases/european_football_2/Country.csv",
+      "stratified_output/databases/european_football_2/Player_Attributes.csv",
+      "stratified_output/databases/european_football_2/Team.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/schemas/european_football_2/european_football_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the short name of team who played safe while creating chance of passing?",
+  "sql": "SELECT DISTINCT t1.team_short_name FROM Team AS t1 INNER JOIN Team_Attributes AS t2 ON t1.team_api_id = t2.team_api_id WHERE t2.chanceCreationPassingClass = 'Safe'",
+  "evidence": "played safe while creating chance of passing refers to chanceCreationPassingClass = 'Safe'; short name of team refers to team_short_name",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 81,
+    "word_length": 15,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 163,
+    "tables_count": 2,
+    "tables": [
+      "Team_Attributes",
+      "Team"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT t.team_short_name FROM Team t JOIN Team_Attributes ta ON t.team_api_id = ta.team_api_id WHERE ta.chanceCreationPassingClass = 'Safe'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to find the short names of teams that have their chanceCreationPassingClass set to 'Safe'.\n\nLooking at the database schema, I can see that we have the following relevant tables:\n1. `Team` - Contains team information including `team_short_name`\n2. `Team_Attributes` - Contains team attributes including `chanceCreationPassingClass`\n\nTo find the short names of teams who played safe while creating chances of passing, I need to:\n1. Join the `Team` table with the `Team_Attributes` table\n2. Filter for rows where `chanceCreationPassingClass` = 'Safe'\n3. Select the `team_short_name` column\n\nHere's the SQL query to accomplish this:\n\n```sql\nSELECT DISTINCT t.team_short_name\nFROM Team t\nJOIN Team_Attributes ta ON t.team_api_id = ta.team_api_id\nWHERE ta.chanceCreationPassingClass = 'Safe'\nORDER BY t.team_short_name;\n```\n\nI'm using DISTINCT to avoid duplicate team names in case there are multiple entries for the same team in the Team_Attributes table (which seems likely since the table has a date field, suggesting attributes might be recorded at different points in time).\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT t.team_short_name FROM Team t JOIN Team_Attributes ta ON t.team_api_id = ta.team_api_id WHERE ta.chanceCreationPassingClass = 'Safe'\"\n}\n```"
+    }
+  }
+}

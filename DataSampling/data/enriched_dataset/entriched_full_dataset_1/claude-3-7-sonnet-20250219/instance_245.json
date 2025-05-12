@@ -1,0 +1,82 @@
+{
+  "id": 245,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average number of bonds the atoms with the element iodine have?",
+  "sql": "SELECT CAST(COUNT(T2.bond_id) AS REAL) / COUNT(T1.atom_id) FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'i'",
+  "evidence": "atoms with the element iodine refers to element = 'i'; average = DIVIDE(COUND(bond_id), COUNT(atom_id)) where element = 'i'",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 75,
+    "word_length": 14,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 151,
+    "tables_count": 2,
+    "tables": [
+      "atom",
+      "connected"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"WITH iodine_atoms AS (\n    SELECT atom_id\n    FROM atom\n    WHERE element = 'i'\n),\niodine_bonds AS (\n    SELECT ia.atom_id, c.bond_id\n    FROM iodine_atoms ia\n    JOIN connected c ON ia.atom_id = c.atom_id\n    UNION\n    SELECT ia.atom_id, c.bond_id\n    FROM iodine_atoms ia\n    JOIN connected c ON ia.atom_id = c.atom_id2\n),\nbond_counts AS (\n    SELECT atom_id, COUNT(bond_id) AS num_bonds\n    FROM iodine_bonds\n    GROUP BY atom_id\n)\nSELECT AVG(num_bonds) AS avg_bonds_per_iodine\nFROM bond_counts;\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet's break down this question carefully:\n\n1. We need to find atoms with the element iodine (where element = 'i').\n2. We need to calculate the average number of bonds these atoms have.\n3. The average should be calculated as: DIVIDE(COUNT(bond_id), COUNT(atom_id)) where element = 'i'.\n\nLet's look at the schema to understand the relationships between tables:\n\n- `atom` table has atom information, including the element type. We'll use this to filter for iodine atoms.\n- `connected` table shows which atoms are connected to each other via bonds.\n- `bond` table has information about the bonds themselves.\n\nTo solve this problem, I need to:\n1. Count how many bonds involve iodine atoms\n2. Count how many iodine atoms there are\n3. Divide the first count by the second count\n\nLet's think about the SQL query:\n\n1. First, I need to identify all atoms with element = 'i' from the atom table.\n2. Then, I need to join with the connected table to find all bonds that involve these iodine atoms.\n3. Finally, I calculate the average by counting the number of bonds and dividing by the number of iodine atoms.\n\nIt's important to note that in the connected table, an atom could be either in the atom_id column or atom_id2 column. So I need to consider both cases when counting bonds.\n\nLet's construct the SQL query:\n```sql\nWITH iodine_atoms AS (\n    SELECT atom_id\n    FROM atom\n    WHERE element = 'i'\n),\niodine_bonds AS (\n    SELECT c.bond_id, ia.atom_id\n    FROM iodine_atoms ia\n    JOIN connected c ON ia.atom_id = c.atom_id OR ia.atom_id = c.atom_id2\n)\nSELECT COUNT(DISTINCT ib.bond_id) * 1.0 / COUNT(DISTINCT ia.atom_id) AS avg_bonds_per_iodine\nFROM iodine_atoms ia\nLEFT JOIN iodine_bonds ib ON ia.atom_id = ib.atom_id;\n```\n\nWait, this doesn't seem quite right. Let me reconsider. The question is asking for the average number of bonds that iodine atoms have. So we need to count for each iodine atom, how many bonds it has, and then take the average of these counts.\n\nLet's try again:\n\n```sql\nWITH iodine_atoms AS (\n    SELECT atom_id\n    FROM atom\n    WHERE element = 'i'\n),\nbond_counts AS (\n    SELECT ia.atom_id, COUNT(DISTINCT c.bond_id) AS num_bonds\n    FROM iodine_atoms ia\n    LEFT JOIN connected c ON ia.atom_id = c.atom_id OR ia.atom_id = c.atom_id2\n    GROUP BY ia.atom_id\n)\nSELECT AVG(num_bonds) AS avg_bonds_per_iodine\nFROM bond_counts;\n```\n\nWait, I think I need to be careful about how I'm counting bonds for each atom. Let me revise once more.\n\nThe `connected` table has the structure (atom_id, atom_id2, bond_id), which means atom_id and atom_id2 are two atoms connected by the bond with bond_id.\n\nAn iodine atom can be in either atom_id or atom_id2 column. For each iodine atom, I need to count how many bonds it participates in, and then take the average of these counts.\n\nLet me rewrite the query:\n\n```sql\nWITH iodine_atoms AS (\n    SELECT atom_id\n    FROM atom\n    WHERE element = 'i'\n),\nbond_counts AS (\n    SELECT ia.atom_id, COUNT(c.bond_id) AS num_bonds\n    FROM iodine_atoms ia\n    LEFT JOIN connected c ON ia.atom_id = c.atom_id OR ia.atom_id = c.atom_id2\n    GROUP BY ia.atom_id\n)\nSELECT AVG(num_bonds) AS avg_bonds_per_iodine\nFROM bond_counts;\n```\n\nThis should give us the average number of bonds that iodine atoms have. Let me test this once more to make sure it's correct.\n\nActually, I think I'm over-counting bonds because I'm joining on two conditions (atom_id = c.atom_id OR atom_id = c.atom_id2). I should union these two sets instead:\n\n```sql\nWITH iodine_atoms AS (\n    SELECT atom_id\n    FROM atom\n    WHERE element = 'i'\n),\nbond_counts AS (\n    SELECT ia.atom_id, COUNT(bond_id) AS num_bonds\n    FROM iodine_atoms ia\n    LEFT JOIN (\n        SELECT atom_id, bond_id FROM connected\n        UNION\n        SELECT atom_id2 AS atom_id, bond_id FROM connected\n    ) c ON ia.atom_id = c.atom_id\n    GROUP BY ia.atom_id\n)\nSELECT AVG(num_bonds) AS avg_bonds_per_iodine\nFROM bond_counts;\n```\n\nThis should now correctly calculate the average number of bonds per iodine atom.\n\nActually, I think there's one more issue. The UNION might cause duplicate bonds to be counted. Let me re-revise:\n\n```sql\nWITH iodine_atoms AS (\n    SELECT atom_id\n    FROM atom\n    WHERE element = 'i'\n),\niodine_bonds AS (\n    SELECT ia.atom_id, c.bond_id\n    FROM iodine_atoms ia\n    JOIN connected c ON ia.atom_id = c.atom_id\n    UNION\n    SELECT ia.atom_id, c.bond_id\n    FROM iodine_atoms ia\n    JOIN connected c ON ia.atom_id = c.atom_id2\n),\nbond_counts AS (\n    SELECT atom_id, COUNT(bond_id) AS num_bonds\n    FROM iodine_bonds\n    GROUP BY atom_id\n)\nSELECT AVG(num_bonds) AS avg_bonds_per_iodine\nFROM bond_counts;\n```\n\nThis should now correctly calculate the average number of bonds per iodine atom.\n</think>\n\nLooking at the question, I need to calculate the average number of bonds that iodine atoms (element = 'i') have in the database.\n\nTo do this, I need to:\n1. Find all atoms with element 'i'\n2. Count how many bonds each of these atoms has\n3. Calculate the average\n\nLooking at the schema, I see that:\n- Atoms are in the `atom` table with their element type\n- Bonds are tracked in the `connected` table where atoms can appear in either `atom_id` or `atom_id2` columns\n\nHere's the SQL query:\n\n```json\n{\n  \"sql\": \"WITH iodine_atoms AS (\n    SELECT atom_id\n    FROM atom\n    WHERE element = 'i'\n),\niodine_bonds AS (\n    SELECT ia.atom_id, c.bond_id\n    FROM iodine_atoms ia\n    JOIN connected c ON ia.atom_id = c.atom_id\n    UNION\n    SELECT ia.atom_id, c.bond_id\n    FROM iodine_atoms ia\n    JOIN connected c ON ia.atom_id = c.atom_id2\n),\nbond_counts AS (\n    SELECT atom_id, COUNT(bond_id) AS num_bonds\n    FROM iodine_bonds\n    GROUP BY atom_id\n)\nSELECT AVG(num_bonds) AS avg_bonds_per_iodine\nFROM bond_counts;\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "id": 892,
+  "dataset": "spider",
+  "database": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/schemas/network_1/network_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many friends does the high school student Kyle have?",
+  "sql": "SELECT count(*) FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id WHERE T2.name  =  \"Kyle\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 56,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "Kyle",
+        "label": "PERSON",
+        "start": 46,
+        "end": 50
+      }
+    ],
+    "entity_types": [
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 109,
+    "tables_count": 2,
+    "tables": [
+      "Friend",
+      "Highschooler"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM Friend WHERE student_id = (SELECT ID FROM Highschooler WHERE name = 'Kyle')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the database schema:\n\n1. `Highschooler` table: Contains information about high school students.\n   - `ID`: Primary key\n   - `name`: Student's name\n   - `grade`: Student's grade\n\n2. `Friend` table: Represents friendship relationships between students.\n   - `student_id`: ID of a student\n   - `friend_id`: ID of another student who is friends with the first student\n   - Both together form the primary key and both are foreign keys referencing `Highschooler.ID`\n\n3. `Likes` table: Represents which student likes which other student.\n   - `student_id`: ID of a student who likes someone\n   - `liked_id`: ID of the student being liked\n   - Both together form the primary key and both are foreign keys referencing `Highschooler.ID`\n\nThe question asks about the number of friends Kyle has. To answer this, I need to:\n\n1. Find Kyle's ID from the `Highschooler` table\n2. Count how many entries in the `Friend` table have Kyle's ID as `student_id`\n\nHere's the SQL query:\n\n```sql\nSELECT COUNT(*) \nFROM Friend \nWHERE student_id = (SELECT ID FROM Highschooler WHERE name = 'Kyle')\n```\n\nThis query first finds Kyle's ID using a subquery, then counts how many records in the `Friend` table have that ID as `student_id`.\n\nHowever, we should be careful with the friendship model. Sometimes friendship is modeled as bidirectional (if A is friends with B, then B is also friends with A), but sometimes it could be one-directional. The schema description doesn't clarify this.\n\nTo be safe, let's assume friendship is unidirectional as represented in the `Friend` table. If Kyle's ID appears as `student_id`, it means Kyle considers those people as friends.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM Friend WHERE student_id = (SELECT ID FROM Highschooler WHERE name = 'Kyle')\"\n}\n```"
+    }
+  }
+}

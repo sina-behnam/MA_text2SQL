@@ -1,0 +1,84 @@
+{
+  "id": 30,
+  "dataset": "spider",
+  "database": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show countries where a singer above age 40 and a singer below 30 are from.",
+  "sql": "SELECT country FROM singer WHERE age  >  40 INTERSECT SELECT country FROM singer WHERE age  <  30",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 74,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "age 40",
+        "label": "DATE",
+        "start": 36,
+        "end": 42
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "40",
+      "30"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 97,
+    "tables_count": 1,
+    "tables": [
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT Country FROM singer WHERE Country IN (SELECT Country FROM singer WHERE Age > 40) AND Country IN (SELECT Country FROM singer WHERE Age < 30)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

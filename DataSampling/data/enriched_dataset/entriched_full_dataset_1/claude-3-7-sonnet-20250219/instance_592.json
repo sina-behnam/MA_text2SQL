@@ -1,0 +1,75 @@
+{
+  "id": 592,
+  "dataset": "spider",
+  "database": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the name and directors of all the cartoons that are ordered by air date?",
+  "sql": "SELECT title ,  Directed_by FROM Cartoon ORDER BY Original_air_date",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 80,
+    "word_length": 16,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 67,
+    "tables_count": 1,
+    "tables": [
+      "Cartoon"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Title, Directed_by FROM Cartoon ORDER BY Original_air_date",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nFrom the database schema, we have three tables: TV_Channel, TV_series, and Cartoon. Let's analyze the tables:\n\n1. TV_Channel: Contains information about TV channels, including id, series_name, Country, Language, Content, etc.\n2. TV_series: Contains information about TV shows, including id, Episode, Air_Date, Rating, etc., with a foreign key to TV_Channel.\n3. Cartoon: Contains information about cartoons, including id, Title, Directed_by, Written_by, Original_air_date, etc., with a foreign key to TV_Channel.\n\nThe question asks for the name and directors of all cartoons ordered by air date. In the Cartoon table, we have the \"Title\" column which would be the name of the cartoon, \"Directed_by\" for the directors, and \"Original_air_date\" for the air date.\n\nSo, I need to retrieve the Title and Directed_by columns from the Cartoon table, ordered by Original_air_date.\n\nThe SQL query would be:\n```sql\nSELECT Title, Directed_by\nFROM Cartoon\nORDER BY Original_air_date\n```\n\nActually, let me consider whether I should handle anything special with the dates. The Original_air_date column appears to be a text column rather than a date type. If the dates are stored in a format that sorts correctly as text (e.g., 'YYYY-MM-DD'), then the above query should work fine. But if they're in a different format, we might need to use date functions to convert them before sorting. Without knowing the exact format, I'll go with the simple approach for now.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Title, Directed_by FROM Cartoon ORDER BY Original_air_date\"\n}\n```"
+    }
+  }
+}

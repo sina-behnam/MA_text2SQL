@@ -1,0 +1,76 @@
+{
+  "id": 675,
+  "dataset": "spider",
+  "database": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the most common nationality of people?",
+  "sql": "SELECT Nationality FROM people GROUP BY Nationality ORDER BY COUNT(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 46,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 82,
+    "tables_count": 1,
+    "tables": [
+      "people"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": false,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "sql": null,
+      "raw_response": "Model error: Error code: 429 - {'id': 'ntVV7yc-3NKUce-93da29504e9eedcc', 'error': {'message': 'You have reached the rate limit specific to this model meta-llama/Llama-3.3-70B-Instruct-Turbo-Free. The maximum rate limit for this model is 6.0 queries and 60000 tokens per minute. This limit differs from the general rate limits published at Together AI rate limits documentation (https://docs.together.ai/docs/rate-limits). For inquiries about increasing your model-specific rate limit, please contact our sales team (https://www.together.ai/forms/contact-sales)', 'type': 'model_rate_limit', 'param': None, 'code': None}}"
+    }
+  }
+}

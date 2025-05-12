@@ -1,0 +1,88 @@
+{
+  "id": 1184,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For the patient whose birthday was 1959/3/1, what symptoms did he/she have during the examination on 1993/9/27?",
+  "sql": "SELECT T2.Symptoms FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.Birthday = '1959-03-01' AND T2.`Examination Date` = '1993-09-27'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 111,
+    "word_length": 18,
+    "entities": [
+      {
+        "text": "1959/3/1",
+        "label": "DATE",
+        "start": 35,
+        "end": 43
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 3,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 157,
+    "tables_count": 2,
+    "tables": [
+      "Examination",
+      "Patient"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT e.Symptoms FROM Examination e JOIN Patient p ON e.ID = p.ID WHERE p.Birthday = '1959-03-01' AND e.`Examination Date` = '1993-09-27'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's break down the question:\n\n1. We need to find the symptoms of a patient\n2. This patient has a birthday on March 1, 1959 (1959/3/1)\n3. We're looking for symptoms from an examination that happened on September 27, 1993 (1993/9/27)\n\nLooking at the schema:\n- The `Patient` table contains birthday information\n- The `Examination` table contains symptoms and examination dates\n- The tables are linked by the `ID` field (the `Examination` table has a foreign key referencing `Patient.ID`)\n\nSo we need to:\n1. Find the ID of the patient with birthday 1959/3/1\n2. Use that ID to find the examination record from 1993/9/27\n3. Return the symptoms from that examination record\n\nLet's write the SQL query:\n\n```sql\nSELECT e.Symptoms\nFROM Examination e\nJOIN Patient p ON e.ID = p.ID\nWHERE p.Birthday = '1959-03-01'\nAND e.`Examination Date` = '1993-09-27'\n```\n\nThis query joins the Patient and Examination tables, filters for the patient born on March 1, 1959, and the examination on September 27, 1993, then returns the symptoms from that examination.\n\nNote: I've changed the date format from \"1959/3/1\" to \"1959-03-01\" and from \"1993/9/27\" to \"1993-09-27\" because SQL typically uses ISO date format (YYYY-MM-DD). However, the exact format might depend on the specific database system being used.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT e.Symptoms FROM Examination e JOIN Patient p ON e.ID = p.ID WHERE p.Birthday = '1959-03-01' AND e.`Examination Date` = '1993-09-27'\"\n}\n```"
+    }
+  }
+}

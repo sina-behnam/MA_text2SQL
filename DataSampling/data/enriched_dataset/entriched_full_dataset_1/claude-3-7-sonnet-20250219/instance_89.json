@@ -1,0 +1,95 @@
+{
+  "id": 89,
+  "dataset": "bird",
+  "database": {
+    "name": "financial",
+    "path": [
+      "stratified_output/databases/financial/financial.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/financial/loan.csv",
+      "stratified_output/databases/financial/client.csv",
+      "stratified_output/databases/financial/district.csv",
+      "stratified_output/databases/financial/trans.csv",
+      "stratified_output/databases/financial/account.csv",
+      "stratified_output/databases/financial/card.csv",
+      "stratified_output/databases/financial/order.csv",
+      "stratified_output/databases/financial/disp.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "financial",
+    "path": [
+      "stratified_output/schemas/financial/financial.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many accounts who choose issuance after transaction are staying in East Bohemia region?",
+  "sql": "SELECT COUNT(T2.account_id) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE T1.A3 = 'east Bohemia' AND T2.frequency = 'POPLATEK PO OBRATU'",
+  "evidence": "A3 contains the data of region; 'POPLATEK PO OBRATU' represents for 'issuance after transaction'.",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 91,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "East Bohemia",
+        "label": "LOC",
+        "start": 71,
+        "end": 83
+      }
+    ],
+    "entity_types": [
+      "LOC"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 176,
+    "tables_count": 2,
+    "tables": [
+      "district",
+      "account"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM account a JOIN district d ON a.district_id = d.district_id WHERE d.A3 = 'East Bohemia' AND a.frequency = 'POPLATEK PO OBRATU'",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The queries differ in case sensitivity in the WHERE clause condition. The gold query uses 'd.A3 = 'east Bohemia'' (lowercase 'east') while the generated query uses 'd.A3 = 'East Bohemia'' (capitalized 'East'). In most database systems, string comparisons are case-sensitive by default, which would make these queries return different results. All other differences (table aliases, COUNT(*) vs COUNT(account_id), and FROM clause ordering) are syntactic and wouldn't affect the results.",
+      "raw_response": "<think>\nAlright, let's understand the problem:\n\n1. We need to count accounts that choose \"issuance after transaction\" and are located in the \"East Bohemia\" region.\n2. We're told that 'A3' in the district table contains region data, and \"POPLATEK PO OBRATU\" represents \"issuance after transaction\".\n\nFrom the database schema:\n- The `account` table has an account_id and district_id.\n- The `district` table has district information, including A3 which contains region data.\n\nSo, we need to:\n1. Join the `account` and `district` tables.\n2. Filter for accounts where the district's A3 is \"East Bohemia\".\n3. Filter for accounts with \"issuance after transaction\" (which is \"POPLATEK PO OBRATU\").\n\nThe problem is where \"POPLATEK PO OBRATU\" is stored. I'm not seeing this specific field in the account table. Let's review the account table structure:\n\nFrom the DDL of the account table, we have: account_id, district_id, frequency, and date.\n\nIt's possible that \"POPLATEK PO OBRATU\" is a value in the `frequency` field of the account table, as this is the only text field in the account table that might store information about issuance after transaction.\n\nLet's create our SQL query with the assumptions:\n\n```sql\nSELECT COUNT(*) \nFROM account a\nJOIN district d ON a.district_id = d.district_id\nWHERE d.A3 = 'East Bohemia'\nAND a.frequency = 'POPLATEK PO OBRATU';\n```\n\nThis query will count the number of accounts where the district's A3 field is \"East Bohemia\" and the account's frequency is \"POPLATEK PO OBRATU\".\n</think>\n\nBased on the information provided, I need to count accounts that choose \"issuance after transaction\" (which is \"POPLATEK PO OBRATU\" in the database) and are located in the \"East Bohemia\" region (which is stored in the A3 column of the district table).\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM account a JOIN district d ON a.district_id = d.district_id WHERE d.A3 = 'East Bohemia' AND a.frequency = 'POPLATEK PO OBRATU'\"\n}\n```"
+    }
+  }
+}

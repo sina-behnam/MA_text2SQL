@@ -1,0 +1,102 @@
+{
+  "id": 232,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Please list top three molecules that have single bonds between two atoms and are not carcinogenic in alphabetical order.",
+  "sql": "SELECT DISTINCT T2.molecule_id FROM bond AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.bond_type = '-' AND T2.label = '-' ORDER BY T2.molecule_id LIMIT 3",
+  "evidence": "label = '-' means molecules are not carcinogenic; single type bond refers to bond_type = '-'; list top three molecules refers to return molecule_id and order by molecule_id;",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 120,
+    "word_length": 19,
+    "entities": [
+      {
+        "text": "three",
+        "label": "CARDINAL",
+        "start": 16,
+        "end": 21
+      },
+      {
+        "text": "two",
+        "label": "CARDINAL",
+        "start": 63,
+        "end": 66
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "three",
+      "two"
+    ],
+    "has_numbers": true,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 3,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 183,
+    "tables_count": 2,
+    "tables": [
+      "bond",
+      "molecule"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT T1.label FROM molecule AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.bond_type = 'single' AND T1.molecule_id NOT IN (SELECT molecule_id FROM carcinogenic) ORDER BY T1.label LIMIT 3",
+      "execution_correct": false,
+      "execution_error": "Execution error: no such table: carcinogenic",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: no such table: carcinogenic"
+    }
+  }
+}

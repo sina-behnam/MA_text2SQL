@@ -1,0 +1,88 @@
+{
+  "id": 337,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the element and bond type included in the molecule with molecule ID of TR002.",
+  "sql": "SELECT DISTINCT T1.element, T2.bond_type FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR002'",
+  "evidence": "TR002 is the molecule id",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 82,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "TR002",
+        "label": "ORG",
+        "start": 76,
+        "end": 81
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 144,
+    "tables_count": 2,
+    "tables": [
+      "bond",
+      "atom"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT a.element, b.bond_type\nFROM atom a\nINNER JOIN connected c ON a.atom_id = c.atom_id\nINNER JOIN bond b ON c.bond_id = b.bond_id\nWHERE a.molecule_id = 'TR002';",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (6, 2) vs predicted (10, 2)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (6, 2) vs predicted (10, 2)"
+    }
+  }
+}

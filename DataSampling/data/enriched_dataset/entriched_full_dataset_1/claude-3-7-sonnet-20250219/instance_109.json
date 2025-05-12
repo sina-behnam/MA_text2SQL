@@ -1,0 +1,78 @@
+{
+  "id": 109,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many car models are produced by each maker ? Only list the count and the maker full name .",
+  "sql": "select count(*) ,  t2.fullname from model_list as t1 join car_makers as t2 on t1.maker  =  t2.id group by t2.id;",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 94,
+    "word_length": 18,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 112,
+    "tables_count": 2,
+    "tables": [
+      "model_list",
+      "car_makers"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(ml.ModelId) AS ModelCount, cm.FullName FROM car_makers cm LEFT JOIN model_list ml ON cm.Id = ml.Maker GROUP BY cm.Id, cm.FullName",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to write a SQL query that counts the number of car models produced by each car maker and displays the count along with the maker's full name.\n\nLooking at the database schema:\n\n1. `car_makers` table has `Id`, `Maker`, `FullName`, and `Country` columns.\n2. `model_list` table has `ModelId`, `Maker`, and `Model` columns, where `Maker` is a foreign key referencing `car_makers(Id)`.\n\nTo count the number of models per maker, I need to:\n1. Join the `car_makers` and `model_list` tables using the relationship between `car_makers.Id` and `model_list.Maker`.\n2. Group the results by maker.\n3. Count the models in each group.\n4. Return the count and the maker's full name.\n\nHere's the SQL query:\n```sql\nSELECT \n    cm.FullName,\n    COUNT(ml.ModelId) AS ModelCount\nFROM \n    car_makers cm\nLEFT JOIN \n    model_list ml ON cm.Id = ml.Maker\nGROUP BY \n    cm.Id, cm.FullName\nORDER BY \n    ModelCount DESC;\n```\n\nI'm using a LEFT JOIN to ensure that even car makers with no models are included in the results. The GROUP BY clause groups the results by maker ID and full name, and the COUNT function counts the number of model IDs in each group.\n\nHowever, I noticed the question specifically asked for \"count and the maker full name\". To ensure the columns are in the correct order:\n\n```sql\nSELECT \n    COUNT(ml.ModelId) AS ModelCount,\n    cm.FullName\nFROM \n    car_makers cm\nLEFT JOIN \n    model_list ml ON cm.Id = ml.Maker\nGROUP BY \n    cm.Id, cm.FullName\nORDER BY \n    ModelCount DESC;\n```\n\nActually, let me double-check the ordering: \"Only list the count and the maker full name.\" This suggests we should list the count first, then the maker full name. But I'll go with the more natural ordering of the maker's full name followed by the count, as this is more readable.\n\n```sql\nSELECT \n    cm.FullName,\n    COUNT(ml.ModelId) AS ModelCount\nFROM \n    car_makers cm\nLEFT JOIN \n    model_list ml ON cm.Id = ml.Maker\nGROUP BY \n    cm.Id, cm.FullName;\n```\n\nBut actually, the question does request the count first, so I'll follow that.\n\n```sql\nSELECT \n    COUNT(ml.ModelId) AS ModelCount,\n    cm.FullName\nFROM \n    car_makers cm\nLEFT JOIN \n    model_list ml ON cm.Id = ml.Maker\nGROUP BY \n    cm.Id, cm.FullName;\n```\n</think>\n\nLooking at the database schema, I need to count car models for each maker and show their full names. Here's the SQL query:\n\n```json\n{\n  \"sql\": \"SELECT COUNT(ml.ModelId) AS ModelCount, cm.FullName FROM car_makers cm LEFT JOIN model_list ml ON cm.Id = ml.Maker GROUP BY cm.Id, cm.FullName\"\n}\n```"
+    }
+  }
+}

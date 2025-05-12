@@ -1,0 +1,92 @@
+{
+  "id": 1022,
+  "dataset": "spider",
+  "database": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/databases/singer/singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/schemas/singer/singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show the names of singers that have more than one song.",
+  "sql": "SELECT T1.Name FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Name HAVING COUNT(*)  >  1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 55,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "more than one",
+        "label": "CARDINAL",
+        "start": 36,
+        "end": 49
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "one"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "more"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 120,
+    "tables_count": 2,
+    "tables": [
+      "song",
+      "singer"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.Name FROM singer s JOIN (SELECT Singer_ID, COUNT(*) as song_count FROM song GROUP BY Singer_ID HAVING COUNT(*) > 1) sc ON s.Singer_ID = sc.Singer_ID",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the database schema:\n\n1. The `singer` table has columns:\n   - Singer_ID (primary key)\n   - Name\n   - Birth_Year\n   - Net_Worth_Millions\n   - Citizenship\n\n2. The `song` table has columns:\n   - Song_ID (primary key)\n   - Title\n   - Singer_ID (foreign key referencing singer.Singer_ID)\n   - Sales\n   - Highest_Position\n\nTo find singers that have more than one song, I need to:\n1. Group songs by Singer_ID\n2. Count how many songs each singer has\n3. Filter to only include singers with a count > 1\n4. Join with the singer table to get the singer names\n\nHere's the SQL query:\n```sql\nSELECT s.Name\nFROM singer s\nJOIN (\n    SELECT Singer_ID, COUNT(*) as song_count\n    FROM song\n    GROUP BY Singer_ID\n    HAVING COUNT(*) > 1\n) sc ON s.Singer_ID = sc.Singer_ID;\n```\n\nThis query:\n1. Creates a subquery that counts songs per singer\n2. Uses HAVING to filter for singers with more than one song\n3. Joins with the singer table to get the names\n4. Returns only the names of singers with more than one song\n\nThis should provide the names of singers that have more than one song in the database.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.Name FROM singer s JOIN (SELECT Singer_ID, COUNT(*) as song_count FROM song GROUP BY Singer_ID HAVING COUNT(*) > 1) sc ON s.Singer_ID = sc.Singer_ID\"\n}\n```"
+    }
+  }
+}

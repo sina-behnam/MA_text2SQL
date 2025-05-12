@@ -1,0 +1,85 @@
+{
+  "id": 737,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many languages are spoken in Aruba?",
+  "sql": "SELECT COUNT(T2.Language) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  \"Aruba\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 39,
+    "word_length": 7,
+    "entities": [
+      {
+        "text": "Aruba",
+        "label": "GPE",
+        "start": 33,
+        "end": 38
+      }
+    ],
+    "entity_types": [
+      "GPE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 127,
+    "tables_count": 2,
+    "tables": [
+      "country",
+      "countrylanguage"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = (SELECT Code FROM country WHERE Name = 'Aruba')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the schema to understand how to find the number of languages spoken in Aruba.\n\nThe database has three tables:\n1. `city` - Contains information about cities, related to countries via CountryCode\n2. `country` - Contains information about countries, with Code as the primary key\n3. `countrylanguage` - Contains information about languages spoken in countries, with CountryCode as a foreign key to country.Code\n\nTo find the number of languages spoken in Aruba, I need to:\n1. Find the country code for Aruba from the `country` table\n2. Count the distinct languages in the `countrylanguage` table for that country code\n\nFirst, I need to identify Aruba's country code from the `country` table. Then I'll count the number of rows in the `countrylanguage` table where the CountryCode matches Aruba's code.\n\nThe SQL query would look like:\n\n```sql\nSELECT COUNT(*) \nFROM countrylanguage \nWHERE CountryCode = (SELECT Code FROM country WHERE Name = 'Aruba');\n```\n\nThis query:\n1. Uses a subquery to get the country code for Aruba from the country table\n2. Counts the number of entries in the countrylanguage table that match this code\n\nEach entry in the countrylanguage table represents a distinct language spoken in the country, so the count will give us the number of languages spoken in Aruba.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM countrylanguage WHERE CountryCode = (SELECT Code FROM country WHERE Name = 'Aruba')\"\n}\n```"
+    }
+  }
+}

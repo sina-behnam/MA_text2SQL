@@ -1,0 +1,97 @@
+{
+  "id": 1008,
+  "dataset": "spider",
+  "database": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/databases/singer/singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/schemas/singer/singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show the name of singers whose birth year is either 1948 or 1949?",
+  "sql": "SELECT Name FROM singer WHERE Birth_Year  =  1948 OR Birth_Year  =  1949",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 65,
+    "word_length": 13,
+    "entities": [
+      {
+        "text": "year",
+        "label": "DATE",
+        "start": 37,
+        "end": 41
+      },
+      {
+        "text": "1948",
+        "label": "DATE",
+        "start": 52,
+        "end": 56
+      },
+      {
+        "text": "1949",
+        "label": "DATE",
+        "start": 60,
+        "end": 64
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "1948",
+      "1949"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 72,
+    "tables_count": 1,
+    "tables": [
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name FROM singer WHERE Birth_Year IN (1948, 1949)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the database schema:\n\n1. **singer** table:\n   - Singer_ID (Primary Key)\n   - Name\n   - Birth_Year\n   - Net_Worth_Millions\n   - Citizenship\n\n2. **song** table:\n   - Song_ID (Primary Key)\n   - Title\n   - Singer_ID (Foreign Key referencing singer.Singer_ID)\n   - Sales\n   - Highest_Position\n\nThe question asks for the names of singers who were born in either 1948 or 1949. \n\nTo accomplish this, I need to:\n1. Query the \"singer\" table\n2. Filter for singers with Birth_Year of 1948 or 1949\n3. Return their names\n\nHere's the SQL query for this:\n\n```sql\nSELECT Name\nFROM singer\nWHERE Birth_Year = 1948 OR Birth_Year = 1949;\n```\n\nAlternatively, I could use the IN operator:\n\n```sql\nSELECT Name\nFROM singer\nWHERE Birth_Year IN (1948, 1949);\n```\n\nEither of these queries will produce the same result, returning the names of all singers in the database whose birth year is recorded as either 1948 or 1949.\n\nLet's use the second query with the IN operator as it's slightly more concise.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Name FROM singer WHERE Birth_Year IN (1948, 1949)\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "id": 460,
+  "dataset": "spider",
+  "database": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the first name and country code of the player with the most tours?",
+  "sql": "SELECT T1.country_code ,  T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id ORDER BY T2.tours DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 74,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "first",
+        "label": "ORDINAL",
+        "start": 12,
+        "end": 17
+      }
+    ],
+    "entity_types": [
+      "ORDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "first"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 142,
+    "tables_count": 2,
+    "tables": [
+      "rankings",
+      "players"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT p.first_name, p.country_code FROM players p JOIN (SELECT player_id, SUM(tours) AS total_tours FROM rankings GROUP BY player_id ORDER BY total_tours DESC LIMIT 1) r ON p.player_id = r.player_id;",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "These queries are not semantically equivalent. The gold query finds the player with the highest single 'tours' value by simply ordering all joined rows by T2.tours DESC. The generated query computes the SUM of tours for each player, grouping by player_id, which aggregates multiple tour counts per player. This would produce different results if players have multiple entries in the rankings table. Additionally, the generated query selects columns in a different order (first_name first, then country_code), but this would be an acceptable difference if not for the aggregation issue.",
+      "raw_response": "<think>\nLet's analyze the database schema and the question.\n\nThe question asks for the first name and country code of the player with the most tours.\n\nLooking at the database schema, we have three tables:\n1. `players` - contains player information such as `first_name`, `last_name`, `hand`, `birth_date`, and `country_code`\n2. `matches` - contains match information, referencing player IDs from the `players` table\n3. `rankings` - contains ranking information for players, including `tours`\n\nBased on the question, we need to find the player who has the most \"tours\" and then return their first name and country code.\n\nThe `tours` column is found in the `rankings` table, and we need to join this with the `players` table to get the player's first name and country code.\n\nHere's how we would approach this:\n1. Find the maximum number of tours from the `rankings` table\n2. Find the player with that maximum number of tours\n3. Join with the `players` table to get the player's first name and country code\n\nLet's write the SQL query:\n\n```sql\nSELECT p.first_name, p.country_code\nFROM players p\nJOIN rankings r ON p.player_id = r.player_id\nWHERE r.tours = (SELECT MAX(tours) FROM rankings)\nLIMIT 1;\n```\n\nActually, I realized that the above query might return multiple players if multiple players have the same maximum number of tours. To address this, let me modify the query to first find the player_id with the maximum tours, and then join with the `players` table:\n\n```sql\nSELECT p.first_name, p.country_code\nFROM players p\nJOIN (\n    SELECT player_id, MAX(tours) AS max_tours\n    FROM rankings\n    GROUP BY player_id\n    ORDER BY max_tours DESC\n    LIMIT 1\n) r ON p.player_id = r.player_id;\n```\n\nWait, I see a problem with the above query. If a player has multiple entries in the `rankings` table with different `tours` values, we want to find the player with the highest overall tours, not just the player with the highest maximum tour. Let me modify the query again:\n\n```sql\nSELECT p.first_name, p.country_code\nFROM players p\nJOIN (\n    SELECT player_id, tours\n    FROM rankings\n    ORDER BY tours DESC\n    LIMIT 1\n) r ON p.player_id = r.player_id;\n```\n\nActually, I think the issue is even more complex. If we're trying to find the player with the most tours across all their rankings (i.e., summing up the tours for each player), we would need a different approach.\n\nLet me assume that the question is asking for the player with the highest value in the `tours` column, without summing:\n\n```sql\nSELECT p.first_name, p.country_code\nFROM players p\nJOIN rankings r ON p.player_id = r.player_id\nWHERE r.tours = (SELECT MAX(tours) FROM rankings);\n```\n\nI notice that this brings us back to where we started, but it's actually the correct approach if we assume there might be multiple players tied for the highest number of tours. However, if we want just one result (the first in some arbitrary order), we can use LIMIT:\n\n```sql\nSELECT p.first_name, p.country_code\nFROM players p\nJOIN rankings r ON p.player_id = r.player_id\nWHERE r.tours = (SELECT MAX(tours) FROM rankings)\nLIMIT 1;\n```\n\nI'm still not entirely clear on what the \"tours\" column represents. If it's the count of tournaments a player has participated in, it would make sense to sum them up across all rankings for each player. Let me also provide the SQL for that interpretation:\n\n```sql\nSELECT p.first_name, p.country_code\nFROM players p\nJOIN (\n    SELECT player_id, SUM(tours) AS total_tours\n    FROM rankings\n    GROUP BY player_id\n    ORDER BY total_tours DESC\n    LIMIT 1\n) r ON p.player_id = r.player_id;\n```\n\nActually, given the structure of the rankings table with a \"ranking_date\", I think this interpretation (summing tours across dates for each player) is more likely to be correct. Let's go with this last SQL statement.\n</think>\n\nI need to find the player with the most tours by looking at the rankings table and joining it with the players table to get the first name and country code.\n\n```json\n{\n  \"sql\": \"SELECT p.first_name, p.country_code FROM players p JOIN (SELECT player_id, SUM(tours) AS total_tours FROM rankings GROUP BY player_id ORDER BY total_tours DESC LIMIT 1) r ON p.player_id = r.player_id;\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "id": 217,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Identify all the atoms that are connected to the atoms of the TR181 molecule.",
+  "sql": "SELECT T2.atom_id, T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T2.atom_id = T1.atom_id WHERE T1.molecule_id = 'TR181'",
+  "evidence": "TR181 molecule refers to molecule_id = 'TR181'",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 77,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "TR181",
+        "label": "FAC",
+        "start": 62,
+        "end": 67
+      }
+    ],
+    "entity_types": [
+      "FAC"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 131,
+    "tables_count": 2,
+    "tables": [
+      "atom",
+      "connected"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT DISTINCT a2.atom_id, a2.molecule_id, a2.element\nFROM atom a1\nJOIN connected c ON a1.atom_id = c.atom_id\nJOIN atom a2 ON c.atom_id2 = a2.atom_id\nWHERE a1.molecule_id = 'TR181'\n\nUNION\n\nSELECT DISTINCT a2.atom_id, a2.molecule_id, a2.element\nFROM atom a1\nJOIN connected c ON a1.atom_id = c.atom_id2\nJOIN atom a2 ON c.atom_id = a2.atom_id\nWHERE a1.molecule_id = 'TR181'\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nBased on the provided database schema, I need to identify all the atoms that are connected to the atoms of the TR181 molecule. Let me break down the steps to solve this:\n\n1. First, I need to identify all atoms that are part of the TR181 molecule. These atoms have `molecule_id = 'TR181'` in the `atom` table.\n\n2. Then, I need to find all atoms that are connected to these TR181 atoms using the `connected` table. The `connected` table has `atom_id` and `atom_id2` fields, which represent two connected atoms.\n\n3. I'm looking for atoms that are connected to TR181 atoms but are not themselves part of TR181.\n\nLet's create a SQL query for this:\n\n```sql\n-- First, find all atoms that are connected to atoms in the TR181 molecule\nSELECT DISTINCT a2.atom_id, a2.molecule_id, a2.element\nFROM atom a1\nJOIN connected c ON a1.atom_id = c.atom_id\nJOIN atom a2 ON c.atom_id2 = a2.atom_id\nWHERE a1.molecule_id = 'TR181' AND a2.molecule_id != 'TR181'\n\nUNION\n\n-- Also include atoms that are connected via the second atom_id in the connected table\nSELECT DISTINCT a2.atom_id, a2.molecule_id, a2.element\nFROM atom a1\nJOIN connected c ON a1.atom_id = c.atom_id2\nJOIN atom a2 ON c.atom_id = a2.atom_id\nWHERE a1.molecule_id = 'TR181' AND a2.molecule_id != 'TR181';\n```\n\nWait, this is getting a bit complex, and I realized I may have misunderstood the question. Let me revisit it and make sure I understand correctly:\n\nThe question asks to \"Identify all the atoms that are connected to the atoms of the TR181 molecule.\"\n\nThere are two possible interpretations:\n1. Find all atoms (from any molecule) that are connected to any atom in the TR181 molecule.\n2. Find all atoms within the TR181 molecule that are connected to other atoms within the same TR181 molecule.\n\nSince the prompt specifically asks for \"atoms that are connected to the atoms of the TR181 molecule\", I think the first interpretation is more likely. Let's proceed with that understanding.\n\nThe `connected` table stores connections between atoms with fields `atom_id` and `atom_id2`. So, I need to:\n1. Find all atoms from TR181 (let's call them \"TR181 atoms\")\n2. Find all atoms that are connected to TR181 atoms according to the `connected` table\n3. Exclude TR181 atoms from the result, as we're looking for atoms from other molecules that are connected to TR181 atoms\n\nActually, let me take a different approach to make the query clearer:\n\n```sql\n-- Find all atoms that are connected to atoms in the TR181 molecule\nSELECT DISTINCT a2.*\nFROM atom a1\nJOIN connected c ON a1.atom_id = c.atom_id OR a1.atom_id = c.atom_id2\nJOIN atom a2 ON (c.atom_id = a2.atom_id OR c.atom_id2 = a2.atom_id) AND a2.atom_id != a1.atom_id\nWHERE a1.molecule_id = 'TR181';\n```\n\nActually, I think I'm over-complicating this. Let's simplify:\n\nWe have the `connected` table which shows which atoms are connected to which other atoms. We want to find all atoms that are connected to any atom in the TR181 molecule. \n\nLet's first identify all atoms in the TR181 molecule:\n```sql\nSELECT atom_id FROM atom WHERE molecule_id = 'TR181';\n```\n\nNow, let's find all atoms connected to these TR181 atoms:\n```sql\n-- Find all atoms connected to TR181 atoms via atom_id column\nSELECT DISTINCT a2.*\nFROM atom a1\nJOIN connected c ON a1.atom_id = c.atom_id\nJOIN atom a2 ON c.atom_id2 = a2.atom_id\nWHERE a1.molecule_id = 'TR181'\n\nUNION\n\n-- Find all atoms connected to TR181 atoms via atom_id2 column\nSELECT DISTINCT a2.*\nFROM atom a1\nJOIN connected c ON a1.atom_id = c.atom_id2\nJOIN atom a2 ON c.atom_id = a2.atom_id\nWHERE a1.molecule_id = 'TR181';\n```\n\nActually, I think the above approach should work. Let me refine it for clarity:\n</think>\n\nLooking at the database schema, I need to find all atoms connected to atoms in the TR181 molecule. Since connections between atoms are stored in the \"connected\" table, I need to query both columns (atom_id and atom_id2) to find all connections.\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT a2.atom_id, a2.molecule_id, a2.element\nFROM atom a1\nJOIN connected c ON a1.atom_id = c.atom_id\nJOIN atom a2 ON c.atom_id2 = a2.atom_id\nWHERE a1.molecule_id = 'TR181'\n\nUNION\n\nSELECT DISTINCT a2.atom_id, a2.molecule_id, a2.element\nFROM atom a1\nJOIN connected c ON a1.atom_id = c.atom_id2\nJOIN atom a2 ON c.atom_id = a2.atom_id\nWHERE a1.molecule_id = 'TR181'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "id": 480,
+  "dataset": "spider",
+  "database": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many total tours were there for each ranking date?",
+  "sql": "SELECT sum(tours) ,  ranking_date FROM rankings GROUP BY ranking_date",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 54,
+    "word_length": 10,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 69,
+    "tables_count": 1,
+    "tables": [
+      "rankings"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT ranking_date, SUM(tours) AS total_tours FROM rankings GROUP BY ranking_date ORDER BY ranking_date",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Both queries count the total number of tours for each ranking date by using SUM(tours) and GROUP BY ranking_date. The differences are: (1) column order is swapped, (2) the generated query uses an alias 'total_tours', and (3) the generated query includes an ORDER BY clause. The ORDER BY clause doesn't change the actual data returned, only the presentation order. Since the question only asks for the count by date without specifying an order requirement, these queries will provide the same information and are semantically equivalent.",
+      "raw_response": "<think>\nLet's analyze the question and schema to create the correct SQL query.\n\nThe question is asking for the total number of tours for each ranking date.\n\nLooking at the schema:\n- The `rankings` table contains information about player rankings on specific dates.\n- The `tours` column in the `rankings` table seems to be related to the number of tours a player has.\n\nTo answer the question, we need to:\n1. Group the data by `ranking_date`\n2. Sum the `tours` for each date\n\nLet's create the SQL query:\n\n```sql\nSELECT ranking_date, SUM(tours) AS total_tours\nFROM rankings\nGROUP BY ranking_date\nORDER BY ranking_date\n```\n\nThis query will:\n- Select the ranking date\n- Sum up the total number of tours for all players on that date\n- Group the results by ranking date\n- Order the results by ranking date (chronologically)\n\nThis will give us the total number of tours for each ranking date.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT ranking_date, SUM(tours) AS total_tours FROM rankings GROUP BY ranking_date ORDER BY ranking_date\"\n}\n```"
+    }
+  }
+}

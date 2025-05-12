@@ -1,0 +1,74 @@
+{
+  "id": 1002,
+  "dataset": "spider",
+  "database": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/databases/singer/singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/schemas/singer/singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the name of singers in ascending order of net worth.",
+  "sql": "SELECT Name FROM singer ORDER BY Net_Worth_Millions ASC",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 57,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 55,
+    "tables_count": 1,
+    "tables": [
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name FROM singer ORDER BY Net_Worth_Millions ASC",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found"
+    }
+  }
+}

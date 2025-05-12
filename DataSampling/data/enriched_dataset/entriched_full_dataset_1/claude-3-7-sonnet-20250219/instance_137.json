@@ -1,0 +1,76 @@
+{
+  "id": 137,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average edispl of the cars of model volvo?",
+  "sql": "SELECT avg(T2.edispl) FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T1.Model  =  'volvo';",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 54,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 114,
+    "tables_count": 2,
+    "tables": [
+      "CAR_NAMES",
+      "CARS_DATA"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(cd.Edispl) AS average_edispl FROM cars_data cd JOIN car_names cn ON cd.Id = cn.MakeId WHERE LOWER(cn.Model) = 'volvo'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nTo find the average engine displacement (Edispl) of cars with the model Volvo, I need to understand the database schema and create a query that:\n\n1. Identifies cars that are of model \"Volvo\"\n2. Calculates the average of their \"Edispl\" values\n\nLooking at the schema:\n- `cars_data` table contains the \"Edispl\" column that we need to average\n- `car_names` table links car IDs to models\n- `model_list` table has detailed model information\n\nI need to join these tables together to find Volvo cars and calculate their average engine displacement.\n\nBased on the schema, the model \"Volvo\" could be in the `model_list` table's \"Model\" column or possibly in the `car_names` table's \"Model\" column. The tables are related as follows:\n- `cars_data.Id` references `car_names.MakeId`\n- `car_names.Model` references `model_list.Model`\n\nLet's construct the query:\n\n```sql\nSELECT AVG(cd.Edispl) as average_edispl\nFROM cars_data cd\nJOIN car_names cn ON cd.Id = cn.MakeId\nWHERE cn.Model = 'volvo'\n```\n\nHowever, looking more carefully at the schema, I see that `car_names.Model` references `model_list.Model`, which means the model name is in the `model_list` table, and `car_names.Model` contains a value that references that.\n\nLet's revise the query:\n\n```sql\nSELECT AVG(cd.Edispl) as average_edispl\nFROM cars_data cd\nJOIN car_names cn ON cd.Id = cn.MakeId\nJOIN model_list ml ON cn.Model = ml.Model\nWHERE LOWER(ml.Model) = 'volvo'\n```\n\nActually, upon closer inspection, the relationship seems a bit confusing. The `car_names.Model` references `model_list.Model`, but `model_list.Model` is described as UNIQUE, not a primary key. \n\nLooking at the DDL more carefully:\n- `model_list.Model` is a TEXT field marked as UNIQUE\n- `car_names.Model` is a TEXT field that references `model_list.Model`\n\nThis suggests that the actual model name (e.g., \"Volvo\") is stored directly in these columns, not as IDs. \n\nSo the query should be:\n\n```sql\nSELECT AVG(cd.Edispl) as average_edispl\nFROM cars_data cd\nJOIN car_names cn ON cd.Id = cn.MakeId\nWHERE LOWER(cn.Model) = 'volvo'\n```\n\nHowever, it's also possible that \"Volvo\" is stored in `model_list.Model` and referenced by `car_names.Model`. To be safe, let's use a more comprehensive query that checks both possibilities:\n\n```sql\nSELECT AVG(cd.Edispl) as average_edispl\nFROM cars_data cd\nJOIN car_names cn ON cd.Id = cn.MakeId\nWHERE LOWER(cn.Model) = 'volvo' OR EXISTS (\n    SELECT 1 FROM model_list ml \n    WHERE ml.Model = cn.Model AND LOWER(ml.Model) = 'volvo'\n)\n```\n\nActually, looking at the schema one more time, I see that:\n- `car_names.Model` references `model_list.Model`\n- `model_list.Model` is UNIQUE\n- `car_makers` contains the manufacturers\n\nThis suggests that \"Volvo\" might be in the `car_makers.Maker` column, and the actual model names would be something else (like \"S60\", \"XC90\", etc.).\n\nLet's simplify and go with our original assumption that \"Volvo\" is the model name (not the maker) and is stored in the `model_list.Model` column, and then referenced in `car_names.Model`:\n\n```sql\nSELECT AVG(cd.Edispl) as average_edispl\nFROM cars_data cd\nJOIN car_names cn ON cd.Id = cn.MakeId\nWHERE LOWER(cn.Model) = 'volvo'\n```\n\nThis is the most straightforward interpretation based on the schema.\n</think>\n\nLooking at the database schema, I need to find the average engine displacement (Edispl) for Volvo cars. I'll query the cars_data table which contains the Edispl information and join it with car_names to filter for Volvo models.\n\n```json\n{\n  \"sql\": \"SELECT AVG(cd.Edispl) AS average_edispl FROM cars_data cd JOIN car_names cn ON cd.Id = cn.MakeId WHERE LOWER(cn.Model) = 'volvo'\"\n}\n```"
+    }
+  }
+}

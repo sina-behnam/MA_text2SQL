@@ -1,0 +1,97 @@
+{
+  "id": 725,
+  "dataset": "bird",
+  "database": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/databases/superhero/superhero.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/superhero/gender.csv",
+      "stratified_output/databases/superhero/superpower.csv",
+      "stratified_output/databases/superhero/publisher.csv",
+      "stratified_output/databases/superhero/superhero.csv",
+      "stratified_output/databases/superhero/colour.csv",
+      "stratified_output/databases/superhero/attribute.csv",
+      "stratified_output/databases/superhero/hero_power.csv",
+      "stratified_output/databases/superhero/race.csv",
+      "stratified_output/databases/superhero/alignment.csv",
+      "stratified_output/databases/superhero/hero_attribute.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/schemas/superhero/superhero.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many superheroes are published by Marvel Comics?",
+  "sql": "SELECT COUNT(T1.id) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics'",
+  "evidence": "published by Marvel Comics refers to publisher_name = 'Marvel Comics'",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 52,
+    "word_length": 8,
+    "entities": [
+      {
+        "text": "Marvel Comics",
+        "label": "ORG",
+        "start": 38,
+        "end": 51
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 136,
+    "tables_count": 2,
+    "tables": [
+      "superhero",
+      "publisher"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) as marvel_superhero_count FROM superhero s JOIN publisher p ON s.publisher_id = p.id WHERE p.publisher_name = 'Marvel Comics'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to determine how many superheroes are published by Marvel Comics. The user clarified that this refers to those where publisher_name = 'Marvel Comics'.\n\nLet's analyze the schema:\n\n1. The `superhero` table contains superhero information, with a `publisher_id` field linking to the `publisher` table.\n2. The `publisher` table has `id` and `publisher_name` fields.\n\nTo count superheroes published by Marvel Comics, I need to:\n1. Join the `superhero` table with the `publisher` table\n2. Filter where publisher_name = 'Marvel Comics'\n3. Count the number of superheroes\n\nHere's the SQL query:\n\n```sql\nSELECT COUNT(*) as marvel_superhero_count\nFROM superhero s\nJOIN publisher p ON s.publisher_id = p.id\nWHERE p.publisher_name = 'Marvel Comics';\n```\n\nThis query joins the superhero table with the publisher table on publisher_id and filters for Marvel Comics publishers, then counts the total number of matching superheroes.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) as marvel_superhero_count FROM superhero s JOIN publisher p ON s.publisher_id = p.id WHERE p.publisher_name = 'Marvel Comics'\"\n}\n```"
+    }
+  }
+}

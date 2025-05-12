@@ -1,0 +1,87 @@
+{
+  "id": 723,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many people live in Asia, and what is the largest GNP among them?",
+  "sql": "SELECT sum(Population) ,  max(GNP) FROM country WHERE Continent  =  \"Asia\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 69,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "Asia",
+        "label": "LOC",
+        "start": 24,
+        "end": 28
+      }
+    ],
+    "entity_types": [
+      "LOC"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "largest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 74,
+    "tables_count": 1,
+    "tables": [
+      "country"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "SUM",
+      "MAX"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT SUM(Population) AS TotalPopulation, MAX(GNP) AS LargestGNP FROM country WHERE Continent = 'Asia'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nThe question asks:\n1. How many people live in Asia (total population of Asia)\n2. What is the largest GNP among countries in Asia\n\nLooking at the database schema, I can see three tables:\n1. `city` - contains information about cities\n2. `country` - contains information about countries, including continent, population, and GNP\n3. `countrylanguage` - contains information about languages spoken in countries\n\nTo answer the question, I need to:\n1. Find all countries where the continent is 'Asia'\n2. Sum the population of these countries to get the total population of Asia\n3. Find the maximum GNP among these countries\n\nThe `country` table has all the information I need:\n- `Continent` field can be used to filter for Asian countries\n- `Population` field can be summed to get the total population\n- `GNP` field can be used to find the maximum GNP\n\nHere's the SQL query I'll use:\n\n```sql\nSELECT \n    SUM(Population) AS TotalPopulation,\n    MAX(GNP) AS LargestGNP\nFROM \n    country\nWHERE \n    Continent = 'Asia'\n```\n\nThis query:\n1. Filters the `country` table to only include countries in Asia\n2. Calculates the sum of the `Population` field to get the total population of Asia\n3. Calculates the maximum value of the `GNP` field to get the largest GNP among Asian countries\n4. Returns both results in a single row\n\nThe result will show the total population of Asia and the largest GNP among Asian countries.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT SUM(Population) AS TotalPopulation, MAX(GNP) AS LargestGNP FROM country WHERE Continent = 'Asia'\"\n}\n```"
+    }
+  }
+}

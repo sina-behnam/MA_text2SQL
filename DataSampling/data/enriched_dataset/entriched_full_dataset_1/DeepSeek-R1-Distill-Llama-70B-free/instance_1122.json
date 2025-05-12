@@ -1,0 +1,88 @@
+{
+  "id": 1122,
+  "dataset": "bird",
+  "database": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/databases/european_football_2/european_football_2.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/european_football_2/Team_Attributes.csv",
+      "stratified_output/databases/european_football_2/Player.csv",
+      "stratified_output/databases/european_football_2/Match.csv",
+      "stratified_output/databases/european_football_2/League.csv",
+      "stratified_output/databases/european_football_2/Country.csv",
+      "stratified_output/databases/european_football_2/Player_Attributes.csv",
+      "stratified_output/databases/european_football_2/Team.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/schemas/european_football_2/european_football_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "State the name of the most strongest player.",
+  "sql": "SELECT DISTINCT t1.player_name FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE t2.overall_rating = (SELECT MAX(overall_rating) FROM Player_Attributes)",
+  "evidence": "strongest players refers to player has MAX(overall_rating)",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 44,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most",
+      "strongest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 200,
+    "tables_count": 3,
+    "tables": [
+      "Player_Attributes)",
+      "Player",
+      "Player_Attributes"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "MAX"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\"sql\": \"SELECT P.player_name FROM Player P JOIN Player_Attributes PA ON P.player_api_id = PA.player_api_id WHERE PA.overall_rating = (SELECT MAX(overall_rating) FROM Player_Attributes)\";}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error"
+    }
+  }
+}

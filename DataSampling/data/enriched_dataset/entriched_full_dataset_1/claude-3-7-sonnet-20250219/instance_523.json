@@ -1,0 +1,73 @@
+{
+  "id": 523,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the names and descriptions of all the sections?",
+  "sql": "SELECT section_name ,  section_description FROM Sections",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 56,
+    "word_length": 10,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 56,
+    "tables_count": 1,
+    "tables": [
+      "Sections"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT section_name, section_description FROM Sections",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nLet's analyze the database schema to find the relevant table for sections and their descriptions.\n\nLooking at the schema, I can see there's a table named `Sections` which appears to contain information about sections. From the `Sections` table's DDL, I can see it has the following columns:\n- `section_id` (primary key)\n- `course_id` (foreign key to Courses table)\n- `section_name`\n- `section_description`\n- `other_details`\n\nThe question asks for names and descriptions of all sections, which maps to the `section_name` and `section_description` columns in the `Sections` table.\n\nSo, I need to write a SQL query that selects these two columns from the `Sections` table.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT section_name, section_description FROM Sections\"\n}\n```"
+    }
+  }
+}

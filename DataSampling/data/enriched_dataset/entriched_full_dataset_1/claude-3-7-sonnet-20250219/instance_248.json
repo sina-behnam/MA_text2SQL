@@ -1,0 +1,82 @@
+{
+  "id": 248,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Give the flight numbers of flights leaving from APG.",
+  "sql": "SELECT FlightNo FROM FLIGHTS WHERE SourceAirport  =  \"APG\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 52,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "APG",
+        "label": "ORG",
+        "start": 48,
+        "end": 51
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 58,
+    "tables_count": 1,
+    "tables": [
+      "FLIGHTS"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT FlightNo FROM flights WHERE SourceAirport = 'APG'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema provided:\n\n1. `airlines` table has columns: `uid`, `Airline`, `Abbreviation`, `Country`\n2. `airports` table has columns: `City`, `AirportCode`, `AirportName`, `Country`, `CountryAbbrev`\n3. `flights` table has columns: `Airline`, `FlightNo`, `SourceAirport`, `DestAirport`\n\nThe user wants to find flight numbers of flights leaving from APG. \n\nIn this case, I need to query the `flights` table and filter rows where the `SourceAirport` is 'APG'. The flight number is stored in the `FlightNo` column.\n\nThe SQL query should be:\n```sql\nSELECT FlightNo\nFROM flights\nWHERE SourceAirport = 'APG'\n```\n\nThis query will return all flight numbers for flights that depart from the airport with code 'APG'.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT FlightNo FROM flights WHERE SourceAirport = 'APG'\"\n}\n```"
+    }
+  }
+}

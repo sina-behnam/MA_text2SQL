@@ -1,0 +1,99 @@
+{
+  "id": 923,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the id, last name and cell phone of the professionals who live in the state of Indiana or have performed more than two treatments.",
+  "sql": "SELECT professional_id ,  last_name ,  cell_number FROM Professionals WHERE state  =  'Indiana' UNION SELECT T1.professional_id ,  T1.last_name ,  T1.cell_number FROM Professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING count(*)  >  2",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 135,
+    "word_length": 26,
+    "entities": [
+      {
+        "text": "Indiana",
+        "label": "GPE",
+        "start": 84,
+        "end": 91
+      },
+      {
+        "text": "more than two",
+        "label": "CARDINAL",
+        "start": 110,
+        "end": 123
+      }
+    ],
+    "entity_types": [
+      "GPE",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "two"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "more"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 303,
+    "tables_count": 2,
+    "tables": [
+      "Treatments",
+      "Professionals"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT p.professional_id, p.last_name, p.cell_number FROM Professionals p WHERE p.state = 'Indiana' OR p.professional_id IN (SELECT professional_id FROM Treatments GROUP BY professional_id HAVING COUNT(*) > 2)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the question: We need to find the id, last name, and cell phone of professionals who either:\n1. Live in the state of Indiana, OR\n2. Have performed more than 2 treatments.\n\nLet's look at the relevant tables:\n\n1. **Professionals Table**:\n   - Contains professional_id, last_name, state, cell_number (which we need for our result)\n   \n2. **Treatments Table**:\n   - Contains professional_id, which we can use to determine how many treatments each professional has performed\n\nFor condition 1, we need to filter professionals where `state = 'Indiana'` from the Professionals table.\n\nFor condition 2, we need to:\n- Group the Treatments table by professional_id\n- Count the number of treatments for each professional\n- Filter those who have more than 2 treatments\n\nThen, we combine these two conditions with an OR.\n\nLet's write the SQL query:\n\n```sql\nSELECT p.professional_id, p.last_name, p.cell_number\nFROM Professionals p\nWHERE p.state = 'Indiana'\n   OR p.professional_id IN (\n      SELECT t.professional_id\n      FROM Treatments t\n      GROUP BY t.professional_id\n      HAVING COUNT(*) > 2\n   )\n```\n\nThis query:\n1. Selects the required columns from the Professionals table\n2. Filters professionals who live in Indiana\n3. OR filters professionals who have performed more than 2 treatments (using a subquery with GROUP BY and HAVING)\n\nLet me check if this query covers all requirements:\n- It selects the requested fields: professional_id, last_name, and cell_number\n- It includes professionals from Indiana\n- It includes professionals who performed more than 2 treatments\n- The conditions are combined with OR, as required\n\nThis query should give us what we need.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT p.professional_id, p.last_name, p.cell_number FROM Professionals p WHERE p.state = 'Indiana' OR p.professional_id IN (SELECT professional_id FROM Treatments GROUP BY professional_id HAVING COUNT(*) > 2)\"\n}\n```"
+    }
+  }
+}

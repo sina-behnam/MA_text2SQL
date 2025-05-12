@@ -1,0 +1,104 @@
+{
+  "id": 1340,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Calculate the difference of the total amount spent in all events by the Student_Club in year 2019 and 2020.",
+  "sql": "SELECT SUM(CASE WHEN SUBSTR(T1.event_date, 1, 4) = '2019' THEN T2.spent ELSE 0 END) - SUM(CASE WHEN SUBSTR(T1.event_date, 1, 4) = '2020' THEN T2.spent ELSE 0 END) AS num FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event",
+  "evidence": "The first 4 strings of the event_date values in the event table can represent year; The difference of the total amount spent = SUBTRACT(spent where YEAR(event_date) = 2019, spent where YEAR(event_date) = 2020)",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 107,
+    "word_length": 19,
+    "entities": [
+      {
+        "text": "year 2019 and",
+        "label": "DATE",
+        "start": 88,
+        "end": 101
+      },
+      {
+        "text": "2020",
+        "label": "DATE",
+        "start": 102,
+        "end": 106
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2019",
+      "2020"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 244,
+    "tables_count": 2,
+    "tables": [
+      "event",
+      "budget"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT (SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2019' THEN b.spent ELSE 0 END) - SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2020' THEN b.spent ELSE 0 END)) AS difference_2019_minus_2020 FROM budget b JOIN event e ON b.link_to_event = e.event_id WHERE SUBSTR(e.event_date, 1, 4) IN ('2019', '2020')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to calculate the difference between the total amount spent on events by the Student_Club in 2019 and 2020. The amount spent should be in the `budget` table's `spent` column. And the year information is in the first 4 characters of the `event_date` column in the `event` table.\n\nLet's break down the steps to solve this:\n\n1. Join the `budget` table with the `event` table using the link_to_event and event_id fields.\n2. Extract the year from the event_date field (first 4 characters).\n3. Sum the spent amounts for events in 2019.\n4. Sum the spent amounts for events in 2020.\n5. Calculate the difference (2019 total - 2020 total).\n\nIn SQL, I can use the `SUBSTR` or `SUBSTRING` function to extract the first 4 characters of the event_date. Then, I'll use this to filter for events in 2019 and 2020 separately, sum the spent amounts, and find the difference.\n\nHere's the SQL query:\n\n```sql\nSELECT \n    (SELECT SUM(b.spent)\n     FROM budget b\n     JOIN event e ON b.link_to_event = e.event_id\n     WHERE SUBSTR(e.event_date, 1, 4) = '2019') -\n    (SELECT SUM(b.spent)\n     FROM budget b\n     JOIN event e ON b.link_to_event = e.event_id\n     WHERE SUBSTR(e.event_date, 1, 4) = '2020') AS difference_spent\n```\n\nThis query first calculates the total spent for events in 2019, then subtracts the total spent for events in 2020, giving us the difference.\n\nActually, let me double-check a couple things:\n\n1. The schema doesn't explicitly mention a \"Student_Club\" field or designation. Looking at the tables provided, I don't see a clear way to filter for events specific to a Student_Club. Let me assume that all events in the database are related to the Student_Club.\n\n2. The `budget` table has a `spent` column, which is what I believe we're supposed to use for the amount spent on an event.\n\nI think my SQL query is correct given these assumptions. Let me review it again and ensure it aligns with the requirement.\n\nActually, there could be NULL values in the spent column for certain events, so I should handle that by using COALESCE:\n\n```sql\nSELECT \n    COALESCE((SELECT SUM(b.spent)\n     FROM budget b\n     JOIN event e ON b.link_to_event = e.event_id\n     WHERE SUBSTR(e.event_date, 1, 4) = '2019'), 0) -\n    COALESCE((SELECT SUM(b.spent)\n     FROM budget b\n     JOIN event e ON b.link_to_event = e.event_id\n     WHERE SUBSTR(e.event_date, 1, 4) = '2020'), 0) AS difference_spent\n```\n\nThis will ensure that if there are no events in either 2019 or 2020, the corresponding sum will be treated as 0.\n\nActually, let's simplify this a bit. Instead of using two separate subqueries, I'll use a CASE statement to calculate the difference in a single query:\n\n```sql\nSELECT \n    SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2019' THEN b.spent ELSE 0 END) -\n    SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2020' THEN b.spent ELSE 0 END) AS difference_spent\nFROM budget b\nJOIN event e ON b.link_to_event = e.event_id\nWHERE SUBSTR(e.event_date, 1, 4) IN ('2019', '2020')\n```\n\nHowever, let's stick with the original approach for clarity. And I'll use IFNULL (or COALESCE) to handle NULL values in the sums:\n\n```sql\nSELECT \n    IFNULL((SELECT SUM(b.spent)\n     FROM budget b\n     JOIN event e ON b.link_to_event = e.event_id\n     WHERE SUBSTR(e.event_date, 1, 4) = '2019'), 0) -\n    IFNULL((SELECT SUM(b.spent)\n     FROM budget b\n     JOIN event e ON b.link_to_event = e.event_id\n     WHERE SUBSTR(e.event_date, 1, 4) = '2020'), 0) AS difference_spent\n```\n\nIn SQLite, it's IFNULL, but in other DBMSs, it could be COALESCE or NVL. I'm guessing this is SQLite (from the \"TEXT\" type in the schema).\n\nLet's just go with the CASE approach as it's cleaner, using IFNULL for safety:\n\n```sql\nSELECT \n    IFNULL(SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2019' THEN b.spent ELSE 0 END), 0) -\n    IFNULL(SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2020' THEN b.spent ELSE 0 END), 0) AS difference_spent\nFROM budget b\nJOIN event e ON b.link_to_event = e.event_id\nWHERE SUBSTR(e.event_date, 1, 4) IN ('2019', '2020')\n```\n\nBut I think I'm overcomplicating. Let's fix this. Instead of handling NULLs in both sums, it's better to handle them at the individual spent level:\n\n```sql\nSELECT \n    SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2019' THEN IFNULL(b.spent, 0) ELSE 0 END) -\n    SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2020' THEN IFNULL(b.spent, 0) ELSE 0 END) AS difference_spent\nFROM budget b\nJOIN event e ON b.link_to_event = e.event_id\nWHERE SUBSTR(e.event_date, 1, 4) IN ('2019', '2020')\n```\n\nActually, there's a simpler approach:\n\n```sql\nSELECT \n    SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2019' THEN b.spent ELSE -b.spent END) AS difference_spent\nFROM budget b\nJOIN event e ON b.link_to_event = e.event_id\nWHERE SUBSTR(e.event_date, 1, 4) IN ('2019', '2020')\n```\n\nBut actually, this isn't ideal either, as NULLs would still be a problem, and the logic is harder to understand. Let's go back to the original approach.\n\nLet's be super clear. IFNULL is for SQLite, and COALESCE is more universal. Let's use COALESCE:\n\n```sql\nSELECT \n    SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2019' THEN COALESCE(b.spent, 0) ELSE 0 END) -\n    SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2020' THEN COALESCE(b.spent, 0) ELSE 0 END) AS difference_spent\nFROM budget b\nJOIN event e ON b.link_to_event = e.event_id\nWHERE SUBSTR(e.event_date, 1, 4) IN ('2019', '2020')\n```\n\nThis should correctly calculate the difference between the total amount spent in all events in 2019 and 2020, handling NULL values in the spent column.\n</think>\n\nLooking at the database schema, I need to calculate the difference between total amounts spent in 2019 and 2020. I'll need to join the budget and event tables, then extract the year from event_date to calculate the difference.\n\n```json\n{\n  \"sql\": \"SELECT (SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2019' THEN b.spent ELSE 0 END) - SUM(CASE WHEN SUBSTR(e.event_date, 1, 4) = '2020' THEN b.spent ELSE 0 END)) AS difference_2019_minus_2020 FROM budget b JOIN event e ON b.link_to_event = e.event_id WHERE SUBSTR(e.event_date, 1, 4) IN ('2019', '2020')\"\n}\n```"
+    }
+  }
+}

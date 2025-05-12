@@ -1,0 +1,95 @@
+{
+  "id": 645,
+  "dataset": "bird",
+  "database": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/databases/codebase_community/codebase_community.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/codebase_community/postLinks.csv",
+      "stratified_output/databases/codebase_community/postHistory.csv",
+      "stratified_output/databases/codebase_community/badges.csv",
+      "stratified_output/databases/codebase_community/posts.csv",
+      "stratified_output/databases/codebase_community/users.csv",
+      "stratified_output/databases/codebase_community/tags.csv",
+      "stratified_output/databases/codebase_community/votes.csv",
+      "stratified_output/databases/codebase_community/comments.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/schemas/codebase_community/codebase_community.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many negative comments were given by user ID 13?",
+  "sql": "SELECT COUNT(Id) FROM comments WHERE UserId = 13 AND Score < 60",
+  "evidence": "negative comments refer to Score < 60;",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 52,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "ID 13",
+        "label": "PRODUCT",
+        "start": 46,
+        "end": 51
+      }
+    ],
+    "entity_types": [
+      "PRODUCT"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "13"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 63,
+    "tables_count": 1,
+    "tables": [
+      "comments"
+    ],
+    "join_count": 0,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM comments WHERE Score < 0 AND UserId = 13",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The two queries have different conditions for determining negative comments. The Gold SQL Query considers comments with a Score less than 60 as negative, while the Generated SQL Query considers comments with a Score less than 0 as negative. This difference in logic means they may return different results when executed on the same database."
+    }
+  }
+}

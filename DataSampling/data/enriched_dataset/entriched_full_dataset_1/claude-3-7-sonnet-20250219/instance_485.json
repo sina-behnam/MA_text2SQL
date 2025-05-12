@@ -1,0 +1,84 @@
+{
+  "id": 485,
+  "dataset": "spider",
+  "database": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many different winners both participated in the WTA Championships and were left handed?",
+  "sql": "SELECT count(DISTINCT winner_name) FROM matches WHERE tourney_name  =  'WTA Championships' AND winner_hand  =  'L'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 91,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "the WTA Championships",
+        "label": "EVENT",
+        "start": 48,
+        "end": 69
+      }
+    ],
+    "entity_types": [
+      "EVENT"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 114,
+    "tables_count": 1,
+    "tables": [
+      "matches"
+    ],
+    "join_count": 0,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT m.winner_id) FROM matches m JOIN players p ON m.winner_id = p.player_id WHERE m.tourney_name LIKE '%WTA Championships%' AND p.hand = 'L'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to write a SQL query to find the number of different winners who both participated in the WTA Championships and were left-handed.\n\nLet's break down the requirements:\n1. Find winners who participated in the WTA Championships\n2. Those winners must be left-handed\n3. Count how many different players meet these criteria\n\nLooking at the database schema:\n- The `matches` table has information about tournaments, including winners and losers\n- The `players` table has player information, including their handedness\n\nI need to find players who:\n1. Were winners in matches in the WTA Championships\n2. Are left-handed\n\nTo identify WTA Championships, I need to look at the `tourney_name` or `tourney_level` column in the `matches` table. However, I'm not entirely sure what value represents the WTA Championships. Based on common tennis tournament naming, it might be something like \"WTA Championships\" or \"WTA Finals\" in the `tourney_name` field.\n\nFor the handedness, I need to check either:\n1. `winner_hand` column in the `matches` table, looking for \"L\" (assuming that's the code for left-handed)\n2. Or join with the `players` table and check the `hand` column there\n\nLet me write a query using both approaches, but I'll prefer the more accurate one that uses the `players` table for handedness:\n\n```sql\nSELECT COUNT(DISTINCT m.winner_id)\nFROM matches m\nJOIN players p ON m.winner_id = p.player_id\nWHERE m.tourney_name LIKE '%WTA Championships%'\nAND p.hand = 'L'\n```\n\nThe `LIKE '%WTA Championships%'` part might need adjustment based on the actual naming convention in the database. I'm making an assumption here that the WTA Championships will have \"WTA Championships\" somewhere in the tournament name.\n\nAlternatively, I should check if there's a specific code in `tourney_level` that represents WTA Championships. In WTA tournaments, it might be designated with a special code.\n\nLet me refine the query to account for possible variations in how WTA Championships might be stored:\n\n```sql\nSELECT COUNT(DISTINCT m.winner_id)\nFROM matches m\nJOIN players p ON m.winner_id = p.player_id\nWHERE (m.tourney_name LIKE '%WTA Championships%'\n       OR m.tourney_name LIKE '%WTA Finals%'\n       OR m.tourney_level = 'WTA')  -- This might need adjustment\nAND p.hand = 'L'\n```\n\nActually, I notice that tourney_level might contain a code for the WTA Championships. Let me make a more generic query that would work regardless of the specific value:\n\n```sql\nSELECT COUNT(DISTINCT m.winner_id)\nFROM matches m\nJOIN players p ON m.winner_id = p.player_id\nWHERE m.tourney_name LIKE '%WTA%' AND m.tourney_name LIKE '%Champ%'\nAND p.hand = 'L'\n```\n\nThis should catch variations like \"WTA Championships\" or \"WTA Tour Championships\", etc. However, I'm still making assumptions about the naming.\n\nIf I want to be really thorough, I might need to check the `tourney_level` column as well, but I don't have enough information about what values this column might have.\n\nAfter analyzing further, I believe the most likely code in the WTA tour for WTA Championships would be in the tourney_level column. I'm going to guess that it's either 'WTA' or a special code like 'F' (for Finals). \n\nLet me adjust the query one more time to cover different possibilities:\n\n```sql\nSELECT COUNT(DISTINCT m.winner_id)\nFROM matches m\nJOIN players p ON m.winner_id = p.player_id\nWHERE (m.tourney_name LIKE '%WTA%' AND (m.tourney_name LIKE '%Champ%' OR m.tourney_name LIKE '%Final%'))\nOR (m.tourney_level IN ('WTA', 'F'))  -- Assuming these might be codes for WTA Championships\nAND p.hand = 'L'\n```\n\nHowever, without knowing the exact values in the database, I'm making educated guesses. Let me simplify to a more generic query looking for WTA Championships in the tournament name:\n\n```sql\nSELECT COUNT(DISTINCT m.winner_id)\nFROM matches m\nJOIN players p ON m.winner_id = p.player_id\nWHERE m.tourney_name LIKE '%WTA Championships%'\nAND p.hand = 'L'\n```\n\nAfter further investigation, it seems the standard coding for WTA tour events typically uses 'WTA' for the WTA Finals/Championships in the tourney_level column. I'll provide a query based on this assumption:\n</think>\n\nI need to find players who were winners in WTA Championships tournaments and are left-handed.\n\n```sql\nSELECT COUNT(DISTINCT m.winner_id)\nFROM matches m\nJOIN players p ON m.winner_id = p.player_id\nWHERE m.tourney_name LIKE '%WTA Championships%'\nAND p.hand = 'L'\n```\n\nThis query:\n1. Joins the matches table with the players table using winner_id\n2. Filters for matches in the WTA Championships tournament\n3. Checks if the winner is left-handed (hand = 'L')\n4. Counts distinct winner IDs to avoid counting the same player multiple times\n\n{\"sql\": \"SELECT COUNT(DISTINCT m.winner_id) FROM matches m JOIN players p ON m.winner_id = p.player_id WHERE m.tourney_name LIKE '%WTA Championships%' AND p.hand = 'L'\"}"
+    }
+  }
+}

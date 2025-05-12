@@ -1,0 +1,82 @@
+{
+  "id": 447,
+  "dataset": "bird",
+  "database": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/databases/card_games/card_games.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/card_games/legalities.csv",
+      "stratified_output/databases/card_games/cards.csv",
+      "stratified_output/databases/card_games/rulings.csv",
+      "stratified_output/databases/card_games/set_translations.csv",
+      "stratified_output/databases/card_games/sets.csv",
+      "stratified_output/databases/card_games/foreign_data.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/schemas/card_games/card_games.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Give the code of sets have expansion commander type?",
+  "sql": "SELECT T2.setCode FROM sets AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.code WHERE T1.type = 'commander'",
+  "evidence": "code of sets refers to setCode",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 52,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 119,
+    "tables_count": 2,
+    "tables": [
+      "sets",
+      "set_translations"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT code FROM sets WHERE type LIKE '%commander%'",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (70, 1) vs predicted (14, 1)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (70, 1) vs predicted (14, 1)",
+      "raw_response": "<think>\nLet's understand the schema and the query requirements.\n\nThe user wants to get the code of sets (setCode) that have \"expansion commander type\". From the schema, I can see there's a `sets` table with a `code` field (which seems to be what the user is referring to as \"setCode\") and a `type` field.\n\nThe query should find all sets where the `type` is \"expansion commander\". However, I'm not sure if \"expansion commander\" is a single type or if the user wants sets that are both \"expansion\" and \"commander\" types. Let's assume it's a specific type and search for \"expansion commander\" first. If needed, we can refine the query later.\n\nGiven the schema, I'll write a query that selects the `code` field from the `sets` table where the `type` field matches \"expansion commander\" or contains relevant keywords.\n\n```sql\nSELECT code\nFROM sets\nWHERE type LIKE '%commander%' AND type LIKE '%expansion%';\n```\n\nThis should find sets with a type that contains both \"commander\" and \"expansion\" keywords. If the exact type is different, we may need to adjust the query accordingly.\n</think>\n\nLooking at the schema, I need to query the `sets` table to find sets with a type related to \"commander\" and \"expansion\". The `code` field in the `sets` table corresponds to the `setCode` the user is asking for.\n\n```json\n{\n  \"sql\": \"SELECT code FROM sets WHERE type LIKE '%commander%'\"\n}\n```"
+    }
+  }
+}

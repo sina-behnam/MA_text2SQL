@@ -1,0 +1,83 @@
+{
+  "id": 1064,
+  "dataset": "bird",
+  "database": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/databases/european_football_2/european_football_2.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/european_football_2/Team_Attributes.csv",
+      "stratified_output/databases/european_football_2/Player.csv",
+      "stratified_output/databases/european_football_2/Match.csv",
+      "stratified_output/databases/european_football_2/League.csv",
+      "stratified_output/databases/european_football_2/Country.csv",
+      "stratified_output/databases/european_football_2/Player_Attributes.csv",
+      "stratified_output/databases/european_football_2/Team.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/schemas/european_football_2/european_football_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List out of players whose preferred foot is left.",
+  "sql": "SELECT DISTINCT t1.id, t1.player_name FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE t2.preferred_foot = 'left'",
+  "evidence": "preferred_foot = 'left';",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 49,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 162,
+    "tables_count": 2,
+    "tables": [
+      "Player",
+      "Player_Attributes"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT p.player_name FROM Player p JOIN Player_Attributes pa ON p.player_api_id = pa.player_api_id WHERE pa.preferred_foot = 'left'",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (3202, 2) vs predicted (3184, 1)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (3202, 2) vs predicted (3184, 1)",
+      "raw_response": "<think>\nBased on the user's question, they want a list of players whose preferred foot is \"left\". The user has also provided a hint that the condition to use is `preferred_foot = 'left'`.\n\nLooking at the database schema, we need to determine which tables contain information about players and their preferred foot. From the schema provided:\n\n1. The `Player` table contains basic player information like name, height, weight, etc.\n2. The `Player_Attributes` table contains additional attributes of players, including `preferred_foot`.\n\nSince we need to find players whose preferred foot is \"left\", we need to query the `Player_Attributes` table. However, this table only contains the player IDs (player_api_id and player_fifa_api_id), not the player names. To get the player names, we need to join this table with the `Player` table.\n\nSo, the SQL query would need to:\n1. Select relevant player information (e.g., player name) from the `Player` table\n2. Join with the `Player_Attributes` table using player_api_id or player_fifa_api_id\n3. Filter the results to include only players whose preferred_foot is \"left\"\n\nLet's construct the SQL query:\n\n```sql\nSELECT DISTINCT p.player_name\nFROM Player p\nJOIN Player_Attributes pa ON p.player_api_id = pa.player_api_id\nWHERE pa.preferred_foot = 'left';\n```\n\nThis query will:\n1. Select distinct player names from the `Player` table\n2. Join the `Player` table with the `Player_Attributes` table using player_api_id\n3. Filter the results to include only players whose preferred foot is \"left\"\n\nThe DISTINCT keyword is used to avoid duplicates, as the same player might have multiple entries in the `Player_Attributes` table (possibly for different dates or other attributes).\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT p.player_name FROM Player p JOIN Player_Attributes pa ON p.player_api_id = pa.player_api_id WHERE pa.preferred_foot = 'left'\"\n}\n```"
+    }
+  }
+}

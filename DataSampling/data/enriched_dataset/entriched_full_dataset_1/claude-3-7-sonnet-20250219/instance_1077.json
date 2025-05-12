@@ -1,0 +1,82 @@
+{
+  "id": 1077,
+  "dataset": "bird",
+  "database": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/databases/european_football_2/european_football_2.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/european_football_2/Team_Attributes.csv",
+      "stratified_output/databases/european_football_2/Player.csv",
+      "stratified_output/databases/european_football_2/Match.csv",
+      "stratified_output/databases/european_football_2/League.csv",
+      "stratified_output/databases/european_football_2/Country.csv",
+      "stratified_output/databases/european_football_2/Player_Attributes.csv",
+      "stratified_output/databases/european_football_2/Team.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/schemas/european_football_2/european_football_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What's the long name for the team GEN?",
+  "sql": "SELECT team_long_name FROM Team WHERE team_short_name = 'GEN'",
+  "evidence": "long name for the team refers to team_long_name; team_short_name = 'GEN';",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 38,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 61,
+    "tables_count": 1,
+    "tables": [
+      "Team"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT team_long_name FROM Team WHERE team_short_name = 'GEN'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nThe question is asking for the long name of a team with the short name \"GEN\". Based on the database schema provided, I can see that the relevant table is `Team`, which has columns including `team_long_name` and `team_short_name`. \n\nTo find the long name for the team with the short name \"GEN\", I need to query the `Team` table and filter by `team_short_name = 'GEN'`.\n\nHere's the SQL query to do this:\n\n```sql\nSELECT team_long_name\nFROM Team\nWHERE team_short_name = 'GEN';\n```\n\nThis query selects the `team_long_name` from the `Team` table where the `team_short_name` is equal to 'GEN'. It should return the long name of the team with the short name \"GEN\".\n</think>\n\n```json\n{\n  \"sql\": \"SELECT team_long_name FROM Team WHERE team_short_name = 'GEN'\"\n}\n```"
+    }
+  }
+}

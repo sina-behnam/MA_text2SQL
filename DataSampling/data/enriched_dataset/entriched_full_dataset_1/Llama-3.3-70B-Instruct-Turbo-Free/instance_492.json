@@ -1,0 +1,74 @@
+{
+  "id": 492,
+  "dataset": "spider",
+  "database": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/databases/battle_death/battle_death.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/schemas/battle_death/battle_death.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the name and tonnage ordered by in descending alphaetical order for the names.",
+  "sql": "SELECT name ,  tonnage FROM ship ORDER BY name DESC",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 83,
+    "word_length": 14,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 51,
+    "tables_count": 1,
+    "tables": [
+      "ship"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT name, tonnage FROM ship ORDER BY name DESC",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found"
+    }
+  }
+}

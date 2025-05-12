@@ -1,0 +1,94 @@
+{
+  "id": 293,
+  "dataset": "spider",
+  "database": {
+    "name": "employee_hire_evaluation",
+    "path": [
+      "spider_stratified_output_200/databases/employee_hire_evaluation/employee_hire_evaluation.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "employee_hire_evaluation",
+    "path": [
+      "spider_stratified_output_200/schemas/employee_hire_evaluation/employee_hire_evaluation.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which district has both stores with less than 3000 products and stores with more than 10000 products?",
+  "sql": "SELECT district FROM shop WHERE Number_products  <  3000 INTERSECT SELECT district FROM shop WHERE Number_products  >  10000",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 101,
+    "word_length": 17,
+    "entities": [
+      {
+        "text": "less than 3000",
+        "label": "CARDINAL",
+        "start": 36,
+        "end": 50
+      },
+      {
+        "text": "more than 10000",
+        "label": "CARDINAL",
+        "start": 76,
+        "end": 91
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "3000",
+      "10000"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "less",
+      "more"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 124,
+    "tables_count": 1,
+    "tables": [
+      "shop"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT District FROM shop GROUP BY District HAVING MAX(CASE WHEN Number_products < 3000 THEN 1 ELSE 0 END) = 1 AND MAX(CASE WHEN Number_products > 10000 THEN 1 ELSE 0 END) = 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the database schema first:\n\n1. `employee` table: Contains information about employees.\n2. `shop` table: Contains information about shops, including the number of products in each shop.\n3. `hiring` table: Contains information about which employees work at which shops.\n4. `evaluation` table: Contains information about employee evaluations.\n\nFor the question, we need to find districts that have both:\n1. Stores with less than 3000 products\n2. Stores with more than 10000 products\n\nLooking at the `shop` table, we have the following relevant columns:\n- `District`: We need to group by this to find the answer.\n- `Number_products`: We need to filter based on this value.\n\nWe can approach this by:\n1. Find districts that have at least one store with less than 3000 products.\n2. Find districts that have at least one store with more than 10000 products.\n3. Find the intersection of these two sets of districts.\n\nLet's write the SQL query:\n\n```sql\nSELECT s1.District\nFROM shop s1\nWHERE s1.Number_products < 3000\nAND EXISTS (\n    SELECT 1\n    FROM shop s2\n    WHERE s2.District = s1.District\n    AND s2.Number_products > 10000\n)\nGROUP BY s1.District;\n```\n\nActually, let me revise this. There are a few different ways to approach this. Here's another way:\n\n```sql\nSELECT District\nFROM shop\nGROUP BY District\nHAVING MAX(Number_products) > 10000 AND MIN(Number_products) < 3000;\n```\n\nThis second approach is more elegant, but it doesn't exactly match what we're looking for. It checks if the district has some store with more than 10000 products AND some store with less than 3000 products. \n\nLet me refine it:\n\n```sql\nSELECT District\nFROM shop\nGROUP BY District\nHAVING SUM(CASE WHEN Number_products < 3000 THEN 1 ELSE 0 END) > 0\n   AND SUM(CASE WHEN Number_products > 10000 THEN 1 ELSE 0 END) > 0;\n```\n\nThis query counts how many stores in each district have less than 3000 products and how many have more than 10000 products. It then filters for districts where both counts are greater than 0.\n\nLet me simplify:\n\n```sql\nSELECT District\nFROM shop\nGROUP BY District\nHAVING \n    COUNT(CASE WHEN Number_products < 3000 THEN 1 END) > 0\n    AND\n    COUNT(CASE WHEN Number_products > 10000 THEN 1 END) > 0;\n```\n\nThis should give us the districts that have both shops with less than 3000 products and shops with more than 10000 products.\n</think>\n\nI'll analyze the shop table to find districts that have both types of stores: those with fewer than 3000 products and those with more than 10000 products.\n\n```json\n{\n  \"sql\": \"SELECT District FROM shop GROUP BY District HAVING MAX(CASE WHEN Number_products < 3000 THEN 1 ELSE 0 END) = 1 AND MAX(CASE WHEN Number_products > 10000 THEN 1 ELSE 0 END) = 1\"\n}\n```"
+    }
+  }
+}

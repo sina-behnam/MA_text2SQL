@@ -1,0 +1,87 @@
+{
+  "id": 771,
+  "dataset": "bird",
+  "database": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/databases/superhero/superhero.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/superhero/gender.csv",
+      "stratified_output/databases/superhero/superpower.csv",
+      "stratified_output/databases/superhero/publisher.csv",
+      "stratified_output/databases/superhero/superhero.csv",
+      "stratified_output/databases/superhero/colour.csv",
+      "stratified_output/databases/superhero/attribute.csv",
+      "stratified_output/databases/superhero/hero_power.csv",
+      "stratified_output/databases/superhero/race.csv",
+      "stratified_output/databases/superhero/alignment.csv",
+      "stratified_output/databases/superhero/hero_attribute.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/schemas/superhero/superhero.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the name of superheroes with flight power.",
+  "sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Flight'",
+  "evidence": "name of superheroes refers to superhero_name; flight power refers to power_name = 'Flight';",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 47,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 177,
+    "tables_count": 3,
+    "tables": [
+      "superhero",
+      "superpower",
+      "hero_power"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.superhero_name FROM superhero s JOIN hero_power hp ON s.id = hp.hero_id JOIN superpower sp ON hp.power_id = sp.id WHERE sp.power_name = 'Flight'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema to understand how to structure the query.\n\nFrom the schema, I see:\n\n1. `superhero` table with a `superhero_name` column that represents the hero's name.\n2. `superpower` table with a `power_name` column that contains different powers.\n3. `hero_power` table that likely links heroes to their powers via foreign keys.\n\nTo find superheroes with flight power, I need to:\n- Join the `superhero` table with the `hero_power` table to get the powers for each hero.\n- Join the `hero_power` table with the `superpower` table to get the power names.\n- Filter to only include rows where the power name is 'Flight'.\n- Select the `superhero_name` from the superhero table.\n\nHere's how the SQL query would look:\n\n```sql\nSELECT s.superhero_name\nFROM superhero s\nJOIN hero_power hp ON s.id = hp.hero_id\nJOIN superpower sp ON hp.power_id = sp.id\nWHERE sp.power_name = 'Flight';\n```\n\nThis query does the following:\n1. Joins the `superhero` table (s) with the `hero_power` table (hp) using the hero's id as the joining condition.\n2. Joins the resulting table with the `superpower` table (sp) using the power_id as the joining condition.\n3. Filters to only include rows where the power name is 'Flight'.\n4. Selects only the superhero_name column from the `superhero` table.\n\nThis query will return a list of superheroes who have the 'Flight' power.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.superhero_name FROM superhero s JOIN hero_power hp ON s.id = hp.hero_id JOIN superpower sp ON hp.power_id = sp.id WHERE sp.power_name = 'Flight'\"\n}\n```"
+    }
+  }
+}

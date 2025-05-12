@@ -1,0 +1,74 @@
+{
+  "id": 504,
+  "dataset": "spider",
+  "database": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/databases/battle_death/battle_death.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/schemas/battle_death/battle_death.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the name and date the battle that has lost the ship named 'Lettice' and the ship named 'HMS Atalanta'",
+  "sql": "SELECT T1.name ,  T1.date FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle WHERE T2.name  =  'Lettice' INTERSECT SELECT T1.name ,  T1.date FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle WHERE T2.name  =  'HMS Atalanta'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 106,
+    "word_length": 20,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 252,
+    "tables_count": 2,
+    "tables": [
+      "ship",
+      "battle"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT b.name, b.date FROM battle b WHERE b.id IN (SELECT lost_in_battle FROM ship WHERE name = 'Lettice') AND b.id IN (SELECT lost_in_battle FROM ship WHERE name = 'HMS Atalanta')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema and the question:\n\nThe database has three tables:\n1. `battle` - contains battle information including id, name, date, commanders, and result\n2. `ship` - contains ship information including id, name, tonnage, ship_type, location, disposition_of_ship, and lost_in_battle (which is a foreign key referencing battle.id)\n3. `death` - contains death information related to ships\n\nThe question asks for the name and date of the battle where both ships named 'Lettice' and 'HMS Atalanta' were lost.\n\nTo answer this question, I need to:\n1. Find the battle id where the ship 'Lettice' was lost\n2. Find the battle id where the ship 'HMS Atalanta' was lost\n3. Check if these are the same battle\n4. If they are, retrieve the battle name and date\n\nHere's how I can construct the SQL query:\n\n```sql\nSELECT b.name, b.date\nFROM battle b\nWHERE b.id IN (\n    SELECT s1.lost_in_battle\n    FROM ship s1\n    WHERE s1.name = 'Lettice'\n)\nAND b.id IN (\n    SELECT s2.lost_in_battle\n    FROM ship s2\n    WHERE s2.name = 'HMS Atalanta'\n);\n```\n\nThis query will:\n1. Find all battles where 'Lettice' was lost\n2. Find all battles where 'HMS Atalanta' was lost\n3. Return the name and date of battles that are in both sets (i.e., where both ships were lost)\n\nLet me refine this query to make it more efficient:\n\n```sql\nSELECT b.name, b.date\nFROM battle b\nJOIN ship s1 ON b.id = s1.lost_in_battle AND s1.name = 'Lettice'\nJOIN ship s2 ON b.id = s2.lost_in_battle AND s2.name = 'HMS Atalanta';\n```\n\nThis should return the name and date of the battle where both ships were lost.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT b.name, b.date FROM battle b WHERE b.id IN (SELECT lost_in_battle FROM ship WHERE name = 'Lettice') AND b.id IN (SELECT lost_in_battle FROM ship WHERE name = 'HMS Atalanta')\"\n}\n```"
+    }
+  }
+}

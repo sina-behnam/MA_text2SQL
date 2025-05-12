@@ -1,0 +1,85 @@
+{
+  "id": 37,
+  "dataset": "spider",
+  "database": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List all singer names in concerts in year 2014.",
+  "sql": "SELECT T2.name FROM singer_in_concert AS T1 JOIN singer AS T2 ON T1.singer_id  =  T2.singer_id JOIN concert AS T3 ON T1.concert_id  =  T3.concert_id WHERE T3.year  =  2014",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 47,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "year 2014",
+        "label": "DATE",
+        "start": 37,
+        "end": 46
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2014"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 171,
+    "tables_count": 3,
+    "tables": [
+      "concert",
+      "singer_in_concert",
+      "singer"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT s.Name \nFROM singer s\nINNER JOIN singer_in_concert sic ON s.Singer_ID = sic.Singer_ID\nINNER JOIN concert c ON sic.concert_ID = c.concert_ID\nWHERE c.Year = '2014';",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (6, 1) vs predicted (5, 1)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (6, 1) vs predicted (5, 1)"
+    }
+  }
+}

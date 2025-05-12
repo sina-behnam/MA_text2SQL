@@ -1,0 +1,75 @@
+{
+  "id": 823,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Count the number of conductors.",
+  "sql": "SELECT count(*) FROM conductor",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 31,
+    "word_length": 5,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 30,
+    "tables_count": 1,
+    "tables": [
+      "conductor"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM conductor",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to count the number of conductors based on the schema. Let's analyze the schema:\n\n1. We have a 'conductor' table with columns: Conductor_ID, Name, Age, Nationality, Year_of_Work\n2. We have an 'orchestra' table which has a foreign key reference to the conductor table\n3. We have a 'performance' table with a foreign key reference to the orchestra table\n4. We have a 'show' table with a foreign key reference to the performance table\n\nTo count the number of conductors, I'll simply need to count the number of rows in the conductor table since each row represents a unique conductor (Conductor_ID is the primary key).\n\nThe SQL query to count the number of conductors would be:\n```sql\nSELECT COUNT(*) FROM conductor;\n```\n\nThis will return the total number of rows in the conductor table, which equals the number of distinct conductors in the database.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM conductor\"\n}\n```"
+    }
+  }
+}

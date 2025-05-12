@@ -1,0 +1,93 @@
+{
+  "id": 115,
+  "dataset": "bird",
+  "database": {
+    "name": "financial",
+    "path": [
+      "stratified_output/databases/financial/financial.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/financial/loan.csv",
+      "stratified_output/databases/financial/client.csv",
+      "stratified_output/databases/financial/district.csv",
+      "stratified_output/databases/financial/trans.csv",
+      "stratified_output/databases/financial/account.csv",
+      "stratified_output/databases/financial/card.csv",
+      "stratified_output/databases/financial/order.csv",
+      "stratified_output/databases/financial/disp.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "financial",
+    "path": [
+      "stratified_output/schemas/financial/financial.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For the branch which located in the south Bohemia with biggest number of inhabitants, what is the percentage of the male clients?",
+  "sql": "SELECT CAST(SUM(T1.gender = 'M') AS REAL) * 100 / COUNT(T1.client_id) FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T2.A3 = 'south Bohemia' GROUP BY T2.A4 ORDER BY T2.A4 DESC LIMIT 1",
+  "evidence": "Percentage of the male clients = DIVIDE(COUNT(male clients), COUNT(clients)) * 100; Male refers to gender = 'M', A3 is the region name. A4 contains the information about inhabitants.",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 129,
+    "word_length": 22,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "biggest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 221,
+    "tables_count": 2,
+    "tables": [
+      "district",
+      "client"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT",
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "WITH south_bohemia_district AS (SELECT district_id FROM district WHERE A3 = 'south Bohemia' ORDER BY CAST(A4 AS INTEGER) DESC LIMIT 1), client_counts AS (SELECT COUNT(*) AS total_clients, SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) AS male_clients FROM client WHERE district_id IN (SELECT district_id FROM south_bohemia_district)) SELECT ROUND((male_clients * 100.0 / total_clients), 2) AS percentage_male_clients FROM client_counts;",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "While both queries aim to find the percentage of male clients in a South Bohemia district, they select different districts. The gold query groups by T2.A4 (likely population), finds the percentage for each group, and takes the one with highest A4 value. The generated query first finds the single district with highest A4 value, then calculates the percentage for that district only. If multiple districts have the same highest A4 value, they could return different results. Also, the generated query rounds the result to 2 decimal places while the gold query doesn't specify rounding.",
+      "raw_response": "<think>\nLet me understand the question and the schema:\n\n1. We need to find the branch located in South Bohemia with the largest number of inhabitants.\n2. Then, for this branch, we need to calculate the percentage of male clients.\n\nAccording to the schema:\n- The district table has the information about regions (A3) and inhabitants (A4).\n- The client table has information about clients including their gender.\n- The account table links clients to districts (branches).\n- The disp table links clients to accounts.\n\nTo approach this problem:\n1. First, identify the district in South Bohemia with the largest number of inhabitants.\n2. Then, for this district, count the total number of clients and the number of male clients.\n3. Calculate the percentage of male clients.\n\nLet's start:\n\n```sql\n-- First, find the district in South Bohemia with the largest number of inhabitants\nWITH south_bohemia_largest_inhabitants AS (\n    SELECT district_id\n    FROM district\n    WHERE A3 = 'south Bohemia'  -- Assuming 'south Bohemia' is the exact value in the database\n    ORDER BY CAST(A4 AS INTEGER) DESC  -- Assuming A4 contains the number of inhabitants as a string\n    LIMIT 1\n),\n\n-- Get the total clients and male clients for this district\nclient_counts AS (\n    SELECT \n        COUNT(*) AS total_clients,\n        SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) AS male_clients\n    FROM client\n    WHERE district_id IN (SELECT district_id FROM south_bohemia_largest_inhabitants)\n)\n\n-- Calculate the percentage\nSELECT (male_clients * 100.0 / total_clients) AS percentage_male_clients\nFROM client_counts;\n```\n\nWait, there's a potential issue. The question seems to be asking about clients of a branch, not just residents of a district. In a banking context, a client is someone who has an account, not just someone living in a district.\n\nSo, we need to identify the clients who have accounts in the branch (district) in South Bohemia with the largest number of inhabitants.\n\nLet's revise:\n\n```sql\n-- First, find the district in South Bohemia with the largest number of inhabitants\nWITH south_bohemia_largest_inhabitants AS (\n    SELECT district_id\n    FROM district\n    WHERE A3 = 'south Bohemia'\n    ORDER BY CAST(A4 AS INTEGER) DESC\n    LIMIT 1\n),\n\n-- Get the total clients and male clients for this district who have accounts\nclient_counts AS (\n    SELECT \n        COUNT(DISTINCT c.client_id) AS total_clients,\n        SUM(CASE WHEN c.gender = 'M' THEN 1 ELSE 0 END) AS male_clients\n    FROM client c\n    JOIN disp d ON c.client_id = d.client_id\n    JOIN account a ON d.account_id = a.account_id\n    WHERE a.district_id IN (SELECT district_id FROM south_bohemia_largest_inhabitants)\n)\n\n-- Calculate the percentage\nSELECT (male_clients * 100.0 / total_clients) AS percentage_male_clients\nFROM client_counts;\n```\n\nActually, there might be a misunderstanding. Let me re-read the question:\n\n\"For the branch which located in the south Bohemia with biggest number of inhabitants, what is the percentage of the male clients?\"\n\nI think the correct interpretation is:\n1. Find the district in South Bohemia with the largest number of inhabitants.\n2. For this district, calculate the percentage of male clients out of all clients.\n\nThe question's PS also mentions \"A3 is the region name. A4 contains the information about inhabitants.\" This confirms that A3 should be \"south Bohemia\" and A4 contains the number of inhabitants.\n\nI'll revise the query again:\n\n```sql\n-- First, find the district in South Bohemia with the largest number of inhabitants\nWITH south_bohemia_largest_inhabitants AS (\n    SELECT district_id\n    FROM district\n    WHERE A3 = 'south Bohemia'\n    ORDER BY CAST(A4 AS INTEGER) DESC\n    LIMIT 1\n),\n\n-- Get all clients linked to accounts in this district\ndistrict_clients AS (\n    SELECT DISTINCT c.client_id, c.gender\n    FROM client c\n    JOIN disp d ON c.client_id = d.client_id\n    JOIN account a ON d.account_id = a.account_id\n    WHERE a.district_id IN (SELECT district_id FROM south_bohemia_largest_inhabitants)\n),\n\n-- Count total and male clients\nclient_counts AS (\n    SELECT \n        COUNT(*) AS total_clients,\n        SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) AS male_clients\n    FROM district_clients\n)\n\n-- Calculate the percentage\nSELECT (male_clients * 100.0 / total_clients) AS percentage_male_clients\nFROM client_counts;\n```\n\nActually, I think I might be overthinking this. The schema shows that a client is linked to a district directly through the district_id in the client table. This might be the simpler approach:\n\n```sql\n-- First, find the district in South Bohemia with the largest number of inhabitants\nWITH south_bohemia_largest_inhabitants AS (\n    SELECT district_id\n    FROM district\n    WHERE A3 = 'south Bohemia'\n    ORDER BY CAST(A4 AS INTEGER) DESC\n    LIMIT 1\n),\n\n-- Count total and male clients for this district\nclient_counts AS (\n    SELECT \n        COUNT(*) AS total_clients,\n        SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) AS male_clients\n    FROM client\n    WHERE district_id IN (SELECT district_id FROM south_bohemia_largest_inhabitants)\n)\n\n-- Calculate the percentage\nSELECT ROUND((male_clients * 100.0 / total_clients), 2) AS percentage_male_clients\nFROM client_counts;\n```\n\nI think this is correct. Let's double-check:\n\n1. We're identifying the district in South Bohemia with the largest number of inhabitants using the A3 and A4 fields of the district table.\n2. We're counting all clients and male clients in this district.\n3. We're calculating the percentage of male clients.\n\nActually one issue is that A4 might not be an integer directly. It's specified as TEXT in the DDL. We need to ensure we're comparing it correctly. Let's adjust:\n\n```sql\nWITH south_bohemia_largest_inhabitants AS (\n    SELECT district_id\n    FROM district\n    WHERE A3 = 'south Bohemia'\n    ORDER BY CAST(A4 AS INTEGER) DESC\n    LIMIT 1\n)\n```\n\nWith all these considerations, I think the final query should be:\n</think>\n\nLooking at the database schema, I need to find the branch (district) in South Bohemia with the largest number of inhabitants, then calculate the percentage of male clients for that district.\n\n```sql\nWITH south_bohemia_district AS (\n    SELECT district_id\n    FROM district\n    WHERE A3 = 'south Bohemia'\n    ORDER BY CAST(A4 AS INTEGER) DESC\n    LIMIT 1\n),\nclient_counts AS (\n    SELECT \n        COUNT(*) AS total_clients,\n        SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) AS male_clients\n    FROM client\n    WHERE district_id IN (SELECT district_id FROM south_bohemia_district)\n)\nSELECT ROUND((male_clients * 100.0 / total_clients), 2) AS percentage_male_clients\nFROM client_counts;\n```\n\n{\"sql\": \"WITH south_bohemia_district AS (SELECT district_id FROM district WHERE A3 = 'south Bohemia' ORDER BY CAST(A4 AS INTEGER) DESC LIMIT 1), client_counts AS (SELECT COUNT(*) AS total_clients, SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) AS male_clients FROM client WHERE district_id IN (SELECT district_id FROM south_bohemia_district)) SELECT ROUND((male_clients * 100.0 / total_clients), 2) AS percentage_male_clients FROM client_counts;\"}"
+    }
+  }
+}

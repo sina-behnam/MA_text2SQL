@@ -1,0 +1,82 @@
+{
+  "id": 500,
+  "dataset": "spider",
+  "database": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/databases/battle_death/battle_death.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/schemas/battle_death/battle_death.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the ship id and name that caused most total injuries?",
+  "sql": "SELECT T2.id ,  T2.name FROM death AS T1 JOIN ship AS t2 ON T1.caused_by_ship_id  =  T2.id GROUP BY T2.id ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 61,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 136,
+    "tables_count": 2,
+    "tables": [
+      "ship",
+      "death"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.id, s.name, SUM(d.injured) as total_injuries FROM ship s JOIN death d ON s.id = d.caused_by_ship_id GROUP BY s.id, s.name ORDER BY total_injuries DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 2) vs predicted (1, 3)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 2) vs predicted (1, 3)",
+      "raw_response": "<think>\nLet's analyze the database schema to understand the relationships between tables:\n\n1. `battle` table: Contains information about battles including id, name, date, commanders, and result.\n2. `ship` table: Contains information about ships, and includes a foreign key `lost_in_battle` that references the `battle` table.\n3. `death` table: Contains information about deaths and injuries, and includes a foreign key `caused_by_ship_id` that references the `ship` table.\n\nFor the question \"What is the ship id and name that caused most total injuries?\", I need to:\n\n1. Get the total injuries caused by each ship from the `death` table.\n2. Join this with the `ship` table to get the ship names.\n3. Order by total injuries in descending order to get the ship with the most injuries.\n4. Limit to 1 to get only the top ship.\n\nHere's the SQL query to accomplish this:\n\n```sql\nSELECT s.id, s.name, SUM(d.injured) as total_injuries\nFROM ship s\nJOIN death d ON s.id = d.caused_by_ship_id\nGROUP BY s.id, s.name\nORDER BY total_injuries DESC\nLIMIT 1;\n```\n\nThis query:\n1. Joins the `ship` table with the `death` table on the ship's id.\n2. Groups by ship id and name.\n3. Calculates the sum of injuries for each ship.\n4. Orders by total injuries in descending order.\n5. Limits to the top 1 result, which is the ship with the most total injuries.\n\nLet me review this to ensure it's correct:\n\n- We're joining the `ship` and `death` tables correctly using the foreign key relationship.\n- We're calculating the total injuries by summing the `injured` column from the `death` table.\n- We're grouping by ship id and name to get one row per ship.\n- We're ordering by total injuries in descending order to get the ship with the most injuries.\n- We're limiting to 1 result to get only the top ship.\n\nThe query looks correct for answering the question.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.id, s.name, SUM(d.injured) as total_injuries FROM ship s JOIN death d ON s.id = d.caused_by_ship_id GROUP BY s.id, s.name ORDER BY total_injuries DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "id": 265,
+  "dataset": "spider",
+  "database": {
+    "name": "employee_hire_evaluation",
+    "path": [
+      "spider_stratified_output_200/databases/employee_hire_evaluation/employee_hire_evaluation.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "employee_hire_evaluation",
+    "path": [
+      "spider_stratified_output_200/schemas/employee_hire_evaluation/employee_hire_evaluation.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which cities do more than one employee under age 30 come from?",
+  "sql": "SELECT city FROM employee WHERE age  <  30 GROUP BY city HAVING count(*)  >  1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 62,
+    "word_length": 12,
+    "entities": [
+      {
+        "text": "more than one",
+        "label": "CARDINAL",
+        "start": 16,
+        "end": 29
+      },
+      {
+        "text": "age 30",
+        "label": "DATE",
+        "start": 45,
+        "end": 51
+      }
+    ],
+    "entity_types": [
+      "CARDINAL",
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "one",
+      "30"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "more"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 78,
+    "tables_count": 1,
+    "tables": [
+      "employee"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT City FROM employee WHERE Age < 30 GROUP BY City HAVING COUNT(*) > 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to write a SQL query to find cities that have more than one employee under the age of 30. Let's break down the problem:\n\n1. We need to look at the `employee` table which has fields `Employee_ID`, `Name`, `Age`, and `City`.\n2. We need to find employees whose age is less than 30.\n3. We need to count how many such employees come from each city.\n4. We need to filter out cities where only one such employee exists.\n\nHere's the query I'm thinking of:\n\n```sql\nSELECT City\nFROM employee\nWHERE Age < 30\nGROUP BY City\nHAVING COUNT(*) > 1\n```\n\nThis query will:\n- Select data from the employee table\n- Filter to only include employees less than 30 years old\n- Group the results by city\n- Only include cities where the count of employees is greater than 1\n\nThis should give us cities where more than one employee under the age of 30 comes from.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT City FROM employee WHERE Age < 30 GROUP BY City HAVING COUNT(*) > 1\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "id": 368,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the different document ids along with the number of paragraphs corresponding to each, ordered by id.",
+  "sql": "SELECT document_id ,  count(*) FROM Paragraphs GROUP BY document_id ORDER BY document_id",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 107,
+    "word_length": 18,
+    "entities": [
+      {
+        "text": "d.",
+        "label": "NORP",
+        "start": 105,
+        "end": 107
+      }
+    ],
+    "entity_types": [
+      "NORP"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 88,
+    "tables_count": 1,
+    "tables": [
+      "Paragraphs"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Document_ID, COUNT(*) AS Number_of_Paragraphs FROM Paragraphs GROUP BY Document_ID ORDER BY Document_ID",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLooking at the database schema, I can see the following tables:\n\n1. `Ref_Template_Types`: Information about template types.\n2. `Templates`: Information about templates, linked to template types.\n3. `Documents`: Information about documents, potentially linked to templates.\n4. `Paragraphs`: Information about paragraphs, linked to documents.\n\nFor the user's request, they want to count the number of paragraphs for each document, ordered by document ID. So I need to:\n\n1. Count the paragraphs per document ID.\n2. Order the results by document ID.\n\nThe relevant tables are `Documents` and `Paragraphs`. Since a document can have multiple paragraphs (one-to-many relationship), I need to:\n\n1. Group by `Document_ID`.\n2. Count the number of paragraphs in each group.\n3. Order the results by `Document_ID`.\n\nThis can be achieved with a simple GROUP BY query:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Document_ID, COUNT(*) AS Number_of_Paragraphs FROM Paragraphs GROUP BY Document_ID ORDER BY Document_ID\"\n}\n```"
+    }
+  }
+}

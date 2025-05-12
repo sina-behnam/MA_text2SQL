@@ -1,0 +1,77 @@
+{
+  "id": 329,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show all template type codes and number of templates for each.",
+  "sql": "SELECT template_type_code ,  count(*) FROM Templates GROUP BY template_type_code",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 62,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 80,
+    "tables_count": 1,
+    "tables": [
+      "Templates"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT r.Template_Type_Code, COUNT(t.Template_ID) AS Number_of_Templates FROM Ref_Template_Types r LEFT JOIN Templates t ON r.Template_Type_Code = t.Template_Type_Code GROUP BY r.Template_Type_Code",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLooking at the database schema, I can see there are four tables:\n1. Ref_Template_Types - contains the template type information\n2. Templates - contains the actual templates, with a foreign key to Ref_Template_Types\n3. Documents - contains documents that reference templates\n4. Paragraphs - contains paragraphs in the documents\n\nThe user is asking to show all template type codes and the number of templates for each. This means I need to:\n1. Get all the Template_Type_Code values from the Ref_Template_Types table\n2. Count how many templates in the Templates table are associated with each Template_Type_Code\n\nThis is a classic case for a GROUP BY query with COUNT. I'll need to join the Ref_Template_Types and Templates tables, then group by template type code and count the occurrences.\n\nHere's the SQL query:\n```sql\nSELECT r.Template_Type_Code, COUNT(t.Template_ID) AS Number_of_Templates \nFROM Ref_Template_Types r\nLEFT JOIN Templates t ON r.Template_Type_Code = t.Template_Type_Code\nGROUP BY r.Template_Type_Code;\n```\n\nI'm using a LEFT JOIN to ensure that all template types are included in the results, even if they don't have any templates associated with them (in which case the count would be 0).\n</think>\n\n```json\n{\n  \"sql\": \"SELECT r.Template_Type_Code, COUNT(t.Template_ID) AS Number_of_Templates FROM Ref_Template_Types r LEFT JOIN Templates t ON r.Template_Type_Code = t.Template_Type_Code GROUP BY r.Template_Type_Code\"\n}\n```"
+    }
+  }
+}

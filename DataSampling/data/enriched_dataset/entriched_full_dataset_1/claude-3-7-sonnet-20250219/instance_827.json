@@ -1,0 +1,98 @@
+{
+  "id": 827,
+  "dataset": "bird",
+  "database": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/databases/superhero/superhero.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/superhero/gender.csv",
+      "stratified_output/databases/superhero/superpower.csv",
+      "stratified_output/databases/superhero/publisher.csv",
+      "stratified_output/databases/superhero/superhero.csv",
+      "stratified_output/databases/superhero/colour.csv",
+      "stratified_output/databases/superhero/attribute.csv",
+      "stratified_output/databases/superhero/hero_power.csv",
+      "stratified_output/databases/superhero/race.csv",
+      "stratified_output/databases/superhero/alignment.csv",
+      "stratified_output/databases/superhero/hero_attribute.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/schemas/superhero/superhero.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average height of a non-human superhero in Dark Horse Comics?",
+  "sql": "SELECT AVG(T1.height_cm) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN race AS T3 ON T1.race_id = T3.id WHERE T2.publisher_name = 'Dark Horse Comics' AND T3.race != 'Human'",
+  "evidence": "average = AVG(height_cm); non-human superhero refers to race <> 'Human'; Dark Horse Comics refers to publisher_name = 'Dark Horse Comics';",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 73,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "Dark Horse Comics",
+        "label": "ORG",
+        "start": 55,
+        "end": 72
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 212,
+    "tables_count": 3,
+    "tables": [
+      "superhero",
+      "publisher",
+      "race"
+    ],
+    "join_count": 2,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(s.height_cm) AS average_height FROM superhero s JOIN race r ON s.race_id = r.id JOIN publisher p ON s.publisher_id = p.id WHERE r.race <> 'Human' AND p.publisher_name = 'Dark Horse Comics'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the problem and the schema:\n\n1. We need to calculate the average height of non-human superheroes published by Dark Horse Comics.\n2. From the schema:\n   - `superhero` table contains `height_cm` field\n   - `race` table contains race information (we need race != 'Human')\n   - `publisher` table contains publisher information (we need publisher_name = 'Dark Horse Comics')\n\nTo solve this query, I'll need to:\n1. Join the `superhero` table with `race` table to filter non-humans\n2. Join with the `publisher` table to filter Dark Horse Comics\n3. Calculate the average of `height_cm`\n\nLet's construct the SQL query:\n\n```sql\nSELECT AVG(s.height_cm) \nFROM superhero s\nJOIN race r ON s.race_id = r.id\nJOIN publisher p ON s.publisher_id = p.id\nWHERE r.race <> 'Human'\nAND p.publisher_name = 'Dark Horse Comics';\n```\n\nThis query:\n1. Joins the superhero table with race table on race_id\n2. Joins with publisher table on publisher_id\n3. Filters for non-human races (race <> 'Human')\n4. Filters for Dark Horse Comics publisher\n5. Calculates the average height_cm\n\nLet me check once more:\n- We're properly joining the tables using the correct foreign keys\n- We're filtering for non-human superheroes using race <> 'Human'\n- We're filtering for Dark Horse Comics using publisher_name = 'Dark Horse Comics'\n- We're calculating the average height using AVG(height_cm)\n\nThe query looks correct.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(s.height_cm) AS average_height FROM superhero s JOIN race r ON s.race_id = r.id JOIN publisher p ON s.publisher_id = p.id WHERE r.race <> 'Human' AND p.publisher_name = 'Dark Horse Comics'\"\n}\n```"
+    }
+  }
+}

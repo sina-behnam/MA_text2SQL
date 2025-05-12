@@ -1,0 +1,107 @@
+{
+  "id": 1472,
+  "dataset": "bird",
+  "database": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/debit_card_specializing/customers.csv",
+      "stratified_output/databases/debit_card_specializing/gasstations.csv",
+      "stratified_output/databases/debit_card_specializing/products.csv",
+      "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+      "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "In 2012, who had the least consumption in LAM?",
+  "sql": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND SUBSTR(T2.Date, 1, 4) = '2012' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC LIMIT 1",
+  "evidence": "Year 2012 can be presented as Between 201201 And 201212; The first 4 strings of the Date values in the yearmonth table can represent year.",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 46,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "2012",
+        "label": "DATE",
+        "start": 3,
+        "end": 7
+      },
+      {
+        "text": "LAM",
+        "label": "ORG",
+        "start": 42,
+        "end": 45
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2012"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "least"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 225,
+    "tables_count": 2,
+    "tables": [
+      "customers",
+      "yearmonth"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT c.CustomerID, SUM(y.Consumption) as TotalConsumption \nFROM yearmonth y\nJOIN customers c ON y.CustomerID = c.CustomerID\nWHERE c.Segment = 'LAM'\nAND y.Date BETWEEN '201201' AND '201212'\nGROUP BY c.CustomerID\nORDER BY TotalConsumption ASC\nLIMIT 1;\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet me analyze this query:\n\n1. The question is asking about \"consumption in LAM\" for the year 2012.\n2. LAM likely refers to a specific region or segment.\n3. The year 2012 can be represented as dates between 201201 and 201212.\n\nLet's look at the database schema:\n\n- We have a `yearmonth` table which has a `Date` field (TEXT) and a `Consumption` field.\n- The `customers` table has a `Segment` field.\n- There's also a `gasstations` table with a `Segment` field and a `Country` field.\n\nSince we're looking for consumption data, we should focus on the `yearmonth` table. The question mentions that the first 4 characters of the `Date` field can represent the year, so we need to filter for dates that start with \"2012\".\n\nNow, regarding \"LAM\", this is likely a segment or region code. Since the question is about consumption, and the `yearmonth` table has a `Consumption` field, we might need to join with other tables to identify which customer belongs to the \"LAM\" segment.\n\nLooking at the schema again, the `customers` table has a `Segment` field, and the `yearmonth` table references `customers` through `CustomerID`. \"LAM\" might be a value in the `Segment` field of the `customers` table.\n\nLet's write a SQL query to find the customer with the least consumption in the LAM segment for the year 2012:\n\n```sql\nSELECT c.CustomerID, c.Segment, y.Consumption\nFROM yearmonth y\nJOIN customers c ON y.CustomerID = c.CustomerID\nWHERE c.Segment = 'LAM'\nAND y.Date BETWEEN '201201' AND '201212'\nORDER BY y.Consumption ASC\nLIMIT 1;\n```\n\nBut we should check if \"LAM\" is indeed a value in the `Segment` field of `customers`. It could also be a value in the `Segment` field of `gasstations` or it could be a country code in the `Country` field.\n\nIf \"LAM\" is a country code in the `gasstations` table, we'd need to join with the `transactions_1k` table to link consumption to gas stations. But I noticed that the `yearmonth` table doesn't have a direct link to gas stations, so this seems less likely.\n\nLet's proceed with the assumption that \"LAM\" is a value in the `Segment` field of the `customers` table.\n\nI've noticed that the question asks \"who\" had the least consumption, implying we should return the customer's ID or some other identifier, not just the consumption value.\n\nSo, the SQL query would be:\n\n```sql\nSELECT c.CustomerID, SUM(y.Consumption) as TotalConsumption\nFROM yearmonth y\nJOIN customers c ON y.CustomerID = c.CustomerID\nWHERE c.Segment = 'LAM'\nAND y.Date BETWEEN '201201' AND '201212'\nGROUP BY c.CustomerID\nORDER BY TotalConsumption ASC\nLIMIT 1;\n```\n\nActually, I think I should consider another possibility: \"LAM\" might be a geographic region that encompasses multiple countries. If this is the case, and if \"LAM\" stands for \"Latin America,\" then we'd need to identify which countries are part of LAM and filter by those.\n\nBut since I don't have a definitive list of countries in LAM, I'll proceed with the assumption that \"LAM\" is a value in the `Segment` field of the `customers` table.\n\nI also need to consider how to aggregate consumption for the year. The query I've provided calculates the total consumption for the year. If we want to find the customer with the lowest average monthly consumption for 2012, we'd need to modify the query.\n\nLet me go with the total consumption for the year:\n\n```sql\nSELECT c.CustomerID, SUM(y.Consumption) as TotalConsumption\nFROM yearmonth y\nJOIN customers c ON y.CustomerID = c.CustomerID\nWHERE c.Segment = 'LAM'\nAND y.Date BETWEEN '201201' AND '201212'\nGROUP BY c.CustomerID\nORDER BY TotalConsumption ASC\nLIMIT 1;\n```\n\nHowever, I noticed that I'm making a few assumptions here:\n1. \"LAM\" is a value in the `Segment` field of the `customers` table.\n2. We are interested in finding the customer with the least total consumption for the year.\n\nWithout further information, these are reasonable assumptions. But if we find that \"LAM\" is not a segment value, we'd need to adjust the query accordingly.\n\nActually, I think I should be more precise about \"LAM\" since I don't have concrete information. Let me address both possibilities:\n\n1. \"LAM\" is a value in the `Segment` field of the `customers` table.\n2. \"LAM\" is a value in the `Country` field of the `gasstations` table.\n\nGiven that the question specifically asks for \"consumption in LAM,\" I'm more confident that \"LAM\" might be a value in the `Country` field of the `gasstations` table. \n\nHowever, there's a problem: the `yearmonth` table doesn't directly link to `gasstations`. We'd need to join through the `transactions_1k` table, but that would give us transaction data, not consumption data.\n\nGiven these constraints, let's proceed with our most confident assumption, which is that \"LAM\" is a value in the `Segment` field of the `customers` table.\n\nOn second thought, as I reviewed the schema more closely, I realized that both `customers` and `gasstations` tables have a `Segment` field. Since the question is about consumption, and the `yearmonth` table references `customers` through `CustomerID`, it's more likely that \"LAM\" is a segment in the `customers` table.\n\nSo, I'll stick with my original query, which finds the customer with the least total consumption in the LAM segment for the year 2012.\n</think>\n\nLooking at the database schema, I need to find out who had the least consumption in LAM for 2012. \"LAM\" appears to be a segment in the customers table, and I need to check the consumption data in the yearmonth table.\n\n```json\n{\n  \"sql\": \"SELECT c.CustomerID, SUM(y.Consumption) as TotalConsumption \nFROM yearmonth y\nJOIN customers c ON y.CustomerID = c.CustomerID\nWHERE c.Segment = 'LAM'\nAND y.Date BETWEEN '201201' AND '201212'\nGROUP BY c.CustomerID\nORDER BY TotalConsumption ASC\nLIMIT 1;\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": 654,
+  "dataset": "spider",
+  "database": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the average earnings across all poker players.",
+  "sql": "SELECT avg(Earnings) FROM poker_player",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 53,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 38,
+    "tables_count": 1,
+    "tables": [
+      "poker_player"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(Earnings) AS average_earnings FROM poker_player",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to write a SQL query to find the average earnings across all poker players.\n\nBased on the database schema provided, I can see that:\n\n1. There's a `poker_player` table that contains an `Earnings` column, which is what I need to calculate the average of.\n2. The `poker_player` table has a primary key of `Poker_Player_ID` and a foreign key `People_ID` that references the `people` table.\n\nTo get the average earnings across all poker players, I need to calculate the average of the `Earnings` column in the `poker_player` table.\n\nThe SQL query would be:\n\n```sql\nSELECT AVG(Earnings) AS average_earnings\nFROM poker_player\n```\n\nThis query calculates the average value of the `Earnings` column across all rows in the `poker_player` table.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(Earnings) AS average_earnings FROM poker_player\"\n}\n```"
+    }
+  }
+}

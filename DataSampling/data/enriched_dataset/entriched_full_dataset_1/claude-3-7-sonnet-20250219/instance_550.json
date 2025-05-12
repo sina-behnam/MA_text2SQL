@@ -1,0 +1,86 @@
+{
+  "id": 550,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the last name of the students who live in North Carolina but have not registered in any degree programs?",
+  "sql": "SELECT T1.last_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id  =  T2.address_id WHERE T2.state_province_county  =  'NorthCarolina' EXCEPT SELECT DISTINCT T3.last_name FROM Students AS T3 JOIN Student_Enrolment AS T4 ON T3.student_id  =  T4.student_id",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 113,
+    "word_length": 21,
+    "entities": [
+      {
+        "text": "North Carolina",
+        "label": "GPE",
+        "start": 51,
+        "end": 65
+      }
+    ],
+    "entity_types": [
+      "GPE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 274,
+    "tables_count": 3,
+    "tables": [
+      "Student_Enrolment",
+      "Students",
+      "Addresses"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT s.last_name FROM Students s LEFT JOIN Addresses a ON s.current_address_id = a.address_id OR s.permanent_address_id = a.address_id WHERE a.state_province_county = 'North Carolina' AND s.student_id NOT IN (SELECT student_id FROM Student_Enrolment)",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (2, 1) vs predicted (0, 0)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (2, 1) vs predicted (0, 0)",
+      "raw_response": "<think>\nLet's analyze what we need:\n1. Students who live in North Carolina - This means students whose address (either current or permanent) has state_province_county = 'North Carolina'\n2. Students who have not registered in any degree programs - This means students who don't appear in the Student_Enrolment table\n\nFrom the database schema, we can see:\n- Students table contains student information including last_name\n- Students are linked to Addresses table through current_address_id and permanent_address_id\n- Students who are enrolled in degree programs are in the Student_Enrolment table, linked via student_id\n\nLet's write a query that:\n1. Gets all students whose current or permanent address is in North Carolina\n2. Excludes students who appear in the Student_Enrolment table\n\n```sql\nSELECT DISTINCT s.last_name\nFROM Students s\nJOIN Addresses a ON s.current_address_id = a.address_id OR s.permanent_address_id = a.address_id\nWHERE a.state_province_county = 'North Carolina'\nAND s.student_id NOT IN (\n    SELECT student_id \n    FROM Student_Enrolment\n)\n```\n\nThis query will:\n- Join Students with Addresses to find students with North Carolina addresses\n- Exclude students who have any record in Student_Enrolment (meaning they've registered for a degree program)\n- Return just the last names of these students\n- Use DISTINCT to avoid duplicate last names in the result\n\nThis should provide the last names of students who live in North Carolina but haven't registered in any degree programs.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT s.last_name FROM Students s LEFT JOIN Addresses a ON s.current_address_id = a.address_id OR s.permanent_address_id = a.address_id WHERE a.state_province_county = 'North Carolina' AND s.student_id NOT IN (SELECT student_id FROM Student_Enrolment)\"\n}\n```"
+    }
+  }
+}

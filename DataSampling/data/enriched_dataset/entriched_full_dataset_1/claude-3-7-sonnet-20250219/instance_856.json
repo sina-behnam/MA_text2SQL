@@ -1,0 +1,91 @@
+{
+  "id": 856,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show the record companies shared by orchestras founded before 2003 and after 2003.",
+  "sql": "SELECT Record_Company FROM orchestra WHERE Year_of_Founded  <  2003 INTERSECT SELECT Record_Company FROM orchestra WHERE Year_of_Founded  >  2003",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 82,
+    "word_length": 13,
+    "entities": [
+      {
+        "text": "2003",
+        "label": "DATE",
+        "start": 62,
+        "end": 66
+      },
+      {
+        "text": "2003",
+        "label": "DATE",
+        "start": 77,
+        "end": 81
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2003",
+      "2003"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 145,
+    "tables_count": 1,
+    "tables": [
+      "orchestra"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT Record_Company FROM orchestra WHERE Record_Company IN (SELECT Record_Company FROM orchestra WHERE Year_of_Founded < 2003) AND Record_Company IN (SELECT Record_Company FROM orchestra WHERE Year_of_Founded > 2003)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me break down the database schema:\n\n1. **conductor** table:\n   - Conductor_ID (PK)\n   - Name\n   - Age\n   - Nationality\n   - Year_of_Work\n\n2. **orchestra** table:\n   - Orchestra_ID (PK)\n   - Orchestra\n   - Conductor_ID (FK to conductor.Conductor_ID)\n   - Record_Company\n   - Year_of_Founded\n   - Major_Record_Format\n\n3. **performance** table:\n   - Performance_ID (PK)\n   - Orchestra_ID (FK to orchestra.Orchestra_ID)\n   - Type\n   - Date\n   - Official_ratings_(millions)\n   - Weekly_rank\n   - Share\n\n4. **show** table:\n   - Show_ID\n   - Performance_ID (FK to performance.Performance_ID)\n   - If_first_show\n   - Result\n   - Attendance\n\nThe question is asking for record companies that are shared by orchestras founded before 2003 and after 2003. This means we need to:\n\n1. Identify record companies that have orchestras founded before 2003.\n2. Identify record companies that have orchestras founded after 2003.\n3. Find the intersection (common record companies between the two groups).\n\nLet's build a SQL query to answer this:\n```sql\nSELECT DISTINCT o1.Record_Company\nFROM orchestra o1\nWHERE o1.Record_Company IN (\n    SELECT DISTINCT o2.Record_Company\n    FROM orchestra o2\n    WHERE o2.Year_of_Founded < 2003\n) AND o1.Record_Company IN (\n    SELECT DISTINCT o3.Record_Company\n    FROM orchestra o3\n    WHERE o3.Year_of_Founded > 2003\n);\n```\n\nThis query selects distinct record companies from the orchestra table where the record company is in the set of record companies that have orchestras founded before 2003 and also in the set of record companies that have orchestras founded after 2003.\n\nAnother approach would be to use a more explicit method with set operations:\n```sql\nSELECT DISTINCT Record_Company\nFROM orchestra\nWHERE Year_of_Founded < 2003\nINTERSECT\nSELECT DISTINCT Record_Company\nFROM orchestra\nWHERE Year_of_Founded > 2003;\n```\n\nThis explicitly computes the intersection of the two sets of record companies. However, not all SQL dialects support the INTERSECT operator, so the first approach is more portable.\n\nLet's go with the first approach:\n```sql\nSELECT DISTINCT o1.Record_Company\nFROM orchestra o1\nWHERE o1.Record_Company IN (\n    SELECT DISTINCT o2.Record_Company\n    FROM orchestra o2\n    WHERE o2.Year_of_Founded < 2003\n) AND o1.Record_Company IN (\n    SELECT DISTINCT o3.Record_Company\n    FROM orchestra o3\n    WHERE o3.Year_of_Founded > 2003\n);\n```\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT Record_Company FROM orchestra WHERE Record_Company IN (SELECT Record_Company FROM orchestra WHERE Year_of_Founded < 2003) AND Record_Company IN (SELECT Record_Company FROM orchestra WHERE Year_of_Founded > 2003)\"\n}\n```"
+    }
+  }
+}

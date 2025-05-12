@@ -1,0 +1,79 @@
+{
+  "id": 665,
+  "dataset": "spider",
+  "database": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the birth date of the poker player with the lowest earnings?",
+  "sql": "SELECT T1.Birth_Date FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID ORDER BY T2.Earnings ASC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 68,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "lowest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 128,
+    "tables_count": 2,
+    "tables": [
+      "poker_player",
+      "people"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT p.Birth_Date FROM poker_player pp JOIN people p ON pp.People_ID = p.People_ID ORDER BY pp.Earnings ASC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema:\n\n1. We have two tables:\n   - `poker_player`: Contains information about poker players, including their earnings.\n   - `people`: Contains personal information about people, including birth dates.\n\n2. The `poker_player` table has a foreign key relationship with the `people` table through the `People_ID` column.\n\nThe question asks for the birth date of the poker player with the lowest earnings. To solve this, I need to:\n\n1. Find the poker player with the lowest earnings from the `poker_player` table.\n2. Join this with the `people` table to get the birth date.\n\nHere's the SQL query:\n\n```sql\nSELECT p.Birth_Date\nFROM poker_player pp\nJOIN people p ON pp.People_ID = p.People_ID\nORDER BY pp.Earnings ASC\nLIMIT 1;\n```\n\nThis query:\n1. Joins the `poker_player` and `people` tables using the `People_ID` column.\n2. Orders the results by `Earnings` in ascending order (lowest first).\n3. Limits the result to just the first row (the player with the lowest earnings).\n4. Selects only the `Birth_Date` column from the `people` table.\n\nI believe this query will correctly answer the question.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT p.Birth_Date FROM poker_player pp JOIN people p ON pp.People_ID = p.People_ID ORDER BY pp.Earnings ASC LIMIT 1\"\n}\n```"
+    }
+  }
+}

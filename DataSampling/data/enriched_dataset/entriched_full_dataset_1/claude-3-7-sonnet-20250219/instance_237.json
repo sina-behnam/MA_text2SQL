@@ -1,0 +1,83 @@
+{
+  "id": 237,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find all airlines that have flights from both airports 'APG' and 'CVO'.",
+  "sql": "SELECT T1.Airline FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline WHERE T2.SourceAirport  =  \"APG\" INTERSECT SELECT T1.Airline FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline WHERE T2.SourceAirport  =  \"CVO\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 71,
+    "word_length": 12,
+    "entities": [
+      {
+        "text": "CVO",
+        "label": "ORG",
+        "start": 66,
+        "end": 69
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 239,
+    "tables_count": 2,
+    "tables": [
+      "FLIGHTS",
+      "AIRLINES"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT a.Airline \nFROM airlines a\nWHERE a.uid IN (\n    SELECT f.Airline \n    FROM flights f \n    WHERE f.SourceAirport = 'APG'\n)\nAND a.uid IN (\n    SELECT f.Airline \n    FROM flights f \n    WHERE f.SourceAirport = 'CVO'\n)\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet's break down the database schema:\n\n1. `airlines` table:\n   - `uid`: INTEGER PRIMARY KEY\n   - `Airline`: TEXT (airline name)\n   - `Abbreviation`: TEXT\n   - `Country`: TEXT\n\n2. `airports` table:\n   - `City`: TEXT\n   - `AirportCode`: TEXT PRIMARY KEY\n   - `AirportName`: TEXT\n   - `Country`: TEXT\n   - `CountryAbbrev`: TEXT\n\n3. `flights` table:\n   - `Airline`: INTEGER (refers to airlines.uid)\n   - `FlightNo`: INTEGER\n   - `SourceAirport`: TEXT (refers to airports.AirportCode)\n   - `DestAirport`: TEXT (refers to airports.AirportCode)\n\nThe question asks for airlines that have flights from both airports 'APG' and 'CVO'. This means we need to find airlines that appear in the flights table with SourceAirport = 'APG' and also appear with SourceAirport = 'CVO'.\n\nTo solve this, I'll use an approach with two subqueries:\n1. Find all airlines that have flights from 'APG'\n2. Find all airlines that have flights from 'CVO'\n3. Find the intersection of these two sets\n\nHere's how I'll structure the SQL query:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT a.Airline \nFROM airlines a\nWHERE a.uid IN (\n    SELECT f.Airline \n    FROM flights f \n    WHERE f.SourceAirport = 'APG'\n)\nAND a.uid IN (\n    SELECT f.Airline \n    FROM flights f \n    WHERE f.SourceAirport = 'CVO'\n)\"\n}\n```"
+    }
+  }
+}

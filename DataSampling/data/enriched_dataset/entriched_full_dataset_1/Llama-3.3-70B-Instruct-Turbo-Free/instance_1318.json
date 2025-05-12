@@ -1,0 +1,91 @@
+{
+  "id": 1318,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the event that has the highest attendance of the students from the Student_Club?",
+  "sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_name ORDER BY COUNT(T2.link_to_event) DESC LIMIT 1",
+  "evidence": "event with highest attendance refers to MAX(COUNT(link_to_event))",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 88,
+    "word_length": 15,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "highest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 168,
+    "tables_count": 2,
+    "tables": [
+      "attendance",
+      "event"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT T1.event_name, COUNT(T2.link_to_member) as attendance FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event INNER JOIN member AS T3 ON T2.link_to_member = T3.member_id WHERE T3.position = 'Student_Club' GROUP BY T1.event_name ORDER BY attendance DESC LIMIT 1\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error"
+    }
+  }
+}

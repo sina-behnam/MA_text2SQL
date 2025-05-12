@@ -1,0 +1,94 @@
+{
+  "id": 1119,
+  "dataset": "bird",
+  "database": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/databases/european_football_2/european_football_2.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/european_football_2/Team_Attributes.csv",
+      "stratified_output/databases/european_football_2/Player.csv",
+      "stratified_output/databases/european_football_2/Match.csv",
+      "stratified_output/databases/european_football_2/League.csv",
+      "stratified_output/databases/european_football_2/Country.csv",
+      "stratified_output/databases/european_football_2/Player_Attributes.csv",
+      "stratified_output/databases/european_football_2/Team.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/schemas/european_football_2/european_football_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many home team goal have been scored by Aaron Lennon?",
+  "sql": "SELECT SUM(t2.home_team_goal) FROM Player AS t1 INNER JOIN match AS t2 ON t1.player_api_id = t2.away_player_9 WHERE t1.player_name = 'Aaron Lennon'",
+  "evidence": "Aaron Lennon refers to player_name = 'Aaron Lennon'",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 57,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "Aaron Lennon",
+        "label": "PERSON",
+        "start": 44,
+        "end": 56
+      }
+    ],
+    "entity_types": [
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 147,
+    "tables_count": 2,
+    "tables": [
+      "Player",
+      "match"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "WITH aaron_lennon AS (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') SELECT SUM(m.home_team_goal) AS total_home_goals FROM Match m, aaron_lennon al WHERE m.home_player_1 = al.player_api_id OR m.home_player_2 = al.player_api_id OR m.home_player_3 = al.player_api_id OR m.home_player_4 = al.player_api_id OR m.home_player_5 = al.player_api_id OR m.home_player_6 = al.player_api_id OR m.home_player_7 = al.player_api_id OR m.home_player_8 = al.player_api_id OR m.home_player_9 = al.player_api_id OR m.home_player_10 = al.player_api_id OR m.home_player_11 = al.player_api_id",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "These queries are not equivalent. The gold query searches for matches where Aaron Lennon is specifically the away_player_9 and sums the home team goals (goals scored against his team). The generated query looks for matches where Aaron Lennon is on the HOME team (in any of the 11 positions) and sums the home team goals (goals scored by his team). These are fundamentally different scenarios - one counts goals against teams with Aaron Lennon, the other counts goals by teams with Aaron Lennon.",
+      "raw_response": "<think>\nTo answer the question \"How many home team goals have been scored by Aaron Lennon?\", I need to:\n\n1. Find Aaron Lennon's player_api_id from the Player table\n2. Identify matches where Aaron Lennon was a player on the home team\n3. Count the home team goals in those matches\n\nLooking at the schema:\n- Player table has player_name and player_api_id\n- Match table has home_player_1 through home_player_11 fields that reference player_api_id\n- Match table has home_team_goal which records goals scored by the home team\n\nLet me create a SQL query that:\n1. Gets Aaron Lennon's player_api_id\n2. Finds matches where Aaron Lennon played on the home team\n3. Sums the home_team_goal in those matches\n\nThe query would be:\n```sql\nSELECT SUM(m.home_team_goal) \nFROM Match m\nWHERE \n  m.home_player_1 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_2 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_3 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_4 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_5 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_6 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_7 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_8 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_9 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_10 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') OR\n  m.home_player_11 = (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon')\n```\n\nHowever, I need to be careful here. The question asks for \"how many home team goals have been scored by Aaron Lennon\", which could mean either:\n\n1. The total number of goals scored by home teams in matches where Aaron Lennon played for the home team (which is what my query above calculates)\n2. The number of goals that Aaron Lennon personally scored when playing for the home team\n\nIf it's the second interpretation, I would need information about who scored each goal, but I don't see that detailed information in the schema. The Match table has a \"goal\" column which is TEXT type, which might contain that information in some structured format, but without knowing its exact format, I can't reliably extract that information.\n\nBased on the wording of the question, I think it's asking for interpretation #1 - the total number of home team goals in matches where Aaron Lennon was playing for the home team. I'll go with that interpretation for my SQL query.\n\nActually, let me make the query more efficient by grabbing Aaron Lennon's player_api_id once:\n\n```sql\nWITH aaron_lennon AS (\n  SELECT player_api_id \n  FROM Player \n  WHERE player_name = 'Aaron Lennon'\n)\nSELECT SUM(m.home_team_goal) \nFROM Match m\nJOIN aaron_lennon al\nWHERE \n  m.home_player_1 = al.player_api_id OR\n  m.home_player_2 = al.player_api_id OR\n  m.home_player_3 = al.player_api_id OR\n  m.home_player_4 = al.player_api_id OR\n  m.home_player_5 = al.player_api_id OR\n  m.home_player_6 = al.player_api_id OR\n  m.home_player_7 = al.player_api_id OR\n  m.home_player_8 = al.player_api_id OR\n  m.home_player_9 = al.player_api_id OR\n  m.home_player_10 = al.player_api_id OR\n  m.home_player_11 = al.player_api_id\n```\n\nHmm, the syntax doesn't look right. Let me fix the SQL:\n\n```sql\nWITH aaron_lennon AS (\n  SELECT player_api_id \n  FROM Player \n  WHERE player_name = 'Aaron Lennon'\n)\nSELECT SUM(m.home_team_goal) \nFROM Match m, aaron_lennon al\nWHERE \n  m.home_player_1 = al.player_api_id OR\n  m.home_player_2 = al.player_api_id OR\n  m.home_player_3 = al.player_api_id OR\n  m.home_player_4 = al.player_api_id OR\n  m.home_player_5 = al.player_api_id OR\n  m.home_player_6 = al.player_api_id OR\n  m.home_player_7 = al.player_api_id OR\n  m.home_player_8 = al.player_api_id OR\n  m.home_player_9 = al.player_api_id OR\n  m.home_player_10 = al.player_api_id OR\n  m.home_player_11 = al.player_api_id\n```\n\nWait, I'm still not confident about the intent of the question. Let me reconsider.\n\n\"How many home team goals have been scored by Aaron Lennon?\" seems to be asking specifically about goals scored personally by Aaron Lennon when he was playing on a home team. \n\nLooking again at the Match table, I see that it has a \"goal\" column which is TEXT type. This might contain the information about who scored each goal, but without knowing its format, I can't use it reliably.\n\nIf this is a trick question, and we can't answer precisely who scored each goal, then the best I can do is count the number of matches where Aaron Lennon played on the home team.\n\nSo I'll go with the interpretation that we want to count home team goals in matches where Aaron Lennon was playing for the home team, which is what my query calculates:\n\n```sql\nWITH aaron_lennon AS (\n  SELECT player_api_id \n  FROM Player \n  WHERE player_name = 'Aaron Lennon'\n)\nSELECT SUM(m.home_team_goal) \nFROM Match m, aaron_lennon al\nWHERE \n  m.home_player_1 = al.player_api_id OR\n  m.home_player_2 = al.player_api_id OR\n  m.home_player_3 = al.player_api_id OR\n  m.home_player_4 = al.player_api_id OR\n  m.home_player_5 = al.player_api_id OR\n  m.home_player_6 = al.player_api_id OR\n  m.home_player_7 = al.player_api_id OR\n  m.home_player_8 = al.player_api_id OR\n  m.home_player_9 = al.player_api_id OR\n  m.home_player_10 = al.player_api_id OR\n  m.home_player_11 = al.player_api_id\n```\n</think>\n\nTo find the number of home team goals scored by Aaron Lennon, I need to:\n1. Identify Aaron Lennon's player_api_id from the Player table\n2. Find matches where he played for the home team\n3. Sum up the home team goals from those matches\n\nHere's the SQL query:\n\n```json\n{\n  \"sql\": \"WITH aaron_lennon AS (SELECT player_api_id FROM Player WHERE player_name = 'Aaron Lennon') SELECT SUM(m.home_team_goal) AS total_home_goals FROM Match m, aaron_lennon al WHERE m.home_player_1 = al.player_api_id OR m.home_player_2 = al.player_api_id OR m.home_player_3 = al.player_api_id OR m.home_player_4 = al.player_api_id OR m.home_player_5 = al.player_api_id OR m.home_player_6 = al.player_api_id OR m.home_player_7 = al.player_api_id OR m.home_player_8 = al.player_api_id OR m.home_player_9 = al.player_api_id OR m.home_player_10 = al.player_api_id OR m.home_player_11 = al.player_api_id\"\n}\n```"
+    }
+  }
+}

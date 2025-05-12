@@ -1,0 +1,147 @@
+{
+  "id": 1481,
+  "dataset": "bird",
+  "database": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/debit_card_specializing/customers.csv",
+      "stratified_output/databases/debit_card_specializing/gasstations.csv",
+      "stratified_output/databases/debit_card_specializing/products.csv",
+      "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+      "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the difference in the annual average consumption of the customers with the least amount of consumption paid in CZK for 2013 between SME and LAM, LAM and KAM, and KAM and SME?",
+  "sql": "SELECT CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' AND T2.Consumption = ( SELECT MIN(Consumption) FROM yearmonth ) AND T2.Date BETWEEN 201301 AND 201312",
+  "evidence": "annual average consumption of customer with the lowest consumption in each segment = total consumption per year / the number of customer with lowest consumption in each segment; Difference in annual average = SME's annual average - LAM's annual average; Difference in annual average = LAM's annual average - KAM's annual average; Year 2013 can be presented as Between 201301 And 201312; The first 4 strings of the Date values in the yearmonth table can represent year.",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 182,
+    "word_length": 34,
+    "entities": [
+      {
+        "text": "annual",
+        "label": "DATE",
+        "start": 30,
+        "end": 36
+      },
+      {
+        "text": "CZK",
+        "label": "ORG",
+        "start": 119,
+        "end": 122
+      },
+      {
+        "text": "2013",
+        "label": "DATE",
+        "start": 127,
+        "end": 131
+      },
+      {
+        "text": "SME",
+        "label": "ORG",
+        "start": 140,
+        "end": 143
+      },
+      {
+        "text": "LAM",
+        "label": "ORG",
+        "start": 148,
+        "end": 151
+      },
+      {
+        "text": "LAM",
+        "label": "ORG",
+        "start": 153,
+        "end": 156
+      },
+      {
+        "text": "KAM",
+        "label": "ORG",
+        "start": 161,
+        "end": 164
+      },
+      {
+        "text": "KAM",
+        "label": "ORG",
+        "start": 170,
+        "end": 173
+      },
+      {
+        "text": "SME",
+        "label": "ORG",
+        "start": 178,
+        "end": 181
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2013"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "least"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 735,
+    "tables_count": 2,
+    "tables": [
+      "customers",
+      "yearmonth"
+    ],
+    "join_count": 1,
+    "where_conditions": 4,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 13,
+    "aggregation_functions": [
+      "COUNT",
+      "SUM",
+      "MIN"
+    ],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"WITH customer_consumption AS (\n    -- Get total consumption per customer for 2013, filtered by CZK currency\n    SELECT \n        c.CustomerID,\n        c.Segment,\n        SUM(ym.Consumption) AS total_consumption_2013\n    FROM \n        customers c\n    JOIN \n        yearmonth ym ON c.CustomerID = ym.CustomerID\n    WHERE \n        c.Currency = 'CZK'\n        AND ym.Date BETWEEN '201301' AND '201312'\n    GROUP BY \n        c.CustomerID, c.Segment\n),\nmin_consumption_per_segment AS (\n    -- Find the minimum consumption value for each segment\n    SELECT \n        Segment,\n        MIN(total_consumption_2013) AS min_consumption\n    FROM \n        customer_consumption\n    GROUP BY \n        Segment\n),\ncustomers_with_min_consumption AS (\n    -- Get all customers that have the minimum consumption in their segment\n    SELECT \n        cc.Segment,\n        COUNT(*) AS num_customers,\n        SUM(cc.total_consumption_2013) AS total_min_consumption\n    FROM \n        customer_consumption cc\n    JOIN \n        min_consumption_per_segment mcp ON cc.Segment = mcp.Segment AND cc.total_consumption_2013 = mcp.min_consumption\n    GROUP BY \n        cc.Segment\n),\nsegment_averages AS (\n    -- Calculate average consumption for customers with minimum consumption in each segment\n    SELECT \n        Segment,\n        total_min_consumption / num_customers AS annual_avg_consumption\n    FROM \n        customers_with_min_consumption\n)\n\n-- Calculate differences between segments\nSELECT \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'SME') - \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'LAM') AS SME_minus_LAM,\n    \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'LAM') - \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'KAM') AS LAM_minus_KAM,\n    \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'KAM') - \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'SME') AS KAM_minus_SME\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nI need to analyze this detailed query step by step:\n\n1. We need to find the difference in annual average consumption for customers with the least amount of consumption in different segments (SME, LAM, KAM).\n2. We're looking at transactions paid in CZK for 2013.\n3. Year 2013 is represented in the date field as values between 201301 and 201312.\n4. We need to calculate differences between SME-LAM, LAM-KAM, and KAM-SME.\n\nLooking at the schema:\n- `customers` table has CustomerID, Segment, and Currency\n- `yearmonth` table has CustomerID, Date, and Consumption\n- We need to filter for CZK currency from the customers table\n- We need to filter for dates between 201301 and 201312 from the yearmonth table\n\nThe query process should be:\n\n1. For each segment (SME, LAM, KAM), find customers who paid in CZK\n2. For these customers, calculate their total consumption in 2013\n3. In each segment, identify the customer with the lowest total consumption\n4. Calculate the annual average consumption for these customers (total consumption / number of customers with lowest consumption in each segment)\n5. Calculate the differences between segments\n\nLet me write the SQL query:\n\n```sql\nWITH customer_consumption AS (\n    -- Get total consumption per customer for 2013, filtered by CZK currency\n    SELECT \n        c.CustomerID,\n        c.Segment,\n        SUM(ym.Consumption) AS total_consumption_2013\n    FROM \n        customers c\n    JOIN \n        yearmonth ym ON c.CustomerID = ym.CustomerID\n    WHERE \n        c.Currency = 'CZK'\n        AND ym.Date BETWEEN '201301' AND '201312'\n    GROUP BY \n        c.CustomerID, c.Segment\n),\nmin_consumption_per_segment AS (\n    -- Find the minimum consumption value for each segment\n    SELECT \n        Segment,\n        MIN(total_consumption_2013) AS min_consumption\n    FROM \n        customer_consumption\n    GROUP BY \n        Segment\n),\ncustomers_with_min_consumption AS (\n    -- Get all customers that have the minimum consumption in their segment\n    SELECT \n        cc.Segment,\n        COUNT(*) AS num_customers,\n        SUM(cc.total_consumption_2013) AS total_min_consumption\n    FROM \n        customer_consumption cc\n    JOIN \n        min_consumption_per_segment mcp ON cc.Segment = mcp.Segment AND cc.total_consumption_2013 = mcp.min_consumption\n    GROUP BY \n        cc.Segment\n),\nsegment_averages AS (\n    -- Calculate average consumption for customers with minimum consumption in each segment\n    SELECT \n        Segment,\n        total_min_consumption / num_customers AS annual_avg_consumption\n    FROM \n        customers_with_min_consumption\n)\n\n-- Calculate differences between segments\nSELECT \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'SME') - \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'LAM') AS SME_minus_LAM,\n    \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'LAM') - \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'KAM') AS LAM_minus_KAM,\n    \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'KAM') - \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'SME') AS KAM_minus_SME\n```\n\nWait, I need to check something. There's no direct connection between currency (CZK) in customers table and the consumption in yearmonth. Let me rethink my approach.\n\nActually, looking at the query and schema again, I see that customers table has a Currency field. So I should filter customers by Currency = 'CZK' and then join with yearmonth to get consumption for those customers.\n\nLet me validate the query again:\n\n1. We filter customers table for those with Currency = 'CZK'\n2. We join with yearmonth to get consumption for dates in 2013\n3. We group by customer and segment to get total consumption per customer\n4. We find the minimum consumption in each segment\n5. We calculate how many customers have this minimum consumption in each segment\n6. We calculate the annual average consumption for these customers\n7. We calculate the differences between segments\n\nThe query looks correct. Let me finalize it:\n</think>\n\nI'll analyze the database to find the consumption differences between customer segments.\n\n```json\n{\n  \"sql\": \"WITH customer_consumption AS (\n    -- Get total consumption per customer for 2013, filtered by CZK currency\n    SELECT \n        c.CustomerID,\n        c.Segment,\n        SUM(ym.Consumption) AS total_consumption_2013\n    FROM \n        customers c\n    JOIN \n        yearmonth ym ON c.CustomerID = ym.CustomerID\n    WHERE \n        c.Currency = 'CZK'\n        AND ym.Date BETWEEN '201301' AND '201312'\n    GROUP BY \n        c.CustomerID, c.Segment\n),\nmin_consumption_per_segment AS (\n    -- Find the minimum consumption value for each segment\n    SELECT \n        Segment,\n        MIN(total_consumption_2013) AS min_consumption\n    FROM \n        customer_consumption\n    GROUP BY \n        Segment\n),\ncustomers_with_min_consumption AS (\n    -- Get all customers that have the minimum consumption in their segment\n    SELECT \n        cc.Segment,\n        COUNT(*) AS num_customers,\n        SUM(cc.total_consumption_2013) AS total_min_consumption\n    FROM \n        customer_consumption cc\n    JOIN \n        min_consumption_per_segment mcp ON cc.Segment = mcp.Segment AND cc.total_consumption_2013 = mcp.min_consumption\n    GROUP BY \n        cc.Segment\n),\nsegment_averages AS (\n    -- Calculate average consumption for customers with minimum consumption in each segment\n    SELECT \n        Segment,\n        total_min_consumption / num_customers AS annual_avg_consumption\n    FROM \n        customers_with_min_consumption\n)\n\n-- Calculate differences between segments\nSELECT \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'SME') - \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'LAM') AS SME_minus_LAM,\n    \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'LAM') - \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'KAM') AS LAM_minus_KAM,\n    \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'KAM') - \n    (SELECT annual_avg_consumption FROM segment_averages WHERE Segment = 'SME') AS KAM_minus_SME\"\n}\n```"
+    }
+  }
+}

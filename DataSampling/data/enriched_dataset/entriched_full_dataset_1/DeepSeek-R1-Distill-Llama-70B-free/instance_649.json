@@ -1,0 +1,74 @@
+{
+  "id": 649,
+  "dataset": "spider",
+  "database": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the earnings of poker players in descending order.",
+  "sql": "SELECT Earnings FROM poker_player ORDER BY Earnings DESC",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 55,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 56,
+    "tables_count": 1,
+    "tables": [
+      "poker_player"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT pp.Earnings FROM poker_player pp INNER JOIN people p ON pp.People_ID = p.People_ID ORDER BY pp.Earnings DESC;",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

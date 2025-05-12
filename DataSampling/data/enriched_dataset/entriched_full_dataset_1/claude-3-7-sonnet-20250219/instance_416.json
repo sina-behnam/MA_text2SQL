@@ -1,0 +1,86 @@
+{
+  "id": 416,
+  "dataset": "spider",
+  "database": {
+    "name": "museum_visit",
+    "path": [
+      "spider_stratified_output_200/databases/museum_visit/museum_visit.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "museum_visit",
+    "path": [
+      "spider_stratified_output_200/schemas/museum_visit/museum_visit.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the average number of staff working for the museums that were open before 2009.",
+  "sql": "SELECT avg(num_of_staff) FROM museum WHERE open_year  <  2009",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 84,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "2009",
+        "label": "DATE",
+        "start": 79,
+        "end": 83
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2009"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 61,
+    "tables_count": 1,
+    "tables": [
+      "museum"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(Num_of_Staff) FROM museum WHERE Open_Year < '2009'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the schema and the question.\n\nWe have 3 tables:\n1. `museum`: Contains museum information, including Museum_ID, Name, Num_of_Staff, Open_Year.\n2. `visitor`: Contains visitor information.\n3. `visit`: Contains information about visits to museums by visitors.\n\nThe question asks for \"the average number of staff working for the museums that were open before 2009.\"\n\nSo, we need to:\n1. Filter museums that opened before 2009 (Open_Year < 2009).\n2. Calculate the average of Num_of_Staff for these museums.\n\nLet's create the SQL query:\n\n```sql\nSELECT AVG(Num_of_Staff) as Average_Staff\nFROM museum\nWHERE Open_Year < '2009'\n```\n\nNote: The Open_Year column is represented as text in the schema, so I'm comparing it as a string. If it's stored as a date or numeric value, the comparison should still work correctly. If not, we might need to cast it to the appropriate type.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(Num_of_Staff) FROM museum WHERE Open_Year < '2009'\"\n}\n```"
+    }
+  }
+}

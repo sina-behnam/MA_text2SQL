@@ -1,0 +1,89 @@
+{
+  "id": 559,
+  "dataset": "bird",
+  "database": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/databases/codebase_community/codebase_community.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/codebase_community/postLinks.csv",
+      "stratified_output/databases/codebase_community/postHistory.csv",
+      "stratified_output/databases/codebase_community/badges.csv",
+      "stratified_output/databases/codebase_community/posts.csv",
+      "stratified_output/databases/codebase_community/users.csv",
+      "stratified_output/databases/codebase_community/tags.csv",
+      "stratified_output/databases/codebase_community/votes.csv",
+      "stratified_output/databases/codebase_community/comments.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/schemas/codebase_community/codebase_community.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Indicate the creation date of the maximum number of votes.",
+  "sql": "SELECT CreationDate FROM votes GROUP BY CreationDate ORDER BY COUNT(Id) DESC LIMIT 1",
+  "evidence": "the creation date of the maximum number of votes refers to CreationDate where Max(Count(Id))",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 58,
+    "word_length": 10,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 84,
+    "tables_count": 1,
+    "tables": [
+      "votes"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT CreationDate FROM votes GROUP BY CreationDate ORDER BY COUNT(Id) DESC LIMIT 1;",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to find the creation date where the maximum number of votes happened. Let me break down the problem:\n\n1. I need to count the number of votes (from the 'votes' table) grouped by their creation date.\n2. I then need to find the creation date that has the maximum count of votes.\n\nLet's examine the 'votes' table schema:\n- Id (primary key)\n- PostId (foreign key to posts.Id)\n- VoteTypeId\n- CreationDate (this is the date I need to group by)\n- UserId (foreign key to users.Id)\n- BountyAmount\n\nI'll need to group votes by CreationDate, count them, and then select the CreationDate that has the maximum count:\n\n```sql\nSELECT CreationDate\nFROM votes\nGROUP BY CreationDate\nORDER BY COUNT(Id) DESC\nLIMIT 1;\n```\n\nThis query will:\n1. Group votes by the date they were created.\n2. Count the number of votes for each creation date.\n3. Order the results in descending order by the count, so the date with the most votes appears first.\n4. Limit the result to just the first row, which will be the date with the maximum vote count.\n\nAlternatively, I could use a subquery to find the maximum count first, and then select the date that matches that count. However, I need to be careful about ties (if multiple dates have the same maximum count).\n\n```sql\nSELECT CreationDate\nFROM (\n    SELECT CreationDate, COUNT(Id) as VoteCount\n    FROM votes\n    GROUP BY CreationDate\n) as VoteCounts\nWHERE VoteCount = (\n    SELECT MAX(VoteCount)\n    FROM (\n        SELECT COUNT(Id) as VoteCount\n        FROM votes\n        GROUP BY CreationDate\n    ) as Counts\n);\n```\n\nHowever, this subquery approach might be more complex than necessary, especially if there are no ties (or if it's acceptable to return just one of the dates with the maximum count, in case of ties). The first approach is simpler and should work for most use cases.\n\nI think the first query is the most straightforward approach to solve the problem.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT CreationDate FROM votes GROUP BY CreationDate ORDER BY COUNT(Id) DESC LIMIT 1;\"\n}\n```"
+    }
+  }
+}

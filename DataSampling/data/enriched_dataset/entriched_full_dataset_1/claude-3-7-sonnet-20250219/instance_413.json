@@ -1,0 +1,81 @@
+{
+  "id": 413,
+  "dataset": "spider",
+  "database": {
+    "name": "museum_visit",
+    "path": [
+      "spider_stratified_output_200/databases/museum_visit/museum_visit.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "museum_visit",
+    "path": [
+      "spider_stratified_output_200/schemas/museum_visit/museum_visit.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average age of the visitors whose membership level is not higher than 4?",
+  "sql": "SELECT avg(age) FROM visitor WHERE Level_of_membership  <=  4",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 84,
+    "word_length": 16,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [
+      "4"
+    ],
+    "has_numbers": true,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [
+      "higher"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 61,
+    "tables_count": 1,
+    "tables": [
+      "visitor"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(Age) FROM visitor WHERE Level_of_membership <= 4",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema provided:\n\n1. `museum` table: Contains information about museums (ID, Name, Number of Staff, Opening Year).\n2. `visitor` table: Contains information about visitors (ID, Name, Level of membership, Age).\n3. `visit` table: Contains information about visits (Museum ID, Visitor ID, Number of Tickets, Total spent).\n\nThe question asks for the average age of visitors whose membership level is not higher than 4. This means I need to:\n1. Query the `visitor` table\n2. Filter for visitors with a Level_of_membership <= 4\n3. Calculate the average of their Age\n\nLet me write the SQL query for this:\n\n```sql\nSELECT AVG(Age) \nFROM visitor \nWHERE Level_of_membership <= 4\n```\n\nThis query will:\n- Calculate the average (AVG) of the \"Age\" column\n- From the \"visitor\" table\n- Only include visitors whose \"Level_of_membership\" is less than or equal to 4\n\nThis should provide the average age of visitors whose membership level is not higher than 4.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(Age) FROM visitor WHERE Level_of_membership <= 4\"\n}\n```"
+    }
+  }
+}

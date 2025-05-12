@@ -1,0 +1,73 @@
+{
+  "id": 302,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the names and template ids for documents that contain the letter w in their description.",
+  "sql": "SELECT document_name ,  template_id FROM Documents WHERE Document_Description LIKE \"%w%\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 95,
+    "word_length": 16,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 88,
+    "tables_count": 1,
+    "tables": [
+      "Documents"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Document_Name, Template_ID FROM Documents WHERE Document_Description LIKE '%w%'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the schema to understand the database structure:\n\n1. `Ref_Template_Types`: Contains information about different template types.\n2. `Templates`: Contains template information, linked to template types.\n3. `Documents`: Contains document information, linked to templates.\n4. `Paragraphs`: Contains paragraph information, linked to documents.\n\nThe user is asking for the names and template IDs of documents that have the letter 'w' in their description.\n\nFrom the schema, I can see that:\n- Document names are stored in the `Document_Name` column of the `Documents` table.\n- Document descriptions are stored in the `Document_Description` column of the `Documents` table.\n- Template IDs are stored in the `Template_ID` column of the `Documents` table.\n\nTo find documents with the letter 'w' in their description, I need to use a LIKE operator with a wildcard pattern '%w%'. This will match any string that contains 'w' anywhere within it.\n\nI need to select:\n1. `Document_Name` from the `Documents` table\n2. `Template_ID` from the `Documents` table\n3. Filter where `Document_Description` contains the letter 'w'\n\nHere's the SQL query:\n```sql\nSELECT Document_Name, Template_ID \nFROM Documents \nWHERE Document_Description LIKE '%w%'\n```\n\nThis query will return the names and template IDs of all documents that have the letter 'w' in their description, regardless of case. If the database is case-sensitive and we want to match both uppercase and lowercase 'w', we would need to use a case-insensitive approach like:\n\n```sql\nSELECT Document_Name, Template_ID \nFROM Documents \nWHERE LOWER(Document_Description) LIKE '%w%'\n```\n\nBut let's stick with the simpler version, since the user didn't specify case sensitivity.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Document_Name, Template_ID FROM Documents WHERE Document_Description LIKE '%w%'\"\n}\n```"
+    }
+  }
+}

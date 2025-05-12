@@ -1,0 +1,81 @@
+{
+  "id": 675,
+  "dataset": "spider",
+  "database": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the most common nationality of people?",
+  "sql": "SELECT Nationality FROM people GROUP BY Nationality ORDER BY COUNT(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 46,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 82,
+    "tables_count": 1,
+    "tables": [
+      "people"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Nationality, COUNT(*) as count FROM people GROUP BY Nationality ORDER BY count DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "raw_response": "<think>\nTo find the most common nationality of people, I need to:\n\n1. Query the \"people\" table\n2. Group by the \"Nationality\" column\n3. Count the number of people for each nationality\n4. Order by this count in descending order\n5. Limit to 1 to get the most common\n\nHere's the SQL query:\n\n```sql\nSELECT Nationality, COUNT(*) as count\nFROM people\nGROUP BY Nationality\nORDER BY count DESC\nLIMIT 1\n```\n\nThis query will:\n- Select the Nationality column and count how many people have each nationality\n- Group the results by Nationality so we're counting per nationality\n- Order the results so the nationality with the highest count comes first\n- Limit to just the first row, which will be the most common nationality\n\nThe output will be a single row with the most common nationality and the count of how many people have that nationality.\n\nI need to provide the answer in the specified JSON format with a field named 'sql' containing the generated SQL query.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Nationality, COUNT(*) as count FROM people GROUP BY Nationality ORDER BY count DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

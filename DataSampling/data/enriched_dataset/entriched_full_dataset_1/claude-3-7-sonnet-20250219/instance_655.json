@@ -1,0 +1,78 @@
+{
+  "id": 655,
+  "dataset": "spider",
+  "database": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the money rank of the poker player with the highest earnings?",
+  "sql": "SELECT Money_Rank FROM poker_player ORDER BY Earnings DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 69,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "highest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 66,
+    "tables_count": 1,
+    "tables": [
+      "poker_player"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Money_Rank FROM poker_player WHERE Earnings = (SELECT MAX(Earnings) FROM poker_player)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to determine the money rank of the poker player with the highest earnings. Let's analyze the schema:\n\n1. The `poker_player` table has columns:\n   - Poker_Player_ID (primary key)\n   - People_ID (foreign key to people table)\n   - Final_Table_Made\n   - Best_Finish\n   - Money_Rank\n   - Earnings\n\n2. The `people` table has columns:\n   - People_ID (primary key)\n   - Nationality\n   - Name\n   - Birth_Date\n   - Height\n\nTo find the poker player with the highest earnings, I need to:\n1. Find the maximum value in the Earnings column of the poker_player table\n2. Get the Money_Rank for that player\n\nThis can be done with a simple query that selects the Money_Rank from the poker_player table for the row with the maximum Earnings.\n\nSQL query:\n```sql\nSELECT Money_Rank\nFROM poker_player\nWHERE Earnings = (SELECT MAX(Earnings) FROM poker_player)\n```\n\nThis query first finds the maximum value in the Earnings column using a subquery, and then selects the Money_Rank for the player(s) with that earnings amount. If there are multiple players with the same maximum earnings, this will return multiple ranks.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Money_Rank FROM poker_player WHERE Earnings = (SELECT MAX(Earnings) FROM poker_player)\"\n}\n```"
+    }
+  }
+}

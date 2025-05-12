@@ -1,0 +1,83 @@
+{
+  "id": 611,
+  "dataset": "spider",
+  "database": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the title of all  Cartoons showed on TV Channel with series name \"Sky Radio\".",
+  "sql": "SELECT T2.Title FROM TV_Channel AS T1 JOIN Cartoon AS T2 ON T1.id = T2.Channel WHERE T1.series_name = \"Sky Radio\";",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 82,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "Sky Radio",
+        "label": "WORK_OF_ART",
+        "start": 71,
+        "end": 80
+      }
+    ],
+    "entity_types": [
+      "WORK_OF_ART"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 114,
+    "tables_count": 2,
+    "tables": [
+      "TV_Channel",
+      "Cartoon"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT c.Title FROM Cartoon c JOIN TV_Channel tc ON c.Channel = tc.id WHERE tc.series_name = 'Sky Radio'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the schema first:\n\n1. TV_Channel table: Contains information about TV channels, including the series_name which is what we're focusing on.\n   - id (primary key)\n   - series_name\n   - Country\n   - Language\n   - Content\n   - Pixel_aspect_ratio_PAR\n   - Hight_definition_TV\n   - Pay_per_view_PPV\n   - Package_Option\n\n2. TV_series table: Contains information about TV series, with a foreign key reference to TV_Channel.\n   - id (primary key)\n   - Episode\n   - Air_Date\n   - Rating\n   - Share\n   - 18_49_Rating_Share\n   - Viewers_m\n   - Weekly_Rank\n   - Channel (foreign key to TV_Channel.id)\n\n3. Cartoon table: Contains information about cartoons, with a foreign key reference to TV_Channel.\n   - id (primary key)\n   - Title\n   - Directed_by\n   - Written_by\n   - Original_air_date\n   - Production_code\n   - Channel (foreign key to TV_Channel.id)\n\nThe user wants to list the titles of all cartoons that were shown on a TV channel with series name \"Sky Radio\".\n\nWe need to:\n1. Find the TV channels with series_name \"Sky Radio\" in the TV_Channel table.\n2. Join that result with the Cartoon table to find cartoons that were shown on those channels.\n3. Select the Title from the Cartoon table.\n\nHere's the SQL query:\n\n```sql\nSELECT c.Title\nFROM Cartoon c\nJOIN TV_Channel tc ON c.Channel = tc.id\nWHERE tc.series_name = 'Sky Radio'\n```\n\nThis query joins the Cartoon table with the TV_Channel table on the Channel/id relationship, and filters for only those TV channels with series_name \"Sky Radio\", then selects the Title from the Cartoon table for those results.\n\nLet me double-check this:\n- We're looking for cartoons shown on channels with series_name \"Sky Radio\".\n- We're joining the Cartoon and TV_Channel tables based on the foreign key relationship.\n- We're filtering for TV channels with series_name \"Sky Radio\".\n- We're selecting the Title column from the Cartoon table.\n\nSo yes, this query should return all cartoon titles that were shown on TV channels with series name \"Sky Radio\".\n</think>\n\n```json\n{\n  \"sql\": \"SELECT c.Title FROM Cartoon c JOIN TV_Channel tc ON c.Channel = tc.id WHERE tc.series_name = 'Sky Radio'\"\n}\n```"
+    }
+  }
+}

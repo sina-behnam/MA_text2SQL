@@ -1,0 +1,103 @@
+{
+  "id": 232,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Please list top three molecules that have single bonds between two atoms and are not carcinogenic in alphabetical order.",
+  "sql": "SELECT DISTINCT T2.molecule_id FROM bond AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.bond_type = '-' AND T2.label = '-' ORDER BY T2.molecule_id LIMIT 3",
+  "evidence": "label = '-' means molecules are not carcinogenic; single type bond refers to bond_type = '-'; list top three molecules refers to return molecule_id and order by molecule_id;",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 120,
+    "word_length": 19,
+    "entities": [
+      {
+        "text": "three",
+        "label": "CARDINAL",
+        "start": 16,
+        "end": 21
+      },
+      {
+        "text": "two",
+        "label": "CARDINAL",
+        "start": 63,
+        "end": 66
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "three",
+      "two"
+    ],
+    "has_numbers": true,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 3,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 183,
+    "tables_count": 2,
+    "tables": [
+      "bond",
+      "molecule"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT m.molecule_id FROM molecule m JOIN bond b ON m.molecule_id = b.molecule_id JOIN connected c ON b.bond_id = c.bond_id WHERE m.label = '-' AND b.bond_type = '-' ORDER BY m.molecule_id LIMIT 3",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's break down the question:\n\n1. We need to find molecules that have single bonds (bond_type = '-')\n2. These molecules should not be carcinogenic (label = '-')\n3. We need to list the top three molecules in alphabetical order\n4. We should return the molecule_id\n\nLooking at the database schema, we have four tables:\n- `molecule`: Contains molecule_id and label\n- `atom`: Contains atom_id, molecule_id, and element\n- `bond`: Contains bond_id, molecule_id, and bond_type\n- `connected`: Links atoms to bonds\n\nTo solve this problem, I need to:\n1. Find molecules that are not carcinogenic (molecule table with label = '-')\n2. Find molecules that have single bonds (bond table with bond_type = '-')\n3. Make sure these single bonds connect two atoms (using the connected table)\n4. Get the intersection of these two sets\n5. Order the results alphabetically by molecule_id\n6. Limit to the top three\n\nHere's the SQL query:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT m.molecule_id FROM molecule m JOIN bond b ON m.molecule_id = b.molecule_id JOIN connected c ON b.bond_id = c.bond_id WHERE m.label = '-' AND b.bond_type = '-' ORDER BY m.molecule_id LIMIT 3\"\n}\n```"
+    }
+  }
+}

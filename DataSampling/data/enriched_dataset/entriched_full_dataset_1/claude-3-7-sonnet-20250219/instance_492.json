@@ -1,0 +1,75 @@
+{
+  "id": 492,
+  "dataset": "spider",
+  "database": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/databases/battle_death/battle_death.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "battle_death",
+    "path": [
+      "spider_stratified_output_200/schemas/battle_death/battle_death.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the name and tonnage ordered by in descending alphaetical order for the names.",
+  "sql": "SELECT name ,  tonnage FROM ship ORDER BY name DESC",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 83,
+    "word_length": 14,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 51,
+    "tables_count": 1,
+    "tables": [
+      "ship"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT name, tonnage FROM ship ORDER BY name DESC",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nLet me understand the database schema:\n\n1. `battle` table has columns: id, name, date, bulgarian_commander, latin_commander, result\n2. `ship` table has columns: lost_in_battle, id, name, tonnage, ship_type, location, disposition_of_ship\n3. `death` table has columns: caused_by_ship_id, id, note, killed, injured\n\nThe user is asking for the name and tonnage of ships, ordered in descending alphabetical order by name. \n\nThe data I need is in the `ship` table, specifically the `name` and `tonnage` columns. I need to order the results by `name` in descending alphabetical order, which means I'll use `ORDER BY name DESC`.\n\nSo the query would be:\n\n```sql\nSELECT name, tonnage\nFROM ship\nORDER BY name DESC;\n```\n\nThis query will return the name and tonnage of all ships, ordered by name in descending alphabetical order.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT name, tonnage FROM ship ORDER BY name DESC\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": 548,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the name of the course with the most students enrolled?",
+  "sql": "SELECT  T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_name ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 63,
+    "word_length": 12,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 166,
+    "tables_count": 2,
+    "tables": [
+      "Courses",
+      "Student_Enrolment_Courses"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT c.course_name FROM Courses c JOIN Student_Enrolment_Courses sec ON c.course_id = sec.course_id GROUP BY c.course_id, c.course_name ORDER BY COUNT(*) DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The queries differ in their GROUP BY clauses. The gold query groups by T1.course_name only, while the generated query groups by both c.course_id and c.course_name. This difference would produce different results if multiple courses have the same name but different IDs. The gold query would aggregate all students from courses with the same name together, while the generated query would count them separately for each unique course_id.",
+      "raw_response": "<think>\nI need to find the course with the most students enrolled. \n\nLooking at the schema, I can see the following relevant tables:\n1. `Courses` - contains course information with `course_id` as the primary key\n2. `Student_Enrolment_Courses` - contains which students are enrolled in which courses\n\nTo find the course with the most students enrolled, I need to:\n1. Count how many students are enrolled in each course\n2. Group by course\n3. Order by the count in descending order\n4. Take the top result\n\nThe query will involve:\n- Counting records in `Student_Enrolment_Courses` grouped by `course_id`\n- Joining with the `Courses` table to get the course name\n- Ordering by the count in descending order\n- Limiting to 1 result to get the course with the highest count\n\nHere's the SQL query:\n```sql\nSELECT c.course_name\nFROM Courses c\nJOIN (\n    SELECT course_id, COUNT(*) as enrollment_count\n    FROM Student_Enrolment_Courses\n    GROUP BY course_id\n    ORDER BY enrollment_count DESC\n    LIMIT 1\n) most_enrolled ON c.course_id = most_enrolled.course_id;\n```\n\nHowever, there's an alternative approach that might be clearer:\n```sql\nSELECT c.course_name, COUNT(*) as enrollment_count\nFROM Courses c\nJOIN Student_Enrolment_Courses sec ON c.course_id = sec.course_id\nGROUP BY c.course_id, c.course_name\nORDER BY enrollment_count DESC\nLIMIT 1;\n```\n\nThis second approach directly groups and counts in one operation, which is more readable.\n\nLet me go with the second approach for the final SQL query.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT c.course_name FROM Courses c JOIN Student_Enrolment_Courses sec ON c.course_id = sec.course_id GROUP BY c.course_id, c.course_name ORDER BY COUNT(*) DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

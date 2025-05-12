@@ -1,0 +1,75 @@
+{
+  "id": 55,
+  "dataset": "spider",
+  "database": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/databases/pets_1/pets_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/schemas/pets_1/pets_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the number of distinct type of pets.",
+  "sql": "SELECT count(DISTINCT pettype) FROM pets",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 41,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 40,
+    "tables_count": 1,
+    "tables": [
+      "pets"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT PetType) FROM Pets",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema provided:\n\n1. `Student` table with student information.\n2. `Has_Pet` table which is a junction table connecting students to their pets.\n3. `Pets` table with pet information.\n\nThe question asks for the number of distinct types of pets.\n\nLooking at the schema, the pet type is stored in the `PetType` column of the `Pets` table. \n\nTo find the number of distinct types of pets, I need to count the number of distinct values in the `PetType` column.\n\nThe SQL query would be:\n\n```sql\nSELECT COUNT(DISTINCT PetType) FROM Pets;\n```\n\nThis will count the number of distinct values in the `PetType` column from the `Pets` table, giving us the number of different types of pets.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT PetType) FROM Pets\"\n}\n```"
+    }
+  }
+}

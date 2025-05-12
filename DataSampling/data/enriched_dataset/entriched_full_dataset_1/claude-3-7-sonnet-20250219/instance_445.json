@@ -1,0 +1,91 @@
+{
+  "id": 445,
+  "dataset": "spider",
+  "database": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the name of tourney that has more than 10 matches.",
+  "sql": "SELECT tourney_name FROM matches GROUP BY tourney_name HAVING count(*)  >  10",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 55,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "more than 10",
+        "label": "CARDINAL",
+        "start": 34,
+        "end": 46
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "10"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "more"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 77,
+    "tables_count": 1,
+    "tables": [
+      "matches"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT tourney_name FROM matches GROUP BY tourney_name HAVING COUNT(*) > 10",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nTo find the name of tourney that has more than 10 matches, I need to:\n\n1. Count the number of matches for each tourney\n2. Filter to include only tourneys with more than 10 matches\n3. Return the tourney names\n\nLooking at the schema:\n- The `matches` table contains information about matches, including the `tourney_name` and `tourney_id`.\n- I need to count matches grouped by `tourney_name`.\n\nHere's the SQL query:\n\n```sql\nSELECT tourney_name, COUNT(*) as match_count\nFROM matches\nGROUP BY tourney_name\nHAVING COUNT(*) > 10\n```\n\nThis query:\n1. Selects the tourney name and counts the matches for each tourney\n2. Groups the results by tourney name\n3. Filters to include only tourneys with more than 10 matches using the HAVING clause\n\nThis should give us the list of tournament names that have more than 10 matches.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT tourney_name FROM matches GROUP BY tourney_name HAVING COUNT(*) > 10\"\n}\n```"
+    }
+  }
+}

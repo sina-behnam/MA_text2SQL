@@ -1,0 +1,86 @@
+{
+  "id": 103,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which distinct car models are the produced after 1980?",
+  "sql": "SELECT DISTINCT T1.model FROM MODEL_LIST AS T1 JOIN CAR_NAMES AS T2 ON T1.model  =  T2.model JOIN CARS_DATA AS T3 ON T2.MakeId  =  T3.id WHERE T3.year  >  1980;",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 54,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "1980",
+        "label": "DATE",
+        "start": 49,
+        "end": 53
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "1980"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 160,
+    "tables_count": 3,
+    "tables": [
+      "MODEL_LIST",
+      "CAR_NAMES",
+      "CARS_DATA"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT Model FROM car_names cn JOIN cars_data cd ON cn.MakeId = cd.Id WHERE cd.Year > 1980",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema to understand how to answer the question.\n\nWe need to find distinct car models that were produced after 1980. Looking at the schema:\n\n1. `cars_data` table contains the `Year` column which indicates when the car was produced.\n2. `car_names` table links to `cars_data` via the `MakeId` column.\n3. `model_list` table contains detailed information about the models, and is linked to `car_names` via the `Model` column.\n\nTo get distinct car models produced after 1980, we need to:\n1. Join `cars_data` with `car_names` to get the models with their production years.\n2. Filter for years > 1980.\n3. Get distinct model names.\n\nLooking at the structure:\n- `cars_data.Id` links to `car_names.MakeId`\n- `car_names.Model` links to `model_list.Model`\n\nThe SQL query should be:\n```sql\nSELECT DISTINCT ml.Model\nFROM model_list ml\nJOIN car_names cn ON ml.Model = cn.Model\nJOIN cars_data cd ON cn.MakeId = cd.Id\nWHERE cd.Year > 1980\n```\n\nHowever, we might need to rethink this. The relationship between `car_names` and `cars_data` seems to be such that `car_names.MakeId` is a foreign key that references `cars_data.Id` (which is also the primary key of `cars_data`).\n\nActually, looking at the schema again:\n- `cars_data.Id` is a foreign key that references `car_names.MakeId`\n\nThe correct SQL query would be:\n```sql\nSELECT DISTINCT cn.Model\nFROM car_names cn\nJOIN cars_data cd ON cn.MakeId = cd.Id\nWHERE cd.Year > 1980\n```\n\nThis should retrieve all distinct car models that were produced after 1980.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT Model FROM car_names cn JOIN cars_data cd ON cn.MakeId = cd.Id WHERE cd.Year > 1980\"\n}\n```"
+    }
+  }
+}

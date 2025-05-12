@@ -1,0 +1,75 @@
+{
+  "id": 424,
+  "dataset": "spider",
+  "database": {
+    "name": "museum_visit",
+    "path": [
+      "spider_stratified_output_200/databases/museum_visit/museum_visit.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "museum_visit",
+    "path": [
+      "spider_stratified_output_200/schemas/museum_visit/museum_visit.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the average and maximum number of tickets bought in all visits?",
+  "sql": "SELECT avg(num_of_ticket) ,  max(num_of_ticket) FROM visit",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 72,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 58,
+    "tables_count": 1,
+    "tables": [
+      "visit"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "AVG",
+      "MAX"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(Num_of_Ticket) AS average_tickets, MAX(Num_of_Ticket) AS max_tickets FROM visit",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

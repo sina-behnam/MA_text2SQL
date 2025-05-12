@@ -1,0 +1,83 @@
+{
+  "id": 941,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the owner id and zip code of the owner who spent the most money in total for his or her dogs.",
+  "sql": "SELECT T1.owner_id ,  T1.zip_code FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id JOIN Treatments AS T3 ON T2.dog_id  =  T3.dog_id GROUP BY T1.owner_id ORDER BY sum(T3.cost_of_treatment) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 98,
+    "word_length": 23,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 216,
+    "tables_count": 3,
+    "tables": [
+      "Owners",
+      "Dogs",
+      "Treatments"
+    ],
+    "join_count": 2,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT o.owner_id, o.zip_code FROM Owners o JOIN (SELECT d.owner_id, SUM(t.cost_of_treatment) AS total_cost FROM Treatments t JOIN Dogs d ON t.dog_id = d.dog_id GROUP BY d.owner_id ORDER BY total_cost DESC LIMIT 1) AS top_spender ON o.owner_id = top_spender.owner_id",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLooking at the database schema, I need to find the owner who spent the most money on their dogs. The money spent is recorded in the `Treatments` table as `cost_of_treatment`. \n\nTo solve this problem:\n1. I need to join the `Treatments` table with the `Dogs` table to get the `owner_id` for each treatment.\n2. Group by `owner_id` and sum the `cost_of_treatment` for each owner.\n3. Order by the total cost in descending order and limit to 1 to get the owner who spent the most.\n4. Join with the `Owners` table to get the owner's zip code.\n\nHere's the SQL query:\n\n```sql\nSELECT \n    o.owner_id,\n    o.zip_code\nFROM \n    Owners o\nJOIN (\n    SELECT \n        d.owner_id,\n        SUM(t.cost_of_treatment) AS total_cost\n    FROM \n        Treatments t\n    JOIN \n        Dogs d ON t.dog_id = d.dog_id\n    GROUP BY \n        d.owner_id\n    ORDER BY \n        total_cost DESC\n    LIMIT 1\n) AS top_spender ON o.owner_id = top_spender.owner_id;\n```\n\nThis query first creates a subquery that:\n1. Joins `Treatments` with `Dogs` to get the `owner_id` for each treatment\n2. Groups by `owner_id` and calculates the total cost of treatments for each owner\n3. Orders by the total cost in descending order and limits to 1 to get the top spender\n\nThen it joins this result with the `Owners` table to get the zip code for the top-spending owner.\n\nLet me double-check the query to make sure it's correct:\n- We're joining `Treatments` with `Dogs` using `dog_id`\n- We're grouping by `owner_id` in the subquery to calculate the total cost per owner\n- We're ordering by the total cost in descending order and limiting to 1 to get the top spender\n- We're joining the subquery result with the `Owners` table to get the zip code\n\nThe query looks good. It should return the `owner_id` and `zip_code` of the owner who spent the most money on treatments for their dogs.\n\nLet me convert this to JSON format with the 'sql' field:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT o.owner_id, o.zip_code FROM Owners o JOIN (SELECT d.owner_id, SUM(t.cost_of_treatment) AS total_cost FROM Treatments t JOIN Dogs d ON t.dog_id = d.dog_id GROUP BY d.owner_id ORDER BY total_cost DESC LIMIT 1) AS top_spender ON o.owner_id = top_spender.owner_id\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": 653,
+  "dataset": "spider",
+  "database": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average earnings of poker players?",
+  "sql": "SELECT avg(Earnings) FROM poker_player",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 46,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 38,
+    "tables_count": 1,
+    "tables": [
+      "poker_player"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(Earnings) AS average_earnings FROM poker_player",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nBased on the schema provided, there are two tables:\n1. `poker_player` - Which contains information about poker players including their earnings.\n2. `people` - Which contains general information about people (including those who are poker players).\n\nThe user wants to know the average earnings of poker players. \n\nLooking at the `poker_player` table, there's an `Earnings` column which likely represents how much a poker player has earned. To calculate the average earnings, I will use the `AVG` function on the `Earnings` column.\n\nHere's the query:\n\n```sql\nSELECT AVG(Earnings) AS average_earnings\nFROM poker_player;\n```\n\nThis query will calculate the average of all values in the `Earnings` column from the `poker_player` table, giving us the average earnings of poker players.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(Earnings) AS average_earnings FROM poker_player\"\n}\n```"
+    }
+  }
+}

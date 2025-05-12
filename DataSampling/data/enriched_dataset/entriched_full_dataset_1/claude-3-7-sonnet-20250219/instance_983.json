@@ -1,0 +1,78 @@
+{
+  "id": 983,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the number of professionals who have not treated any dogs.",
+  "sql": "SELECT count(*) FROM Professionals WHERE professional_id NOT IN ( SELECT professional_id FROM Treatments )",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 63,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 106,
+    "tables_count": 2,
+    "tables": [
+      "Professionals",
+      "Treatments"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM Professionals WHERE professional_id NOT IN (SELECT DISTINCT professional_id FROM Treatments)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to find the number of professionals who have not treated any dogs. To do this, I'll need to:\n\n1. Identify the professionals who appear in the Treatments table (they have treated at least one dog)\n2. Count the total number of professionals in the Professionals table who are NOT in this list\n\nLet me analyze the schema:\n\n1. `Professionals` table has information about all professionals with `professional_id` as the primary key\n2. `Treatments` table has information about treatments given to dogs, including the `professional_id` of the professional who provided the treatment\n\nTo find professionals who have not treated any dogs, I need to find all professionals whose IDs don't appear in the Treatments table. I can do this using a LEFT JOIN or using NOT IN/NOT EXISTS.\n\nHere's how I can approach this:\n\nOption 1: Using LEFT JOIN\n```sql\nSELECT COUNT(*)\nFROM Professionals p\nLEFT JOIN Treatments t ON p.professional_id = t.professional_id\nWHERE t.professional_id IS NULL\n```\n\nOption 2: Using NOT EXISTS\n```sql\nSELECT COUNT(*)\nFROM Professionals p\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM Treatments t\n    WHERE t.professional_id = p.professional_id\n)\n```\n\nOption 3: Using NOT IN\n```sql\nSELECT COUNT(*)\nFROM Professionals p\nWHERE p.professional_id NOT IN (\n    SELECT DISTINCT professional_id\n    FROM Treatments\n)\n```\n\nAll three approaches should give the same result. I'll go with the NOT EXISTS approach as it's generally efficient and clear.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM Professionals WHERE professional_id NOT IN (SELECT DISTINCT professional_id FROM Treatments)\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "id": 657,
+  "dataset": "bird",
+  "database": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/databases/codebase_community/codebase_community.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/codebase_community/postLinks.csv",
+      "stratified_output/databases/codebase_community/postHistory.csv",
+      "stratified_output/databases/codebase_community/badges.csv",
+      "stratified_output/databases/codebase_community/posts.csv",
+      "stratified_output/databases/codebase_community/users.csv",
+      "stratified_output/databases/codebase_community/tags.csv",
+      "stratified_output/databases/codebase_community/votes.csv",
+      "stratified_output/databases/codebase_community/comments.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "codebase_community",
+    "path": [
+      "stratified_output/schemas/codebase_community/codebase_community.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Under the vote type of 8, provide the display names and websites URLs of the user who got the highest bounty amount.",
+  "sql": "SELECT DisplayName, WebsiteUrl FROM users WHERE Id = ( SELECT UserId FROM votes WHERE VoteTypeId = 8 ORDER BY BountyAmount DESC LIMIT 1 )",
+  "evidence": "vote type of 8 refers to VoteTypeId = 8; the highest bounty amount refers to MAX(BountyAmount);",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 116,
+    "word_length": 22,
+    "entities": [
+      {
+        "text": "8",
+        "label": "CARDINAL",
+        "start": 23,
+        "end": 24
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "8"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "highest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 137,
+    "tables_count": 2,
+    "tables": [
+      "users",
+      "votes"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT u.DisplayName, u.WebsiteUrl \nFROM users u\nJOIN posts p ON u.Id = p.OwnerUserId\nJOIN votes v ON p.Id = v.PostId\nWHERE v.VoteTypeId = 8\nAND v.BountyAmount = (\n    SELECT MAX(BountyAmount)\n    FROM votes\n    WHERE VoteTypeId = 8\n)\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet's analyze the problem:\n\n1. We need to find users who got bounties (VoteTypeId = 8 in the votes table).\n2. We need to identify the user who received the highest bounty amount (MAX(BountyAmount) from the votes table).\n3. For this user, we need to provide their display name and website URL (which are in the users table).\n\nLet's look at the relevant tables and their relationships:\n\n1. `votes` table:\n   - Has `UserId`, `VoteTypeId`, and `BountyAmount` columns.\n   - Connected to `users` table through the `UserId` foreign key.\n\n2. `users` table:\n   - Contains `DisplayName` and `WebsiteUrl` columns.\n   - Connected to `votes` table through the `Id` primary key.\n\nWe need to:\n1. Filter votes where VoteTypeId = 8 (bounty votes).\n2. Find the maximum BountyAmount.\n3. Join with the users table to get the DisplayName and WebsiteUrl of the user who received this bounty.\n\nHere's the SQL query:\n```sql\nSELECT u.DisplayName, u.WebsiteUrl\nFROM users u\nJOIN votes v ON u.Id = v.UserId\nWHERE v.VoteTypeId = 8\nAND v.BountyAmount = (\n    SELECT MAX(BountyAmount)\n    FROM votes\n    WHERE VoteTypeId = 8\n)\n```\n\nThis query:\n1. Joins the users and votes tables.\n2. Filters for votes with VoteTypeId = 8.\n3. Only includes rows where the BountyAmount is equal to the maximum BountyAmount found in votes with VoteTypeId = 8.\n4. Returns the DisplayName and WebsiteUrl of those users.\n\nWait, let me check my understanding against the schema again. It seems that votes.UserId could represent the user who made the vote rather than the user who received the bounty. Let me reconsider.\n\nLooking at the schema:\n- The votes table has a UserId, which would typically represent the user who cast the vote.\n- The votes table also has a PostId, which would link to the post that received the vote.\n- To find the user who received the bounty, we would need to:\n  1. Find the post that received the bounty vote.\n  2. Find the user who owns that post.\n\nHowever, one complication: we need to check if the bounty is given to a question or an answer. Let's assume it's given to an answer. In that case, we need to find the OwnerUserId of the post that received the vote.\n\nRevised SQL query:\n```sql\nSELECT u.DisplayName, u.WebsiteUrl\nFROM users u\nJOIN posts p ON u.Id = p.OwnerUserId\nJOIN votes v ON p.Id = v.PostId\nWHERE v.VoteTypeId = 8\nAND v.BountyAmount = (\n    SELECT MAX(BountyAmount)\n    FROM votes\n    WHERE VoteTypeId = 8\n)\n```\n\nThis query:\n1. Joins the users, posts, and votes tables.\n2. Links the votes to the posts they were cast on.\n3. Links the posts to their owner users.\n4. Filters for votes with VoteTypeId = 8.\n5. Only includes rows where the BountyAmount is equal to the maximum BountyAmount found in votes with VoteTypeId = 8.\n6. Returns the DisplayName and WebsiteUrl of those users.\n\nThis should give us the display name and website URL of the user who received the highest bounty amount for vote type 8.\n</think>\n\nLooking at the database schema, I need to find the user who received the highest bounty amount with vote type 8, then return their display name and website URL.\n\nThe approach is to:\n1. Find the maximum bounty amount for votes with VoteTypeId = 8\n2. Identify the post that received this bounty\n3. Find the user who owns that post\n4. Return the user's DisplayName and WebsiteUrl\n\n```json\n{\n  \"sql\": \"SELECT u.DisplayName, u.WebsiteUrl \nFROM users u\nJOIN posts p ON u.Id = p.OwnerUserId\nJOIN votes v ON p.Id = v.PostId\nWHERE v.VoteTypeId = 8\nAND v.BountyAmount = (\n    SELECT MAX(BountyAmount)\n    FROM votes\n    WHERE VoteTypeId = 8\n)\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "id": 238,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many molecules have a triple bond type?",
+  "sql": "SELECT COUNT(DISTINCT T.molecule_id) FROM bond AS T WHERE T.bond_type = '#'",
+  "evidence": "triple bond refers to bond_type = '#';",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 43,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 75,
+    "tables_count": 1,
+    "tables": [
+      "bond"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT molecule_id) FROM bond WHERE bond_type = '#'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand what we're being asked for. The question is \"How many molecules have a triple bond type?\", and it's noted that triple bond refers to bond_type = '#'.\n\nLooking at the schema:\n1. We have a `molecule` table that has molecule information.\n2. We have a `bond` table that has bond information, including the bond_type and also relates to the molecule_id.\n3. We have an `atom` table with atom information.\n4. We have a `connected` table that links atoms with a bond.\n\nSince we're looking for molecules that have a triple bond, I need to:\n1. Look in the `bond` table for bonds where bond_type = '#'.\n2. Count the distinct molecules that have such bonds.\n\nHere's how I can construct the SQL query:\n```sql\nSELECT COUNT(DISTINCT molecule_id) \nFROM bond \nWHERE bond_type = '#';\n```\n\nThis will:\n1. Filter bonds to only those with bond_type = '#'.\n2. Count the distinct molecule_ids that have such bonds.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT molecule_id) FROM bond WHERE bond_type = '#'\"\n}\n```"
+    }
+  }
+}

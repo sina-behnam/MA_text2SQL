@@ -1,0 +1,83 @@
+{
+  "id": 1344,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What was the notes of the fundraising on 2019/9/14?",
+  "sql": "SELECT notes FROM income WHERE source = 'Fundraising' AND date_received = '2019-09-14'",
+  "evidence": "fundraising on 2019/9/14 refers to source = 'Fundraising' where date_received = '2019-09-14'",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 51,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 86,
+    "tables_count": 1,
+    "tables": [
+      "income"
+    ],
+    "join_count": 0,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT notes FROM income WHERE source = 'Fundraising' AND date_received = '2019-09-14'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nBased on the database schema provided, I need to find the notes of a fundraising event that occurred on 2019/9/14. The user has specified that this refers to a record in the income table where `source = 'Fundraising'` and `date_received = '2019-09-14'`.\n\nLooking at the income table schema from the provided DDL:\n\n```sql\nCREATE TABLE \"income\"\n(\n    income_id      TEXT\n        constraint income_pk\n            primary key,\n    date_received  TEXT,\n    amount         INTEGER,\n    source         TEXT,\n    notes          TEXT,\n    link_to_member TEXT,\n    foreign key (link_to_member) references member(member_id)\n);\n```\n\nI can see that the income table has a `notes` column, which is what the user is asking about. \n\nSo I need to write a SQL query that:\n1. Selects the `notes` field from the income table\n2. Filters for records where `source = 'Fundraising'` and `date_received = '2019-09-14'`\n\nThe SQL query should look like this:\n\n```sql\nSELECT notes \nFROM income \nWHERE source = 'Fundraising' AND date_received = '2019-09-14';\n```\n\nThis query will return the notes associated with any fundraising entries recorded on September 14, 2019.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT notes FROM income WHERE source = 'Fundraising' AND date_received = '2019-09-14'\"\n}\n```"
+    }
+  }
+}

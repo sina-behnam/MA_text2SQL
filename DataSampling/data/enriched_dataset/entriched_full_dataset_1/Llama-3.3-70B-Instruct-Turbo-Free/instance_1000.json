@@ -1,0 +1,70 @@
+{
+  "id": 1000,
+  "dataset": "spider",
+  "database": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/databases/singer/singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/schemas/singer/singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many singers are there?",
+  "sql": "SELECT count(*) FROM singer",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 27,
+    "word_length": 5,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 27,
+    "tables_count": 1,
+    "tables": [
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": false,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "sql": null,
+      "raw_response": "Model error: Error code: 429 - {'id': 'ntVUwuZ-3NKUce-93da287bb947edc7', 'error': {'message': 'You have reached the rate limit specific to this model meta-llama/Llama-3.3-70B-Instruct-Turbo-Free. The maximum rate limit for this model is 6.0 queries and 60000 tokens per minute. This limit differs from the general rate limits published at Together AI rate limits documentation (https://docs.together.ai/docs/rate-limits). For inquiries about increasing your model-specific rate limit, please contact our sales team (https://www.together.ai/forms/contact-sales)', 'type': 'model_rate_limit', 'param': None, 'code': None}}"
+    }
+  }
+}

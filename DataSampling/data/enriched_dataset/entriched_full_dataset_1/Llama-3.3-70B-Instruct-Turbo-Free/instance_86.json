@@ -1,0 +1,88 @@
+{
+  "id": 86,
+  "dataset": "bird",
+  "database": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/databases/california_schools/california_schools.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/california_schools/schools.csv",
+      "stratified_output/databases/california_schools/satscores.csv",
+      "stratified_output/databases/california_schools/frpm.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/schemas/california_schools/california_schools.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the administrator's last name that oversees the school with Charter number 40? Indicate the district, the county where the school is situated, and the name of the school.",
+  "sql": "SELECT AdmLName1, District, County, School FROM schools WHERE CharterNum = '0040'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 178,
+    "word_length": 31,
+    "entities": [
+      {
+        "text": "40",
+        "label": "CARDINAL",
+        "start": 83,
+        "end": 85
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "40"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 4,
+    "column_overlap_lemma_count": 4
+  },
+  "sql_analysis": {
+    "char_length": 81,
+    "tables_count": 1,
+    "tables": [
+      "schools"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 4
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT T1.District, T1.County, T1.School, T1.AdmLName1 FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.`Charter School Number` = '40'",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 4) vs predicted (0, 0)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 4) vs predicted (0, 0)"
+    }
+  }
+}

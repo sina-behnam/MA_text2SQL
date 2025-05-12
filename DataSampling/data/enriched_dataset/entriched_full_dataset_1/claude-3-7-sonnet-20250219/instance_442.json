@@ -1,0 +1,75 @@
+{
+  "id": 442,
+  "dataset": "spider",
+  "database": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many distinct countries do players come from?",
+  "sql": "SELECT count(DISTINCT country_code) FROM players",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 49,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 48,
+    "tables_count": 1,
+    "tables": [
+      "players"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT country_code) FROM players",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nTo determine how many distinct countries the players come from, I need to look at the database schema and identify where country information is stored.\n\nFrom the provided database schema, I can see:\n\n1. `players` table has a `country_code` column, which presumably represents the country each player is from.\n\n2. `matches` table has `loser_ioc` and `winner_ioc` columns, which might also represent country codes for the loser and winner of each match, respectively.\n\nSince I'm looking for the number of distinct countries players come from, the most direct approach would be to count the distinct `country_code` values in the `players` table.\n\nThe SQL query to achieve this would be:\n\n```sql\nSELECT COUNT(DISTINCT country_code) FROM players\n```\n\nThis query will count the number of distinct values in the `country_code` column of the `players` table, giving us the number of different countries the players come from.\n\nAlternatively, I could consider the `loser_ioc` and `winner_ioc` columns from the `matches` table:\n\n```sql\nSELECT COUNT(DISTINCT loser_ioc) FROM matches\n```\n\nor \n\n```sql\nSELECT COUNT(DISTINCT winner_ioc) FROM matches\n```\n\nor even a combined approach:\n\n```sql\nSELECT COUNT(DISTINCT country) FROM (\n    SELECT loser_ioc AS country FROM matches\n    UNION\n    SELECT winner_ioc AS country FROM matches\n)\n```\n\nHowever, the `players` table seems more authoritative for player data, so I'll go with the first query.\n\nSELECT COUNT(DISTINCT country_code) FROM players\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT country_code) FROM players\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "id": 322,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the element of toxicology for the atom with the ID of TR000_1?",
+  "sql": "SELECT T.element FROM atom AS T WHERE T.atom_id = 'TR000_1'",
+  "evidence": "atom with ID refers to atom_id; element = 'cl' means Chlorine; element = 'c' means Carbon; element = 'h' means Hydrogen; element = 'o' means Oxygen, element = 's' means Sulfur; element = 'n' means Nitrogen, element = 'p' means Phosphorus, element = 'na' means Sodium, element = 'br' means Bromine, element = 'f' means Fluorine; element = 'i' means Iodine; element = 'sn' means Tin; element = 'pb' means Lead; element = 'te' means Tellurium; element = 'ca' means Calcium",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 70,
+    "word_length": 14,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 59,
+    "tables_count": 1,
+    "tables": [
+      "atom"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT element FROM atom WHERE atom_id = 'TR000_1'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nIn this question, I'm asked to find the element of toxicology for an atom with the ID of TR000_1. The database schema shows several tables related to molecules, atoms, bonds, and connections between atoms.\n\nFrom the schema, I can see that the `atom` table has the following columns:\n- `atom_id`: The primary key, which is what I'm looking for (TR000_1)\n- `molecule_id`: A foreign key referencing the `molecule` table\n- `element`: The element of the atom, which is what the question is asking for\n\nTo find the element for the atom with ID TR000_1, I need to query the `atom` table:\n\n```sql\nSELECT element\nFROM atom\nWHERE atom_id = 'TR000_1';\n```\n\nThis query should return the element associated with the atom ID TR000_1. The element will be one of the codes mentioned in the question, such as 'cl' for Chlorine, 'c' for Carbon, etc.\n\nThe question mentions \"element of toxicology,\" which might be a bit unclear, but based on the database schema, it seems the question is simply asking for the \"element\" column value from the \"atom\" table for the given atom_id.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT element FROM atom WHERE atom_id = 'TR000_1'\"\n}\n```"
+    }
+  }
+}

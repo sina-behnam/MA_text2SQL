@@ -1,0 +1,90 @@
+{
+  "id": 1402,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the most popular size of t-shirt ordered by the club members?",
+  "sql": "SELECT t_shirt_size FROM member GROUP BY t_shirt_size ORDER BY COUNT(t_shirt_size) DESC LIMIT 1",
+  "evidence": "most popular size of t-shirt ordered refers to MAX(COUNT(t_shirt_size))",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 69,
+    "word_length": 14,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 95,
+    "tables_count": 1,
+    "tables": [
+      "member"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT t_shirt_size FROM member GROUP BY t_shirt_size ORDER BY COUNT(*) DESC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

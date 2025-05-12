@@ -1,0 +1,86 @@
+{
+  "id": 549,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the last name of the students who currently live in the state of North Carolina but have not registered in any degree program.",
+  "sql": "SELECT T1.last_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id  =  T2.address_id WHERE T2.state_province_county  =  'NorthCarolina' EXCEPT SELECT DISTINCT T3.last_name FROM Students AS T3 JOIN Student_Enrolment AS T4 ON T3.student_id  =  T4.student_id",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 131,
+    "word_length": 24,
+    "entities": [
+      {
+        "text": "North Carolina",
+        "label": "GPE",
+        "start": 70,
+        "end": 84
+      }
+    ],
+    "entity_types": [
+      "GPE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 274,
+    "tables_count": 3,
+    "tables": [
+      "Student_Enrolment",
+      "Students",
+      "Addresses"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT s.last_name FROM Students s JOIN Addresses a ON s.current_address_id = a.address_id LEFT JOIN Student_Enrolment se ON s.student_id = se.student_id WHERE a.state_province_county = 'North Carolina' AND se.student_enrolment_id IS NULL",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (2, 1) vs predicted (0, 0)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (2, 1) vs predicted (0, 0)",
+      "raw_response": "<think>\nTo solve this problem, I need to identify:\n\n1. Students who live in North Carolina (current address)\n2. Students who have not registered in any degree program\n\nLet's break down the database tables involved:\n\n- `Students` table has information about students, including references to their current and permanent addresses\n- `Addresses` table has address information, including state/province\n- `Student_Enrolment` table shows which students are enrolled in which degree programs\n\nFirst, I need to find students whose current address is in North Carolina. This requires joining the `Students` and `Addresses` tables, and filtering where the state is 'North Carolina'.\n\nThen, I need to find students who are NOT in the `Student_Enrolment` table, which would indicate they haven't registered for any degree program.\n\nTo do this, I'll use a LEFT JOIN from the filtered students to the `Student_Enrolment` table, and then filter where there's no matching enrollment record.\n\nHere's the SQL query:\n</think>\n\nI need to find students who currently live in North Carolina but aren't enrolled in any degree program. I'll need to join the Students table with Addresses to check the state, and then use a LEFT JOIN with Student_Enrolment to find those without enrollments.\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT s.last_name FROM Students s JOIN Addresses a ON s.current_address_id = a.address_id LEFT JOIN Student_Enrolment se ON s.student_id = se.student_id WHERE a.state_province_county = 'North Carolina' AND se.student_enrolment_id IS NULL\"\n}\n```"
+    }
+  }
+}

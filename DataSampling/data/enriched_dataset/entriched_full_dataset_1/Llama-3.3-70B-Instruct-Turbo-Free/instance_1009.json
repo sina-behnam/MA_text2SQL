@@ -1,0 +1,96 @@
+{
+  "id": 1009,
+  "dataset": "spider",
+  "database": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/databases/singer/singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/schemas/singer/singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the names of the singers whose birth years are either 1948 or 1949?",
+  "sql": "SELECT Name FROM singer WHERE Birth_Year  =  1948 OR Birth_Year  =  1949",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 76,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "years",
+        "label": "DATE",
+        "start": 46,
+        "end": 51
+      },
+      {
+        "text": "1948",
+        "label": "DATE",
+        "start": 63,
+        "end": 67
+      },
+      {
+        "text": "1949",
+        "label": "DATE",
+        "start": 71,
+        "end": 75
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "1948",
+      "1949"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 72,
+    "tables_count": 1,
+    "tables": [
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name FROM singer WHERE Birth_Year = 1948 OR Birth_Year = 1949",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found"
+    }
+  }
+}

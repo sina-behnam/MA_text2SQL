@@ -1,0 +1,87 @@
+{
+  "id": 763,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the name, population, and life expectancy of the largest Asian country by land?",
+  "sql": "SELECT Name ,  Population ,  LifeExpectancy FROM country WHERE Continent  =  \"Asia\" ORDER BY SurfaceArea DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 88,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "Asian",
+        "label": "NORP",
+        "start": 66,
+        "end": 71
+      }
+    ],
+    "entity_types": [
+      "NORP"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "largest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 117,
+    "tables_count": 1,
+    "tables": [
+      "country"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name, Population, LifeExpectancy FROM country WHERE Continent = 'Asia' ORDER BY SurfaceArea DESC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nThe question asks for name, population, and life expectancy of the largest Asian country by land.\n\nBased on the database schema, we have:\n1. `city` table with information about cities\n2. `country` table with information about countries\n3. `countrylanguage` table with information about languages in countries\n\nThe key table for this query is the `country` table, which contains:\n- `Name`: the country name\n- `Continent`: the continent (we need to filter for 'Asia')\n- `SurfaceArea`: which represents the land area (we need to find the maximum)\n- `Population`: the population (we need to return this)\n- `LifeExpectancy`: the life expectancy (we need to return this)\n\nTo find the largest Asian country by land, we need to:\n1. Filter countries where the Continent is 'Asia'\n2. Order by SurfaceArea in descending order\n3. Limit to 1 result to get the largest\n4. Select the Name, Population, and LifeExpectancy\n\nHere's the SQL query:\n```sql\nSELECT Name, Population, LifeExpectancy\nFROM country\nWHERE Continent = 'Asia'\nORDER BY SurfaceArea DESC\nLIMIT 1\n```\n\nThis will return the requested information about the largest Asian country by land area.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Name, Population, LifeExpectancy FROM country WHERE Continent = 'Asia' ORDER BY SurfaceArea DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "id": 174,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the names of the countries with no car makers?",
+  "sql": "SELECT CountryName FROM countries EXCEPT SELECT T1.CountryName FROM countries AS T1 JOIN CAR_MAKERS AS T2 ON T1.countryId  =  T2.Country;",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 55,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 137,
+    "tables_count": 2,
+    "tables": [
+      "CAR_MAKERS",
+      "countries"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT CountryName FROM countries WHERE CountryId NOT IN (SELECT Country FROM car_makers WHERE Country IS NOT NULL)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the schema to understand the relationships between the tables:\n\n1. `continents` - Contains continents information with ContId as primary key\n2. `countries` - Contains country information with CountryId as primary key and a foreign key Continent referencing continents(ContId)\n3. `car_makers` - Contains car maker information with Id as primary key and a foreign key Country referencing countries(CountryId)\n4. `model_list` - Contains model information with ModelId as primary key and a foreign key Maker referencing car_makers(Id)\n5. `car_names` - Contains car name information with MakeId as primary key and a foreign key Model referencing model_list(Model)\n6. `cars_data` - Contains car data with Id as primary key and a foreign key Id referencing car_names(MakeId)\n\nThe question asks for countries with no car makers. This means we need to find countries that don't have entries in the `car_makers` table. We need to link the `countries` table with the `car_makers` table via the Country foreign key.\n\nA few important things to note:\n- The `car_makers` table has a Country column that references the CountryId column in the `countries` table.\n- We need to find countries that don't have any entries in the `car_makers` table.\n\nLet's use a LEFT JOIN between the `countries` and `car_makers` tables, and then filter for countries where there's no matching car maker entry.\n</think>\n\nBased on the schema, I need to find countries that don't appear in the car_makers table. I'll use a LEFT JOIN between countries and car_makers, then filter for NULL values in the car_makers table.\n\n```json\n{\n  \"sql\": \"SELECT CountryName FROM countries WHERE CountryId NOT IN (SELECT Country FROM car_makers WHERE Country IS NOT NULL)\"\n}\n```"
+    }
+  }
+}

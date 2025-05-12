@@ -1,0 +1,75 @@
+{
+  "id": 1002,
+  "dataset": "spider",
+  "database": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/databases/singer/singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/schemas/singer/singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the name of singers in ascending order of net worth.",
+  "sql": "SELECT Name FROM singer ORDER BY Net_Worth_Millions ASC",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 57,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 55,
+    "tables_count": 1,
+    "tables": [
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name FROM singer ORDER BY Net_Worth_Millions ASC",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nAlright, so I'm provided with two tables: `singer` and `song`. \n\nFrom the database schema, we can see the structure of these tables:\n\n1. **singer**:\n   - Singer_ID (int, primary key)\n   - Name (text)\n   - Birth_Year (real)\n   - Net_Worth_Millions (real)\n   - Citizenship (text)\n\n2. **song**:\n   - Song_ID (int, primary key)\n   - Title (text)\n   - Singer_ID (int, foreign key to singer.Singer_ID)\n   - Sales (real)\n   - Highest_Position (real)\n\nThe question asks for the names of singers in ascending order of net worth. This is a straightforward query on the `singer` table:\n\n1. We need to retrieve the `Name` column from the `singer` table.\n2. We need to order the results by the `Net_Worth_Millions` column in ascending order (which is the default order in SQL, but for clarity, I'll specify it).\n\nSo, the SQL query would be:\n\n```sql\nSELECT Name\nFROM singer\nORDER BY Net_Worth_Millions ASC;\n```\n\nThis query will list the names of singers, starting from the one with the lowest net worth and ending with the one with the highest.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Name FROM singer ORDER BY Net_Worth_Millions ASC\"\n}\n```"
+    }
+  }
+}

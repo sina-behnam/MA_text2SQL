@@ -1,0 +1,102 @@
+{
+  "id": 769,
+  "dataset": "bird",
+  "database": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/databases/superhero/superhero.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/superhero/gender.csv",
+      "stratified_output/databases/superhero/superpower.csv",
+      "stratified_output/databases/superhero/publisher.csv",
+      "stratified_output/databases/superhero/superhero.csv",
+      "stratified_output/databases/superhero/colour.csv",
+      "stratified_output/databases/superhero/attribute.csv",
+      "stratified_output/databases/superhero/hero_power.csv",
+      "stratified_output/databases/superhero/race.csv",
+      "stratified_output/databases/superhero/alignment.csv",
+      "stratified_output/databases/superhero/hero_attribute.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/schemas/superhero/superhero.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which superhero has the most durability published by Dark Horse Comics?",
+  "sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_attribute AS T2 ON T1.id = T2.hero_id INNER JOIN attribute AS T3 ON T3.id = T2.attribute_id INNER JOIN publisher AS T4 ON T4.id = T1.publisher_id WHERE T4.publisher_name = 'Dark Horse Comics' AND T3.attribute_name = 'Durability' ORDER BY T2.attribute_value DESC LIMIT 1",
+  "evidence": "which superhero refers to superhero_name; most durability refers to MAX(attribute_value) WHERE attribute_name = 'durability'; published by Dark Horse Comics refers to publisher_name = 'Dark Horse Comics';",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 71,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "Dark Horse Comics",
+        "label": "ORG",
+        "start": 53,
+        "end": 70
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 331,
+    "tables_count": 4,
+    "tables": [
+      "superhero",
+      "attribute",
+      "publisher",
+      "hero_attribute"
+    ],
+    "join_count": 3,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.superhero_name, ha.attribute_value FROM superhero s JOIN publisher p ON s.publisher_id = p.id JOIN hero_attribute ha ON s.id = ha.hero_id JOIN attribute a ON ha.attribute_id = a.id WHERE p.publisher_name = 'Dark Horse Comics' AND a.attribute_name = 'durability' ORDER BY ha.attribute_value DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 1) vs predicted (0, 0)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 1) vs predicted (0, 0)",
+      "raw_response": "<think>\nAlright, I'm asked to find the superhero with the most durability published by Dark Horse Comics. Let me break down what I need to do:\n\n1. Find superheroes published by Dark Horse Comics\n2. Find the superhero with the maximum durability value among those\n\nFrom the database schema, I need to join the following tables:\n- superhero: Contains superhero_name and publisher_id\n- publisher: Contains publisher_name\n- hero_attribute: Contains attribute values for each hero\n- attribute: Contains attribute names\n\nLet's construct the query:\n\n1. Join superhero with publisher to filter for Dark Horse Comics\n2. Join with hero_attribute and attribute to get durability values\n3. Find the superhero with the maximum durability\n\nThe SQL query would look like:\n```sql\nSELECT s.superhero_name, ha.attribute_value\nFROM superhero s\nJOIN publisher p ON s.publisher_id = p.id\nJOIN hero_attribute ha ON s.id = ha.hero_id\nJOIN attribute a ON ha.attribute_id = a.id\nWHERE p.publisher_name = 'Dark Horse Comics'\nAND a.attribute_name = 'durability'\nORDER BY ha.attribute_value DESC\nLIMIT 1;\n```\n\nThis query will:\n- Join the superhero table with publisher to get superheroes published by Dark Horse Comics\n- Join with hero_attribute and attribute to get the durability values\n- Filter for only the 'durability' attribute\n- Order by the attribute value in descending order\n- Limit to just the top record (the superhero with the highest durability)\n\nLet me double-check this query:\n- We're selecting the superhero_name and attribute_value\n- We're joining the necessary tables\n- We're filtering for Dark Horse Comics and durability attribute\n- We're ordering by durability value and limiting to the top result\n\nI think this query will correctly answer the question.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.superhero_name, ha.attribute_value FROM superhero s JOIN publisher p ON s.publisher_id = p.id JOIN hero_attribute ha ON s.id = ha.hero_id JOIN attribute a ON ha.attribute_id = a.id WHERE p.publisher_name = 'Dark Horse Comics' AND a.attribute_name = 'durability' ORDER BY ha.attribute_value DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

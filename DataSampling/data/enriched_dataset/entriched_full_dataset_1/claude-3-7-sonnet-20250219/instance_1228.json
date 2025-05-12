@@ -1,0 +1,99 @@
+{
+  "id": 1228,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Provide list of patients and their diagnosis with triglyceride (TG) index greater than 100 of the normal range?",
+  "sql": "SELECT T1.ID, T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TG > 300",
+  "evidence": "triglyceride (TG) index greater than 100 of the normal range refers to TG > 300;",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 111,
+    "word_length": 18,
+    "entities": [
+      {
+        "text": "TG",
+        "label": "ORG",
+        "start": 64,
+        "end": 66
+      },
+      {
+        "text": "greater than 100",
+        "label": "CARDINAL",
+        "start": 74,
+        "end": 90
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "100"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "greater"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 108,
+    "tables_count": 2,
+    "tables": [
+      "Laboratory",
+      "Patient"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT p.ID, p.SEX, p.Birthday, p.Diagnosis, l.TG, l.Date as Lab_Date FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.TG > 300 ORDER BY p.ID, l.Date;",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (197, 2) vs predicted (197, 6)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (197, 2) vs predicted (197, 6)",
+      "raw_response": "<think>\nThe question asks for a list of patients and their diagnoses where the triglyceride (TG) index is greater than 300, which is considered more than 100 of the normal range.\n\nLooking at the database schema:\n\n1. We have a `Patient` table that contains patient information including their diagnosis.\n2. We have a `Laboratory` table that contains laboratory test results, including TG (triglyceride) values.\n\nTo answer this question, I need to:\n1. Join the `Patient` and `Laboratory` tables.\n2. Filter for laboratory records where TG > 300.\n3. Select the patient information and their diagnosis.\n\nLet me construct the SQL query:\n\n```sql\nSELECT \n    p.ID, \n    p.Diagnosis,\n    l.TG\nFROM \n    Patient p\nJOIN \n    Laboratory l ON p.ID = l.ID\nWHERE \n    l.TG > 300;\n```\n\nThis query will give us a list of patients (their IDs) and their diagnoses where the TG value is greater than 300. However, a patient might have multiple laboratory tests, so we might get the same patient multiple times if they have multiple tests with TG > 300. To avoid this, we can use DISTINCT or GROUP BY.\n\n```sql\nSELECT \n    DISTINCT p.ID, \n    p.Diagnosis\nFROM \n    Patient p\nJOIN \n    Laboratory l ON p.ID = l.ID\nWHERE \n    l.TG > 300;\n```\n\nThis will give us unique combinations of patient ID and diagnosis where the TG value is greater than 300.\n\nIt might be more helpful to include some more patient information:\n\n```sql\nSELECT \n    DISTINCT p.ID, \n    p.SEX, \n    p.Birthday, \n    p.Diagnosis,\n    l.TG\nFROM \n    Patient p\nJOIN \n    Laboratory l ON p.ID = l.ID\nWHERE \n    l.TG > 300;\n```\n\nThis will give us the patient's ID, sex, birthday, diagnosis, and TG value where the TG is greater than 300.\n\nLet me review this query to make sure it addresses the question:\n- I'm selecting patients and their diagnoses.\n- I'm filtering for TG > 300.\n- I'm joining the Patient and Laboratory tables to get this information.\n\nSince it's possible that a patient may have multiple laboratory tests with TG > 300, we'll get one row per patient-TG value combination. If we want a unique list of patients with their diagnoses, regardless of how many times they had a high TG value, we can use:\n\n```sql\nSELECT \n    DISTINCT p.ID, \n    p.SEX, \n    p.Birthday, \n    p.Diagnosis\nFROM \n    Patient p\nJOIN \n    Laboratory l ON p.ID = l.ID\nWHERE \n    l.TG > 300;\n```\n\nBut let's keep the TG values in the results, as they might be informative:\n\n```sql\nSELECT \n    p.ID, \n    p.SEX, \n    p.Birthday, \n    p.Diagnosis,\n    l.TG,\n    l.Date as Lab_Date\nFROM \n    Patient p\nJOIN \n    Laboratory l ON p.ID = l.ID\nWHERE \n    l.TG > 300\nORDER BY p.ID, l.Date;\n```\n\nThis will give us a list of patients and their diagnoses where they have had at least one laboratory test with a TG value greater than 300. The results are ordered by patient ID and the date of the laboratory test.\n\nI believe this is the correct query to answer the question. Let me finalize it.\n</think>\n\nBased on the database schema and the question, I need to find patients with triglyceride (TG) values greater than 300.\n\n```json\n{\n  \"sql\": \"SELECT p.ID, p.SEX, p.Birthday, p.Diagnosis, l.TG, l.Date as Lab_Date FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.TG > 300 ORDER BY p.ID, l.Date;\"\n}\n```"
+    }
+  }
+}

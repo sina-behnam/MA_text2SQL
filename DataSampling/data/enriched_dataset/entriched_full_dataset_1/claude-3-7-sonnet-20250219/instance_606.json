@@ -1,0 +1,90 @@
+{
+  "id": 606,
+  "dataset": "spider",
+  "database": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the languages used by the least number of TV Channels and how many channels use it?",
+  "sql": "SELECT LANGUAGE ,  count(*) FROM TV_Channel GROUP BY LANGUAGE ORDER BY count(*) ASC LIMIT 1;",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 92,
+    "word_length": 18,
+    "entities": [
+      {
+        "text": "TV Channels",
+        "label": "ORG",
+        "start": 51,
+        "end": 62
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "least"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 92,
+    "tables_count": 1,
+    "tables": [
+      "TV_Channel"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "WITH language_counts AS (SELECT Language, COUNT(*) as channel_count FROM TV_Channel GROUP BY Language) SELECT Language, channel_count FROM language_counts WHERE channel_count = (SELECT MIN(channel_count) FROM language_counts)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the database schema to answer this question:\n\n1. We have three tables: TV_Channel, TV_series, and Cartoon.\n2. The question asks about languages used by TV Channels, so we need to focus on the TV_Channel table.\n3. In the TV_Channel table, there's a column called \"Language\" which likely contains the language information.\n4. We need to find the language(s) that are used by the least number of TV channels and count how many channels use it.\n\nTo do this, we need to:\n1. Group the TV_Channel table by the Language column.\n2. Count the number of channels for each language.\n3. Order the results by the count in ascending order.\n4. Select the language(s) with the minimum count.\n\nHere's how we can write the SQL query:\n\n```sql\nWITH LanguageCounts AS (\n  SELECT Language, COUNT(*) as num_channels\n  FROM TV_Channel\n  GROUP BY Language\n)\nSELECT Language, num_channels\nFROM LanguageCounts\nWHERE num_channels = (SELECT MIN(num_channels) FROM LanguageCounts)\n```\n\nThis query:\n- Creates a temporary table (CTE) called LanguageCounts that counts the number of channels for each language.\n- From this temporary table, selects the language(s) where the count equals the minimum count.\n\nThis will give us the language(s) used by the least number of TV channels and the count of channels using it.\n\nActually, let me simplify the query a bit. We can do this in a more direct way:\n\n```sql\nSELECT Language, COUNT(*) as num_channels\nFROM TV_Channel\nGROUP BY Language\nORDER BY num_channels ASC\nLIMIT 1\n```\n\nBut what if there are multiple languages with the same minimum count? The above query would only return one of them. Let's go back to our original approach:\n\n```sql\nWITH LanguageCounts AS (\n  SELECT Language, COUNT(*) as num_channels\n  FROM TV_Channel\n  GROUP BY Language\n)\nSELECT Language, num_channels\nFROM LanguageCounts\nWHERE num_channels = (SELECT MIN(num_channels) FROM LanguageCounts)\n```\n\nThis will return all languages with the minimum count.\n</think>\n\nLooking at the database schema, I need to find the languages used by the fewest TV channels in the TV_Channel table.\n\n```json\n{\"sql\": \"WITH language_counts AS (SELECT Language, COUNT(*) as channel_count FROM TV_Channel GROUP BY Language) SELECT Language, channel_count FROM language_counts WHERE channel_count = (SELECT MIN(channel_count) FROM language_counts)\"}\n```"
+    }
+  }
+}

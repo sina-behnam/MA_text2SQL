@@ -1,0 +1,78 @@
+{
+  "id": 2,
+  "dataset": "spider",
+  "database": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+  "sql": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 87,
+    "word_length": 16,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "oldest",
+      "youngest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 59,
+    "tables_count": 1,
+    "tables": [
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name, Country, Age FROM singer ORDER BY Age DESC",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema to understand the structure:\n\n1. There are four tables:\n   - `stadium`: Contains information about stadiums.\n   - `singer`: Contains information about singers.\n   - `concert`: Contains information about concerts.\n   - `singer_in_concert`: This is a join table that connects singers to concerts.\n\nFor the question \"Show name, country, age for all singers ordered by age from the oldest to the youngest\", I need to query the `singer` table.\n\nFrom the `singer` table, I need to retrieve:\n- `Name`\n- `Country`\n- `Age`\n\nAnd I need to order the results by `Age` in descending order (from oldest to youngest).\n\nHere's the SQL query:\n```sql\nSELECT Name, Country, Age\nFROM singer\nORDER BY Age DESC;\n```\n\nThis query will select the name, country, and age of all singers from the singer table and order them by age from the oldest (highest age) to the youngest (lowest age).\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Name, Country, Age FROM singer ORDER BY Age DESC\"\n}\n```"
+    }
+  }
+}

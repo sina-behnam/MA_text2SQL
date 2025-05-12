@@ -1,0 +1,75 @@
+{
+  "id": 578,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the different addresses that have students living there?",
+  "sql": "SELECT count(DISTINCT current_address_id) FROM Students",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 65,
+    "word_length": 10,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 55,
+    "tables_count": 1,
+    "tables": [
+      "Students"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT a.* FROM Addresses a WHERE a.address_id IN (SELECT current_address_id FROM Students UNION SELECT permanent_address_id FROM Students)",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 1) vs predicted (14, 9)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 1) vs predicted (14, 9)",
+      "raw_response": "<think>\nTo determine the different addresses where students live, I need to analyze the database schema to understand the relationship between students and addresses. Here's what I observe:\n\n1. The `Students` table has two address-related columns:\n   - `current_address_id` - where they currently live\n   - `permanent_address_id` - their permanent residence\n\n2. Both of these columns are foreign keys that reference the `address_id` in the `Addresses` table.\n\nTo answer the question \"What are the different addresses that have students living there?\", I need to find all distinct addresses where students either currently live or have their permanent residence.\n\nLooking at the `Addresses` table, it contains fields like:\n- `address_id` (primary key)\n- `line_1`, `line_2`, `line_3` (address lines)\n- `city`\n- `zip_postcode`\n- `state_province_county`\n- `country`\n- `other_address_details`\n\nI need to build a SQL query that:\n1. Selects all address information from the `Addresses` table\n2. Where the address_id matches any address (current or permanent) used by students\n3. Returns distinct addresses to avoid duplicates\n\nHere's the SQL query I'll construct:\n</think>\n\nLooking at the schema, I need to find all addresses associated with students, either as current or permanent addresses.\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT a.* FROM Addresses a WHERE a.address_id IN (SELECT current_address_id FROM Students UNION SELECT permanent_address_id FROM Students)\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "id": 530,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For each semester, what is the name and id of the one with the most students registered?",
+  "sql": "SELECT T1.semester_name ,  T1.semester_id FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id GROUP BY T1.semester_id ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 88,
+    "word_length": 18,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [
+      "one"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 183,
+    "tables_count": 2,
+    "tables": [
+      "Semesters",
+      "Student_Enrolment"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT s.semester_id, s.semester_name \nFROM Semesters s\nJOIN Student_Enrolment se ON s.semester_id = se.semester_id\nGROUP BY s.semester_id, s.semester_name\nORDER BY COUNT(DISTINCT se.student_id) DESC\nLIMIT 1\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nTo solve this problem, I need to find the semester with the most students registered for each semester. Looking at the database schema, here are the key tables we need:\n\n1. `Semesters` - Contains semester information (id and name)\n2. `Student_Enrolment` - Contains student enrollment data, linking students to semesters\n\nLet's break down the query requirements:\n1. Count students registered per semester\n2. Group by semester\n3. Find the semester with the highest count\n\nFirst, I'll count how many students are registered for each semester:\n\n```sql\nSELECT semester_id, COUNT(DISTINCT student_id) as student_count\nFROM Student_Enrolment\nGROUP BY semester_id\n```\n\nBut this only gives me the counts. I need to find the semester with the maximum count and include its name. \n\nI need to join with the Semesters table to get the semester name. And to get the ones with the highest count, I can use window functions to rank them by count within each semester and then filter the top ones:\n\nWait, the request asks for \"For each semester, what is the name and id of the one with the most students registered?\"\n\nThe wording is a bit confusing. If we interpret it as \"What is the semester (name and ID) with the most students registered overall?\", then we'd simply find the semester with the most student registrations:\n\n```sql\nSELECT s.semester_id, s.semester_name, COUNT(DISTINCT se.student_id) as student_count\nFROM Semesters s\nJOIN Student_Enrolment se ON s.semester_id = se.semester_id\nGROUP BY s.semester_id, s.semester_name\nORDER BY student_count DESC\nLIMIT 1\n```\n\nHowever, I think the question is asking for \"For each semester, what is the name and id of the one with the most students registered?\" This doesn't make sense in the context because each semester is unique.\n\nLet me rethink this. Perhaps the question is actually asking for the semester with the most students for each time period (e.g., Fall, Spring, etc.) or for each academic year. \n\nSince there's no clear categorization of semesters in the schema, I'll assume we're simply looking for the semester with the highest student enrollment overall, and that's what the query should return.\n\nActually, I think the question might be asking for the semesters with the highest student count. Let me provide a query that lists all semesters ordered by the number of registered students in descending order:\n\n```sql\nSELECT s.semester_id, s.semester_name, COUNT(DISTINCT se.student_id) as student_count\nFROM Semesters s\nJOIN Student_Enrolment se ON s.semester_id = se.semester_id\nGROUP BY s.semester_id, s.semester_name\nORDER BY student_count DESC\n```\n\nBut if we're looking for THE semester with the most students, we'd just add LIMIT 1 to the end.\n\nLet me review the original question once more: \"For each semester, what is the name and id of the one with the most students registered?\"\n\nI think the confusion is in the wording. Let me reinterpret it as: \"What is the name and id of the semester with the most students registered?\"\n\nWith this interpretation, the query would be:\n\n```sql\nSELECT s.semester_id, s.semester_name, COUNT(DISTINCT se.student_id) as student_count\nFROM Semesters s\nJOIN Student_Enrolment se ON s.semester_id = se.semester_id\nGROUP BY s.semester_id, s.semester_name\nORDER BY student_count DESC\nLIMIT 1\n```\n\nThis returns the semester with the highest enrollment count.\n</think>\n\nI need to find the semester with the highest number of registered students. Looking at the schema, I need to count student enrollments per semester and then get the semester info.\n\n```json\n{\n  \"sql\": \"SELECT s.semester_id, s.semester_name \nFROM Semesters s\nJOIN Student_Enrolment se ON s.semester_id = se.semester_id\nGROUP BY s.semester_id, s.semester_name\nORDER BY COUNT(DISTINCT se.student_id) DESC\nLIMIT 1\"\n}\n```"
+    }
+  }
+}

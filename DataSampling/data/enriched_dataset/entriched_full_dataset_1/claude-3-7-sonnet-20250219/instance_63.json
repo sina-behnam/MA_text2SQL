@@ -1,0 +1,77 @@
+{
+  "id": 63,
+  "dataset": "spider",
+  "database": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/databases/pets_1/pets_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/schemas/pets_1/pets_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the id of students who do not have a cat pet.",
+  "sql": "SELECT stuid FROM student EXCEPT SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 50,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 179,
+    "tables_count": 3,
+    "tables": [
+      "student",
+      "has_pet",
+      "pets"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.StuID FROM Student s WHERE NOT EXISTS (SELECT 1 FROM Has_Pet hp JOIN Pets p ON hp.PetID = p.PetID WHERE hp.StuID = s.StuID AND p.PetType = 'cat')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the schema:\n\n1. **Student table**: Contains information about students (StuID, LName, Fname, Age, Sex, Major, Advisor, city_code)\n2. **Has_Pet table**: Maps students to their pets (StuID, PetID)\n3. **Pets table**: Contains information about pets (PetID, PetType, pet_age, weight)\n\nTo find students who do not have a cat pet, I need to:\n\n1. Find all students\n2. Exclude those who have a cat pet\n\nI can use a NOT EXISTS or LEFT JOIN / IS NULL approach for this.\n\nUsing NOT EXISTS:\n```sql\nSELECT s.StuID\nFROM Student s\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM Has_Pet hp\n    JOIN Pets p ON hp.PetID = p.PetID\n    WHERE hp.StuID = s.StuID\n    AND p.PetType = 'cat'\n)\n```\n\nThis query selects all student IDs where there doesn't exist a record in the Has_Pet table joining to a pet with type 'cat'.\n\nAlternatively, using LEFT JOIN / IS NULL:\n```sql\nSELECT s.StuID\nFROM Student s\nWHERE s.StuID NOT IN (\n    SELECT hp.StuID\n    FROM Has_Pet hp\n    JOIN Pets p ON hp.PetID = p.PetID\n    WHERE p.PetType = 'cat'\n)\n```\n\nBoth approaches should work. Let's go with the NOT EXISTS approach as it often performs better.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.StuID FROM Student s WHERE NOT EXISTS (SELECT 1 FROM Has_Pet hp JOIN Pets p ON hp.PetID = p.PetID WHERE hp.StuID = s.StuID AND p.PetType = 'cat')\"\n}\n```"
+    }
+  }
+}

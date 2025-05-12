@@ -1,0 +1,106 @@
+{
+  "id": 1516,
+  "dataset": "bird",
+  "database": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/debit_card_specializing/customers.csv",
+      "stratified_output/databases/debit_card_specializing/gasstations.csv",
+      "stratified_output/databases/debit_card_specializing/products.csv",
+      "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+      "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many transactions were paid in CZK in the morning of 2012/8/26?",
+  "sql": "SELECT COUNT(T1.TransactionID) FROM transactions_1k AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Date = '2012-08-26' AND T1.Time < '13:00:00' AND T2.Currency = 'CZK'",
+  "evidence": "'2012/8/26' can be represented by '2012-08-26'; The morning refers to the time before '13:00:00'",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 67,
+    "word_length": 12,
+    "entities": [
+      {
+        "text": "CZK",
+        "label": "ORG",
+        "start": 35,
+        "end": 38
+      },
+      {
+        "text": "the morning",
+        "label": "TIME",
+        "start": 42,
+        "end": 53
+      },
+      {
+        "text": "2012/8/26",
+        "label": "CARDINAL",
+        "start": 57,
+        "end": 66
+      }
+    ],
+    "entity_types": [
+      "TIME",
+      "ORG",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 195,
+    "tables_count": 2,
+    "tables": [
+      "customers",
+      "transactions_1k"
+    ],
+    "join_count": 1,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) AS transaction_count FROM transactions_1k t JOIN customers c ON t.CustomerID = c.CustomerID WHERE t.Date = '2012-08-26' AND t.Time < '13:00:00' AND c.Currency = 'CZK'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nBased on the question and the database schema provided, I need to write a SQL query to find the number of transactions paid in CZK (Czech koruna) in the morning of August 26, 2012.\n\nLet's analyze what we need:\n1. We need to count transactions that occurred on '2012-08-26' before 13:00:00\n2. Transactions that were paid in CZK currency\n\nFrom the schema, I see that:\n- `transactions_1k` table has information about the transactions including Date, Time, and CustomerID\n- `customers` table has information about the customers, including the Currency they use\n\nSo, I need to join these two tables and count the transactions that meet the criteria.\n\nLet's construct the query:\n\n1. I need to join `transactions_1k` with `customers` on CustomerID\n2. Filter for transactions that occurred on '2012-08-26'\n3. Filter for transactions that occurred before '13:00:00'\n4. Filter for customers who use 'CZK' as their currency\n5. Count the resulting transactions\n\nHere's the SQL query:\n```sql\nSELECT COUNT(*) AS transaction_count\nFROM transactions_1k t\nJOIN customers c ON t.CustomerID = c.CustomerID\nWHERE t.Date = '2012-08-26'\nAND t.Time < '13:00:00'\nAND c.Currency = 'CZK';\n```\n\nThis should give us the count of transactions that were paid in CZK in the morning of August 26, 2012.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) AS transaction_count FROM transactions_1k t JOIN customers c ON t.CustomerID = c.CustomerID WHERE t.Date = '2012-08-26' AND t.Time < '13:00:00' AND c.Currency = 'CZK'\"\n}\n```"
+    }
+  }
+}

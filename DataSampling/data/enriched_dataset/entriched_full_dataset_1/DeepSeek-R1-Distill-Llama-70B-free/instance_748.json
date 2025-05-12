@@ -1,0 +1,89 @@
+{
+  "id": 748,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the names of nations where both English and French are official languages?",
+  "sql": "SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \"English\" AND T2.IsOfficial  =  \"T\" INTERSECT SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \"French\" AND T2.IsOfficial  =  \"T\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 83,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "English",
+        "label": "LANGUAGE",
+        "start": 41,
+        "end": 48
+      },
+      {
+        "text": "French",
+        "label": "NORP",
+        "start": 53,
+        "end": 59
+      }
+    ],
+    "entity_types": [
+      "NORP",
+      "LANGUAGE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 306,
+    "tables_count": 2,
+    "tables": [
+      "countrylanguage",
+      "country"
+    ],
+    "join_count": 2,
+    "where_conditions": 3,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT c.Name FROM country c INNER JOIN (SELECT cl1.CountryCode FROM countrylanguage cl1 WHERE cl1.Language = 'English' AND cl1.IsOfficial = 'T' INTERSECT SELECT cl2.CountryCode FROM countrylanguage cl2 WHERE cl2.Language = 'French' AND cl2.IsOfficial = 'T') AS sub ON c.Code = sub.CountryCode",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

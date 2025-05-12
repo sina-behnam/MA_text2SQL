@@ -1,0 +1,93 @@
+{
+  "id": 785,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the names of cities in Europe for which English is not the official language?",
+  "sql": "SELECT DISTINCT T2.Name FROM country AS T1 JOIN city AS T2 ON T2.CountryCode  =  T1.Code WHERE T1.Continent  =  'Europe' AND T1.Name NOT IN (SELECT T3.Name FROM country AS T3 JOIN countrylanguage AS T4 ON T3.Code  =  T4.CountryCode WHERE T4.IsOfficial  =  'T' AND T4.Language  =  'English')",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 86,
+    "word_length": 16,
+    "entities": [
+      {
+        "text": "Europe",
+        "label": "LOC",
+        "start": 32,
+        "end": 38
+      },
+      {
+        "text": "English",
+        "label": "LANGUAGE",
+        "start": 49,
+        "end": 56
+      }
+    ],
+    "entity_types": [
+      "LOC",
+      "LANGUAGE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 290,
+    "tables_count": 3,
+    "tables": [
+      "country",
+      "countrylanguage",
+      "city"
+    ],
+    "join_count": 2,
+    "where_conditions": 3,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT city.Name FROM city JOIN country ON city.CountryCode = country.Code WHERE country.Continent = 'Europe' AND city.CountryCode NOT IN (SELECT CountryCode FROM countrylanguage WHERE Language = 'English' AND IsOfficial = 'T')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me understand the schema first:\n\n1. `city` table: Contains city information including city name, country code, district, and population.\n2. `country` table: Contains country information including country code, name, continent, region, etc.\n3. `countrylanguage` table: Contains information about languages spoken in countries, including whether the language is official or not, and what percentage of the population speaks it.\n\nThe question asks for \"names of cities in Europe for which English is not the official language.\"\n\nI need to:\n1. Get cities that are in European countries (this will come from `city` joining with `country` where `country.Continent = 'Europe'`)\n2. Exclude cities from countries where English is an official language (this will involve joining with `countrylanguage` and checking if English is official)\n\nLet's build this query step by step:\n\n1. First, I need to identify European countries:\n```sql\nSELECT Code FROM country WHERE Continent = 'Europe'\n```\n\n2. Then, I need to identify countries where English is an official language:\n```sql\nSELECT CountryCode FROM countrylanguage \nWHERE Language = 'English' AND IsOfficial = 'T'\n```\n\n3. Now, I need to get cities that are in European countries but not in countries where English is the official language:\n```sql\nSELECT city.Name\nFROM city\nJOIN country ON city.CountryCode = country.Code\nWHERE country.Continent = 'Europe'\nAND city.CountryCode NOT IN (\n    SELECT CountryCode FROM countrylanguage \n    WHERE Language = 'English' AND IsOfficial = 'T'\n)\n```\n\nBut wait, there's a subtle issue here. The question asks for cities in Europe where English is not the official language. A country could have multiple official languages, one of which is English. In such a case, we shouldn't list any cities from that country. Let's ensure that our query handles this correctly:\n\n```sql\nSELECT city.Name\nFROM city\nJOIN country ON city.CountryCode = country.Code\nWHERE country.Continent = 'Europe'\nAND city.CountryCode NOT IN (\n    SELECT CountryCode FROM countrylanguage \n    WHERE Language = 'English' AND IsOfficial = 'T'\n)\n```\n\nThis looks correct. It gets cities in European countries where English is not an official language.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT city.Name FROM city JOIN country ON city.CountryCode = country.Code WHERE country.Continent = 'Europe' AND city.CountryCode NOT IN (SELECT CountryCode FROM countrylanguage WHERE Language = 'English' AND IsOfficial = 'T')\"\n}\n```"
+    }
+  }
+}

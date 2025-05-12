@@ -1,0 +1,41 @@
+{
+  "claude-3-7-sonnet-20250219": {
+    "num_evaluated": 482,
+    "num_with_prediction": 482,
+    "prediction_rate": 1.0,
+    "execution_accuracy": 0.6576763485477178,
+    "exact_match_accuracy": 0.04979253112033195,
+    "semantic_equivalent_accuracy": 0.6950207468879668,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    }
+  },
+  "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free": {
+    "num_evaluated": 482,
+    "num_with_prediction": 477,
+    "prediction_rate": 0.9896265560165975,
+    "execution_accuracy": 0.5932914046121593,
+    "exact_match_accuracy": 0.08385744234800839,
+    "semantic_equivalent_accuracy": 0.6519916142557652,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    }
+  },
+  "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free": {
+    "num_evaluated": 482,
+    "num_with_prediction": 482,
+    "prediction_rate": 1.0,
+    "execution_accuracy": 0.5269709543568465,
+    "exact_match_accuracy": 0.03941908713692946,
+    "semantic_equivalent_accuracy": 0.5871369294605809,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    }
+  }
+}

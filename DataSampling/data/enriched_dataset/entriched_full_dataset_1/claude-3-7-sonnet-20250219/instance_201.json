@@ -1,0 +1,82 @@
+{
+  "id": 201,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are airport names at City 'Aberdeen'?",
+  "sql": "SELECT AirportName FROM AIRPORTS WHERE City = \"Aberdeen\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 42,
+    "word_length": 7,
+    "entities": [
+      {
+        "text": "City 'Aberdeen'",
+        "label": "ORG",
+        "start": 26,
+        "end": 41
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 56,
+    "tables_count": 1,
+    "tables": [
+      "AIRPORTS"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AirportName FROM airports WHERE City = 'Aberdeen'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. We have three tables: `airlines`, `airports`, and `flights`.\n2. The `airports` table contains the following columns:\n   - `City`: The city where the airport is located\n   - `AirportCode`: The code of the airport (primary key)\n   - `AirportName`: The name of the airport\n   - `Country`: The country where the airport is located\n   - `CountryAbbrev`: The abbreviation of the country\n\nThe question asks for airport names in Aberdeen city. So, we need to query the `airports` table where the `City` column equals 'Aberdeen'.\n\nHere's the SQL query:\n\n```sql\nSELECT AirportName\nFROM airports\nWHERE City = 'Aberdeen'\n```\n\nThis query will return all airport names where the city is Aberdeen.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AirportName FROM airports WHERE City = 'Aberdeen'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "id": 1470,
+  "dataset": "bird",
+  "database": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/debit_card_specializing/customers.csv",
+      "stratified_output/databases/debit_card_specializing/gasstations.csv",
+      "stratified_output/databases/debit_card_specializing/products.csv",
+      "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+      "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many gas stations in CZE has Premium gas?",
+  "sql": "SELECT COUNT(GasStationID) FROM gasstations WHERE Country = 'CZE' AND Segment = 'Premium'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 45,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "CZE",
+        "label": "ORG",
+        "start": 25,
+        "end": 28
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 89,
+    "tables_count": 1,
+    "tables": [
+      "gasstations"
+    ],
+    "join_count": 0,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT g.GasStationID) FROM gasstations g JOIN transactions_1k t ON g.GasStationID = t.GasStationID JOIN products p ON t.ProductID = p.ProductID WHERE g.Country = 'CZE' AND p.Description LIKE '%Premium%'",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "These queries are not semantically equivalent. The gold query simply counts gas stations in CZE where the Segment column equals 'Premium'. The generated query joins multiple tables (gasstations, transactions_1k, products) and counts gas stations in CZE that have transactions with products containing 'Premium' in their description. These represent different business questions - the first counts gas stations with a Premium segment classification, while the second counts gas stations that have sold Premium products. Additionally, the generated query would miss gas stations that haven't had any transactions recorded in the transactions_1k table.",
+      "raw_response": "<think>\nLet's understand the database schema first:\n\n1. `customers` table: Contains customer information with CustomerID, Segment, and Currency.\n2. `gasstations` table: Contains information about gas stations with GasStationID, ChainID, Country, and Segment.\n3. `products` table: Contains product information with ProductID and Description.\n4. `transactions_1k` table: Contains transaction information with various fields including GasStationID and ProductID.\n5. `yearmonth` table: Contains consumption data by customer and date.\n\nThe question asks for the number of gas stations in the Czech Republic (CZE) that offer Premium gas.\n\nTo solve this, we need to:\n1. Identify gas stations in CZE from the `gasstations` table.\n2. Find which of these gas stations offer Premium gas.\n\nFor the second part, we need to identify transactions at these gas stations that involve Premium gas. The product information would be in the `products` table, and the transactions would be in the `transactions_1k` table.\n\nLet's construct the SQL query:\n\n1. We'll get gas stations in CZE from the `gasstations` table.\n2. We'll join this with the `transactions_1k` table to find transactions at these gas stations.\n3. We'll join with the `products` table to identify which transactions involved Premium gas.\n4. We'll count the unique gas stations that meet these criteria.\n\nThe query would look something like:\n\n```sql\nSELECT COUNT(DISTINCT g.GasStationID)\nFROM gasstations g\nJOIN transactions_1k t ON g.GasStationID = t.GasStationID\nJOIN products p ON t.ProductID = p.ProductID\nWHERE g.Country = 'CZE'\nAND p.Description LIKE '%Premium%';\n```\n\nThis assumes that Premium gas is identified in the `products` table by having \"Premium\" in the Description field. If the naming convention is different, this might need adjustment.\n\nActually, thinking more about this, I'm realizing we may need to be more specific about what \"Premium gas\" means. It might not explicitly have \"Premium\" in its description. In the context of gas stations, Premium gas typically refers to high-octane gasoline. Common octane ratings for premium gasoline include 91, 92, 93, or higher, depending on the region.\n\nWithout more specific information, let's adjust our approach. I'll assume that Premium gas is identified in the `products` table with a description that includes words like \"Premium\", \"High-Octane\", or similar terms. Let's use a more flexible approach:\n\n```sql\nSELECT COUNT(DISTINCT g.GasStationID)\nFROM gasstations g\nJOIN transactions_1k t ON g.GasStationID = t.GasStationID\nJOIN products p ON t.ProductID = p.ProductID\nWHERE g.Country = 'CZE'\nAND (p.Description LIKE '%Premium%' OR p.Description LIKE '%High-Octane%' OR p.Description LIKE '%Super%');\n```\n\nBut if we don't have a clear definition of what constitutes \"Premium gas\" in this database, it might be best to go with a simpler approach:\n\n```sql\nSELECT COUNT(DISTINCT g.GasStationID)\nFROM gasstations g\nJOIN transactions_1k t ON g.GasStationID = t.GasStationID\nJOIN products p ON t.ProductID = p.ProductID\nWHERE g.Country = 'CZE'\nAND p.Description LIKE '%Premium%';\n```\n\nThis counts the number of unique gas stations in the Czech Republic where there have been transactions involving products with \"Premium\" in their description.\n\nFor my final answer, I'll go with this simpler query that counts gas stations in CZE that offer products with \"Premium\" in the description.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT g.GasStationID) FROM gasstations g JOIN transactions_1k t ON g.GasStationID = t.GasStationID JOIN products p ON t.ProductID = p.ProductID WHERE g.Country = 'CZE' AND p.Description LIKE '%Premium%'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "id": 498,
+  "dataset": "bird",
+  "database": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/databases/card_games/card_games.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/card_games/legalities.csv",
+      "stratified_output/databases/card_games/cards.csv",
+      "stratified_output/databases/card_games/rulings.csv",
+      "stratified_output/databases/card_games/set_translations.csv",
+      "stratified_output/databases/card_games/sets.csv",
+      "stratified_output/databases/card_games/foreign_data.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/schemas/card_games/card_games.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What's the French name of the set of cards with \"Tendo Ice Bridge\" is in?",
+  "sql": "SELECT T2.translation FROM cards AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.setCode WHERE T1.name = 'Tendo Ice Bridge' AND T2.language = 'French' AND T2.translation IS NOT NULL",
+  "evidence": "French refers to language = 'French'; \"Tendo Ice Bridge\" is a translated name of a card; translated name refers to translation",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 73,
+    "word_length": 16,
+    "entities": [
+      {
+        "text": "French",
+        "label": "NORP",
+        "start": 11,
+        "end": 17
+      },
+      {
+        "text": "Tendo Ice Bridge",
+        "label": "WORK_OF_ART",
+        "start": 49,
+        "end": 65
+      }
+    ],
+    "entity_types": [
+      "WORK_OF_ART",
+      "NORP"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 192,
+    "tables_count": 2,
+    "tables": [
+      "cards",
+      "set_translations"
+    ],
+    "join_count": 1,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT st.translation \nFROM set_translations st \nWHERE st.language = 'French' \nAND st.setCode = (\n    SELECT c.setCode \n    FROM cards c \n    JOIN foreign_data fd ON fd.uuid = c.uuid \n    WHERE fd.name = 'Tendo Ice Bridge'\n    LIMIT 1\n)\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nHere, I need to find the French name of a set that contains a card with the translated name \"Tendo Ice Bridge\". This is a bit complex and requires multiple joins.\n\nLet's break down the problem:\n\n1. We need to find the card with translated name \"Tendo Ice Bridge\" in the `foreign_data` table.\n2. Then, we need to get the set code for this card from the `cards` table.\n3. Finally, we need to get the French translation of this set from the `set_translations` table.\n\nSo here's the SQL query:\n\n```sql\nSELECT st.translation \nFROM set_translations st \nJOIN sets s ON st.setCode = s.code \nJOIN cards c ON c.setCode = s.code \nJOIN foreign_data fd ON fd.uuid = c.uuid \nWHERE fd.name = 'Tendo Ice Bridge' \nAND st.language = 'French'\n```\n\nLet's double-check this:\n\n- We start with the `set_translations` table to get translations of sets.\n- We join with the `sets` table to map set codes.\n- We join with the `cards` table to map cards to sets.\n- We join with the `foreign_data` table to find our specific card by translated name.\n- We filter for the specific card name and French language for the set translation.\n\nHowever, I think there's a logical error in my query. The card \"Tendo Ice Bridge\" is most likely the English name, and we're looking for a set that contains this card, but we need the French name of this set.\n\nLet's revisit:\n\n1. First, we need to find the card with the English name \"Tendo Ice Bridge\" in the `cards` table.\n2. Then, we get the set code for this card.\n3. Finally, we get the French translation of this set from the `set_translations` table.\n\nActually, I'm not sure if \"Tendo Ice Bridge\" is the English name or a translated name in the foreign_data table. Let's assume it's the English name first and adjust after we see the results:\n\n```sql\nSELECT st.translation \nFROM set_translations st \nJOIN sets s ON st.setCode = s.code \nJOIN cards c ON c.setCode = s.code \nWHERE c.name = 'Tendo Ice Bridge' \nAND st.language = 'French'\n```\n\nBut wait, the prompt says \"Tendo Ice Bridge\" is a translated name of a card, meaning it's not the original English name but a translation. So, we should look for it in the `foreign_data` table, not the `cards` table. And since we're looking for the French name of the set, we need to find the set code of the card with this translated name and then get the French translation of this set.\n\nLet's revise:\n```sql\nSELECT st.translation \nFROM set_translations st \nJOIN sets s ON st.setCode = s.code \nJOIN cards c ON c.setCode = s.code \nJOIN foreign_data fd ON fd.uuid = c.uuid \nWHERE fd.name = 'Tendo Ice Bridge' \nAND st.language = 'French'\n```\n\nHmm, but this would find a set where a card has a translation named \"Tendo Ice Bridge\" (in any language). But the prompt says \"French refers to language = 'French'\", so \"Tendo Ice Bridge\" might not be a French translation.\n\nActually, let's reconsider. The problem states \"Tendo Ice Bridge\" is a translated name, not specifying which language this translation is in. We want to find the set containing this translated card and then get the French name of this set.\n\nLet's clarify:\n\n1. Find the card with a translated name \"Tendo Ice Bridge\" in the `foreign_data` table (any language).\n2. Get the set code of this card from the `cards` table.\n3. Find the French translation of this set in the `set_translations` table.\n\n```sql\nSELECT st.translation \nFROM set_translations st \nWHERE st.language = 'French' \nAND st.setCode = (\n    SELECT c.setCode \n    FROM cards c \n    JOIN foreign_data fd ON fd.uuid = c.uuid \n    WHERE fd.name = 'Tendo Ice Bridge'\n    LIMIT 1\n)\n```\n\nThis should work better. We find the set code for the card with the translated name \"Tendo Ice Bridge\" (irrespective of the language), and then get the French translation of this set.\n</think>\n\nLooking at the database schema, I need to find:\n1. A card with the translated name \"Tendo Ice Bridge\" in the foreign_data table\n2. The set it belongs to\n3. The French translation of that set name\n\n```json\n{\n  \"sql\": \"SELECT st.translation \nFROM set_translations st \nWHERE st.language = 'French' \nAND st.setCode = (\n    SELECT c.setCode \n    FROM cards c \n    JOIN foreign_data fd ON fd.uuid = c.uuid \n    WHERE fd.name = 'Tendo Ice Bridge'\n    LIMIT 1\n)\"\n}\n```"
+    }
+  }
+}

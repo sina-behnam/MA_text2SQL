@@ -1,0 +1,86 @@
+{
+  "id": 782,
+  "dataset": "bird",
+  "database": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/databases/superhero/superhero.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/superhero/gender.csv",
+      "stratified_output/databases/superhero/superpower.csv",
+      "stratified_output/databases/superhero/publisher.csv",
+      "stratified_output/databases/superhero/superhero.csv",
+      "stratified_output/databases/superhero/colour.csv",
+      "stratified_output/databases/superhero/attribute.csv",
+      "stratified_output/databases/superhero/hero_power.csv",
+      "stratified_output/databases/superhero/race.csv",
+      "stratified_output/databases/superhero/alignment.csv",
+      "stratified_output/databases/superhero/hero_attribute.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/schemas/superhero/superhero.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the heroes' names whose eyes and hair colours are both black.",
+  "sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN colour AS T2 ON T1.eye_colour_id = T2.id AND T1.hair_colour_id = T2.id WHERE T2.colour = 'Black'",
+  "evidence": "heroes' names refers to superhero_name; eyes and hair colours are both black refers to eye_colour_id AND hair_colour_id WHERE colour.colour = 'Black';",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 66,
+    "word_length": 12,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 153,
+    "tables_count": 2,
+    "tables": [
+      "superhero",
+      "colour"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.superhero_name FROM superhero s JOIN colour ec ON s.eye_colour_id = ec.id JOIN colour hc ON s.hair_colour_id = hc.id WHERE ec.colour = 'Black' AND hc.colour = 'Black'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to write a SQL query that lists superhero names where both eye color and hair color are \"Black\". Let me break down the problem:\n\n1. We need to get data from the `superhero` table, specifically the `superhero_name` column.\n2. We need to filter records where both `eye_colour_id` and `hair_colour_id` correspond to \"Black\" in the `colour` table.\n\nTo do this, I'll need to join the `superhero` table with the `colour` table twice - once for eye color and once for hair color.\n\nHere's the approach:\n\n1. Join the `superhero` table with the `colour` table (aliased as `eye_colour`) on `eye_colour_id = eye_colour.id`\n2. Join the result with the `colour` table again (aliased as `hair_colour`) on `hair_colour_id = hair_colour.id`\n3. Filter where `eye_colour.colour = 'Black'` and `hair_colour.colour = 'Black'`\n4. Select the `superhero_name` column\n\nLet me write the SQL query:\n\n```sql\nSELECT s.superhero_name\nFROM superhero s\nJOIN colour ec ON s.eye_colour_id = ec.id\nJOIN colour hc ON s.hair_colour_id = hc.id\nWHERE ec.colour = 'Black' AND hc.colour = 'Black';\n```\n\nThis query should return the names of all superheroes whose eye color and hair color are both black.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.superhero_name FROM superhero s JOIN colour ec ON s.eye_colour_id = ec.id JOIN colour hc ON s.hair_colour_id = hc.id WHERE ec.colour = 'Black' AND hc.colour = 'Black'\"\n}\n```"
+    }
+  }
+}

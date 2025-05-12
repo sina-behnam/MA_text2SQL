@@ -1,0 +1,102 @@
+{
+  "id": 957,
+  "dataset": "bird",
+  "database": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/databases/formula_1/formula_1.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/formula_1/circuits.csv",
+      "stratified_output/databases/formula_1/status.csv",
+      "stratified_output/databases/formula_1/drivers.csv",
+      "stratified_output/databases/formula_1/driverStandings.csv",
+      "stratified_output/databases/formula_1/races.csv",
+      "stratified_output/databases/formula_1/constructors.csv",
+      "stratified_output/databases/formula_1/constructorResults.csv",
+      "stratified_output/databases/formula_1/lapTimes.csv",
+      "stratified_output/databases/formula_1/qualifying.csv",
+      "stratified_output/databases/formula_1/pitStops.csv",
+      "stratified_output/databases/formula_1/seasons.csv",
+      "stratified_output/databases/formula_1/constructorStandings.csv",
+      "stratified_output/databases/formula_1/results.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/schemas/formula_1/formula_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many Italian drivers haven't finished the race?",
+  "sql": "SELECT COUNT(T1.driverId) FROM results AS T1 INNER JOIN drivers AS T2 on T1.driverId = T2.driverId WHERE T2.nationality = 'Italian' AND T1.time IS NULL",
+  "evidence": "haven't finished the race refers to time is null;",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 51,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "Italian",
+        "label": "NORP",
+        "start": 9,
+        "end": 16
+      }
+    ],
+    "entity_types": [
+      "NORP"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "n't"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 151,
+    "tables_count": 2,
+    "tables": [
+      "drivers",
+      "results"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT d.driverId) FROM drivers d JOIN results r ON d.driverId = r.driverId WHERE d.nationality = 'Italian' AND r.time IS NULL",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The queries are not equivalent because the gold query counts all instances where Italian drivers didn't finish a race, while the generated query uses DISTINCT to count each Italian driver only once regardless of how many races they didn't finish. If an Italian driver has multiple unfinished races, the gold query would count each occurrence separately, while the generated query would count them only once.",
+      "raw_response": "<think>\nI need to find out how many Italian drivers haven't finished a race, where \"haven't finished\" means their time value is NULL in the results table.\n\nLooking at the schema:\n1. The `drivers` table has nationality information\n2. The `results` table has race results including the `time` field which would be NULL for drivers who didn't finish\n\nTo solve this query, I need to:\n1. Join the `drivers` and `results` tables\n2. Filter for Italian drivers (`nationality = 'Italian'`)\n3. Count the drivers where `time IS NULL` in the results\n\nLet me write the SQL query:\n\n```sql\nSELECT COUNT(DISTINCT d.driverId) \nFROM drivers d\nJOIN results r ON d.driverId = r.driverId\nWHERE d.nationality = 'Italian' AND r.time IS NULL\n```\n\nThis query will count the number of distinct Italian drivers who have at least one race where they didn't finish (time is NULL).\n\nActually, let me revisit this. The query should count the number of instances where Italian drivers didn't finish a race, not just the number of Italian drivers who have ever not finished. If we want to count each instance, I'd remove the DISTINCT:\n\n```sql\nSELECT COUNT(*) \nFROM drivers d\nJOIN results r ON d.driverId = r.driverId\nWHERE d.nationality = 'Italian' AND r.time IS NULL\n```\n\nBut based on the question \"How many Italian drivers haven't finished the race?\", I think the first interpretation is more correct - we want to know the number of Italian drivers who have ever had a DNF (Did Not Finish).\n\nLet me go with the first version that counts distinct drivers.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT d.driverId) FROM drivers d JOIN results r ON d.driverId = r.driverId WHERE d.nationality = 'Italian' AND r.time IS NULL\"\n}\n```"
+    }
+  }
+}

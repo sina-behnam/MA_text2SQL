@@ -1,0 +1,78 @@
+{
+  "id": 976,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How much does the most recent treatment cost?",
+  "sql": "SELECT cost_of_treatment FROM Treatments ORDER BY date_of_treatment DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 45,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 80,
+    "tables_count": 1,
+    "tables": [
+      "Treatments"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT cost_of_treatment FROM Treatments ORDER BY date_of_treatment DESC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nTo find the cost of the most recent treatment, I need to:\n\n1. Look at the relevant table: `Treatments`\n2. Identify the most recent treatment based on the `date_of_treatment` field\n3. Return the `cost_of_treatment` for that treatment\n\nFrom the schema, I can see the `Treatments` table has:\n- `treatment_id` (primary key)\n- `dog_id` (foreign key)\n- `professional_id` (foreign key)\n- `treatment_type_code` (foreign key)\n- `date_of_treatment` (datetime)\n- `cost_of_treatment` (decimal)\n\nTo get the most recent treatment, I need to order the treatments by `date_of_treatment` in descending order (newest first) and limit the result to just the top record.\n\nLet me write the SQL query:\n```sql\nSELECT cost_of_treatment\nFROM Treatments\nORDER BY date_of_treatment DESC\nLIMIT 1\n```\n\nThis query will:\n1. Select the `cost_of_treatment` column from the `Treatments` table\n2. Order the results by `date_of_treatment` in descending order (newest first)\n3. Limit the result to only the first row (the most recent treatment)\n\nThis should give us the cost of the most recent treatment.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT cost_of_treatment FROM Treatments ORDER BY date_of_treatment DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

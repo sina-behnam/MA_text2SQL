@@ -1,0 +1,82 @@
+{
+  "id": 229,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which airline has most number of flights?",
+  "sql": "SELECT T1.Airline FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline GROUP BY T1.Airline ORDER BY count(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 41,
+    "word_length": 7,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 132,
+    "tables_count": 2,
+    "tables": [
+      "FLIGHTS",
+      "AIRLINES"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT a.Airline, COUNT(*) as flight_count FROM flights f JOIN airlines a ON f.Airline = a.uid GROUP BY f.Airline ORDER BY flight_count DESC LIMIT 1",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "raw_response": "<think>\nBased on the schema information provided:\n\n1. We have an `airlines` table with columns:\n   - `uid` (PRIMARY KEY)\n   - `Airline` (airline name)\n   - `Abbreviation`\n   - `Country`\n\n2. We have a `flights` table with columns:\n   - `Airline` (INTEGER, part of PRIMARY KEY, presumably a foreign key to airlines.uid though not explicitly stated)\n   - `FlightNo` (INTEGER, part of PRIMARY KEY)\n   - `SourceAirport` (TEXT, FOREIGN KEY to airports.AirportCode)\n   - `DestAirport` (TEXT, FOREIGN KEY to airports.AirportCode)\n\n3. We have an `airports` table with columns:\n   - `City`\n   - `AirportCode` (PRIMARY KEY)\n   - `AirportName`\n   - `Country`\n   - `CountryAbbrev`\n\nTo find the airline with the most number of flights, we need to:\n1. Count the number of flights for each airline in the `flights` table\n2. Join with the `airlines` table to get the airline name\n3. Order by the count in descending order\n4. Limit to the top result\n\nLet me create the SQL query:\n\n```sql\nSELECT a.Airline, COUNT(*) as flight_count\nFROM flights f\nJOIN airlines a ON f.Airline = a.uid\nGROUP BY f.Airline\nORDER BY flight_count DESC\nLIMIT 1;\n```\n\nThis query:\n1. Joins the flights table with the airlines table (assuming flights.Airline is a foreign key to airlines.uid)\n2. Groups the results by airline\n3. Counts the number of flights for each airline\n4. Orders the results by the count in descending order\n5. Returns only the top result\n\nThis should give us the airline with the most number of flights.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT a.Airline, COUNT(*) as flight_count FROM flights f JOIN airlines a ON f.Airline = a.uid GROUP BY f.Airline ORDER BY flight_count DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

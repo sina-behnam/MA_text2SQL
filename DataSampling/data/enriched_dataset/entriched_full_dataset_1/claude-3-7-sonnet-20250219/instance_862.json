@@ -1,0 +1,112 @@
+{
+  "id": 862,
+  "dataset": "bird",
+  "database": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/databases/formula_1/formula_1.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/formula_1/circuits.csv",
+      "stratified_output/databases/formula_1/status.csv",
+      "stratified_output/databases/formula_1/drivers.csv",
+      "stratified_output/databases/formula_1/driverStandings.csv",
+      "stratified_output/databases/formula_1/races.csv",
+      "stratified_output/databases/formula_1/constructors.csv",
+      "stratified_output/databases/formula_1/constructorResults.csv",
+      "stratified_output/databases/formula_1/lapTimes.csv",
+      "stratified_output/databases/formula_1/qualifying.csv",
+      "stratified_output/databases/formula_1/pitStops.csv",
+      "stratified_output/databases/formula_1/seasons.csv",
+      "stratified_output/databases/formula_1/constructorStandings.csv",
+      "stratified_output/databases/formula_1/results.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "formula_1",
+    "path": [
+      "stratified_output/schemas/formula_1/formula_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For the Bahrain Grand Prix in 2007, how many drivers not finished the game?",
+  "sql": "SELECT COUNT(T3.driverId) FROM races AS T1 INNER JOIN results AS T2 ON T2.raceId = T1.raceId INNER JOIN drivers AS T3 ON T3.driverId = T2.driverId WHERE T1.year = 2007 AND T1.name = 'Bahrain Grand Prix' AND T2.time IS NULL",
+  "evidence": "Bahrain Grand Prix refers to races.name = 'Bahrain Grand Prix'; drivers who finished the race refers to time is not empty (i.e. time IS NOT NULL);",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 75,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "the Bahrain Grand Prix",
+        "label": "EVENT",
+        "start": 4,
+        "end": 26
+      },
+      {
+        "text": "2007",
+        "label": "DATE",
+        "start": 30,
+        "end": 34
+      }
+    ],
+    "entity_types": [
+      "EVENT",
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2007"
+    ],
+    "has_numbers": true,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 222,
+    "tables_count": 3,
+    "tables": [
+      "races",
+      "drivers",
+      "results"
+    ],
+    "join_count": 2,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) AS drivers_not_finished FROM results WHERE raceId = (SELECT raceId FROM races WHERE name = 'Bahrain Grand Prix' AND year = 2007) AND time IS NULL",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me understand the question and the schema to formulate the correct SQL query.\n\nThe question asks for the number of drivers who did not finish the Bahrain Grand Prix in 2007.\n\nAccording to the additional information:\n1. \"Bahrain Grand Prix\" refers to races.name = 'Bahrain Grand Prix'\n2. Drivers who finished the race have a non-NULL value in the \"time\" column (i.e., time IS NOT NULL).\n\nSo, we need to find drivers who participated in the Bahrain Grand Prix in 2007 and have a NULL value in the \"time\" column.\n\nLooking at the schema:\n- We need to use the `races` table to identify the Bahrain Grand Prix in 2007.\n- We need to use the `results` table to check if a driver finished the race (if the \"time\" column is NULL).\n\nLet's construct the SQL query:\n\n1. First, identify the race:\n```sql\nSELECT raceId FROM races \nWHERE name = 'Bahrain Grand Prix' AND year = 2007\n```\n\n2. Now, count the number of drivers who didn't finish the race:\n```sql\nSELECT COUNT(*) \nFROM results \nWHERE raceId = (SELECT raceId FROM races WHERE name = 'Bahrain Grand Prix' AND year = 2007)\nAND time IS NULL\n```\n\nWait, let me double-check the schema to make sure I'm using the correct tables and columns.\n\nLooking at the schema:\n- The `races` table has columns: raceId, year, round, circuitId, name, date, time, url.\n- The `results` table has columns: resultId, raceId, driverId, constructorId, number, grid, position, positionText, positionOrder, points, laps, time, milliseconds, fastestLap, rank, fastestLapTime, fastestLapSpeed, statusId.\n\nI noticed that the `races` table also has a \"time\" column, but that's not what we're looking for. We want to check if a driver finished the race, which would be in the `results` table.\n\nSo, the correct query would be:\n\n```sql\nSELECT COUNT(*) \nFROM results \nWHERE raceId = (SELECT raceId FROM races WHERE name = 'Bahrain Grand Prix' AND year = 2007)\nAND time IS NULL\n```\n\nThis query counts the number of entries in the `results` table where the raceId corresponds to the Bahrain Grand Prix in 2007 and the \"time\" column is NULL, indicating that the driver did not finish the race.\n</think>\n\nI'll create a SQL query to find the number of drivers who didn't finish the Bahrain Grand Prix in 2007.\n\nLooking at the schema, I need to:\n1. Identify the specific race (Bahrain Grand Prix in 2007) in the races table\n2. Count drivers in the results table who have NULL in the time column (meaning they didn't finish)\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) AS drivers_not_finished FROM results WHERE raceId = (SELECT raceId FROM races WHERE name = 'Bahrain Grand Prix' AND year = 2007) AND time IS NULL\"\n}\n```"
+    }
+  }
+}

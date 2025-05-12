@@ -1,0 +1,75 @@
+{
+  "id": 430,
+  "dataset": "spider",
+  "database": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many players are there?",
+  "sql": "SELECT count(*) FROM players",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 27,
+    "word_length": 5,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 28,
+    "tables_count": 1,
+    "tables": [
+      "players"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM players",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nTo answer the question \"How many players are there?\", I need to count the number of unique player entries in the 'players' table.\n\nLooking at the database schema:\n- We have a 'players' table with 'player_id' as the primary key.\n- Each row in this table represents a unique player.\n\nSo, to count the total number of players, I should use the COUNT function on the 'player_id' column (or any column, since each row represents a unique player) from the 'players' table.\n\nThe SQL query would be:\n```sql\nSELECT COUNT(*) FROM players;\n```\n\nThis query will return the total number of rows in the 'players' table, which corresponds to the total number of players.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM players\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "id": 1531,
+  "dataset": "bird",
+  "database": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/debit_card_specializing/customers.csv",
+      "stratified_output/databases/debit_card_specializing/gasstations.csv",
+      "stratified_output/databases/debit_card_specializing/products.csv",
+      "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+      "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Who is the top spending customer and how much is the average price per single item purchased by this customer? What currency was being used?",
+  "sql": "SELECT T2.CustomerID, SUM(T2.Price / T2.Amount), T1.Currency FROM customers AS T1 INNER JOIN transactions_1k AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.CustomerID = ( SELECT CustomerID FROM yearmonth ORDER BY Consumption DESC LIMIT 1 ) GROUP BY T2.CustomerID, T1.Currency",
+  "evidence": "average price per single item = Total(price) / Total(amount)",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 140,
+    "word_length": 25,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 276,
+    "tables_count": 3,
+    "tables": [
+      "customers",
+      "transactions_1k",
+      "yearmonth"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"WITH CustomerSpending AS (\n    SELECT \n        t.CustomerID,\n        SUM(t.Price) AS TotalSpending,\n        SUM(t.Amount) AS TotalAmount\n    FROM \n        transactions_1k t\n    GROUP BY \n        t.CustomerID\n),\nTopCustomer AS (\n    SELECT \n        CustomerID, \n        TotalSpending,\n        TotalAmount,\n        (TotalSpending / TotalAmount) AS AvgPricePerItem\n    FROM \n        CustomerSpending\n    ORDER BY \n        TotalSpending DESC\n    LIMIT 1\n)\nSELECT \n    tc.CustomerID,\n    tc.TotalSpending,\n    tc.AvgPricePerItem,\n    c.Currency\nFROM \n    TopCustomer tc\nJOIN \n    customers c ON tc.CustomerID = c.CustomerID;\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet's break down the request:\n\n1. Find the top spending customer (customer with the highest total amount spent)\n2. Calculate the average price per single item for this customer (Total price / Total amount)\n3. Identify the currency used by this customer\n\nThe relevant tables for this query are:\n1. `transactions_1k`: Contains transaction information including CustomerID, Amount, Price\n2. `customers`: Contains customer information including Currency\n\nTo solve this:\n\n1. First, we need to sum up the total spending for each customer (Price * Amount)\n2. Identify the customer with the highest total spending\n3. For this customer, calculate the average price per single item (Total Price / Total Amount)\n4. Join with the customers table to get the currency used by this customer\n\nLet's build the SQL query:\n\n```sql\nWITH CustomerSpending AS (\n    SELECT \n        t.CustomerID,\n        SUM(t.Price * t.Amount) AS TotalSpending,\n        SUM(t.Price) AS TotalPrice,\n        SUM(t.Amount) AS TotalAmount\n    FROM \n        transactions_1k t\n    GROUP BY \n        t.CustomerID\n),\nTopCustomer AS (\n    SELECT \n        CustomerID, \n        TotalSpending,\n        TotalPrice,\n        TotalAmount,\n        (TotalPrice / TotalAmount) AS AvgPricePerItem\n    FROM \n        CustomerSpending\n    ORDER BY \n        TotalSpending DESC\n    LIMIT 1\n)\nSELECT \n    tc.CustomerID,\n    tc.TotalSpending,\n    tc.AvgPricePerItem,\n    c.Currency\nFROM \n    TopCustomer tc\nJOIN \n    customers c ON tc.CustomerID = c.CustomerID;\n```\n\nWait, on second thought, I think there might be a misinterpretation in how I understood the problem. The \"average price per single item\" is not \"Total Price / Total Amount\" but rather \"Total (Price) / Total (Amount)\".\n\nLooking at the schema for transactions_1k, we have:\n- Price: A field representing the price of the transaction\n- Amount: A field representing the amount purchased in the transaction\n\nTo calculate the average price per single item, we should sum up all prices and divide by the sum of all amounts.\n\nLet me adjust the query:\n\n```sql\nWITH CustomerSpending AS (\n    SELECT \n        t.CustomerID,\n        SUM(t.Price) AS TotalSpending,\n        SUM(t.Price) AS TotalPrice,\n        SUM(t.Amount) AS TotalAmount\n    FROM \n        transactions_1k t\n    GROUP BY \n        t.CustomerID\n),\nTopCustomer AS (\n    SELECT \n        CustomerID, \n        TotalSpending,\n        (TotalPrice / TotalAmount) AS AvgPricePerItem\n    FROM \n        CustomerSpending\n    ORDER BY \n        TotalSpending DESC\n    LIMIT 1\n)\nSELECT \n    tc.CustomerID,\n    tc.TotalSpending,\n    tc.AvgPricePerItem,\n    c.Currency\nFROM \n    TopCustomer tc\nJOIN \n    customers c ON tc.CustomerID = c.CustomerID;\n```\n\nWait, I may have misunderstood the problem again. Let me revisit the original schema.\n\nIn the transactions_1k table, we have:\n- Amount: The quantity of items purchased\n- Price: The total price for those items\n\nThe \"average price per single item\" would then be calculated as:\nAverage Price Per Item = Total Price / Total Amount\n\nSo my original approach should be correct, but I'm simplifying it for clarity:\n\n```sql\nWITH CustomerSpending AS (\n    SELECT \n        t.CustomerID,\n        SUM(t.Price) AS TotalSpending,\n        SUM(t.Amount) AS TotalAmount\n    FROM \n        transactions_1k t\n    GROUP BY \n        t.CustomerID\n),\nTopCustomer AS (\n    SELECT \n        CustomerID, \n        TotalSpending,\n        TotalAmount,\n        (TotalSpending / TotalAmount) AS AvgPricePerItem\n    FROM \n        CustomerSpending\n    ORDER BY \n        TotalSpending DESC\n    LIMIT 1\n)\nSELECT \n    tc.CustomerID,\n    tc.TotalSpending,\n    tc.AvgPricePerItem,\n    c.Currency\nFROM \n    TopCustomer tc\nJOIN \n    customers c ON tc.CustomerID = c.CustomerID;\n```\n\nActually, I still think that my understanding of the problem is correct as per the PS note \"average price per single item = Total(price) / Total(amount)\". Let me finalize the query:\n</think>\n\nLooking at this query, I need to find the top-spending customer and calculate their average price per single item, along with their currency.\n\n```json\n{\n  \"sql\": \"WITH CustomerSpending AS (\n    SELECT \n        t.CustomerID,\n        SUM(t.Price) AS TotalSpending,\n        SUM(t.Amount) AS TotalAmount\n    FROM \n        transactions_1k t\n    GROUP BY \n        t.CustomerID\n),\nTopCustomer AS (\n    SELECT \n        CustomerID, \n        TotalSpending,\n        TotalAmount,\n        (TotalSpending / TotalAmount) AS AvgPricePerItem\n    FROM \n        CustomerSpending\n    ORDER BY \n        TotalSpending DESC\n    LIMIT 1\n)\nSELECT \n    tc.CustomerID,\n    tc.TotalSpending,\n    tc.AvgPricePerItem,\n    c.Currency\nFROM \n    TopCustomer tc\nJOIN \n    customers c ON tc.CustomerID = c.CustomerID;\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "id": 337,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the element and bond type included in the molecule with molecule ID of TR002.",
+  "sql": "SELECT DISTINCT T1.element, T2.bond_type FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR002'",
+  "evidence": "TR002 is the molecule id",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 82,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "TR002",
+        "label": "ORG",
+        "start": 76,
+        "end": 81
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 144,
+    "tables_count": 2,
+    "tables": [
+      "bond",
+      "atom"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT 'element' as type, element as value FROM atom WHERE molecule_id = 'TR002' UNION ALL SELECT DISTINCT 'bond_type' as type, bond_type as value FROM bond WHERE molecule_id = 'TR002'",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (6, 2) vs predicted (5, 2)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (6, 2) vs predicted (5, 2)",
+      "raw_response": "<think>\nI need to analyze the database schema to understand the structure and then create a query to list the elements and bond types for a specific molecule (TR002).\n\nFrom the schema:\n\n1. The `molecule` table contains molecule_id and label\n2. The `atom` table contains atom_id, molecule_id, and element\n3. The `bond` table contains bond_id, molecule_id, and bond_type\n4. The `connected` table links atoms via bonds\n\nTo list the elements and bond types for molecule TR002, I need to:\n\n1. Get all atoms associated with molecule TR002, which will give me the elements\n2. Get all bonds associated with molecule TR002, which will give me the bond types\n\nLet me construct the query:\n\nFor elements:\n```sql\nSELECT DISTINCT a.element\nFROM atom a\nWHERE a.molecule_id = 'TR002'\n```\n\nFor bond types:\n```sql\nSELECT DISTINCT b.bond_type\nFROM bond b\nWHERE b.molecule_id = 'TR002'\n```\n\nI could combine these into a single query if needed, but that would create a Cartesian product of elements and bond types, which is likely not what's desired. I think a better approach is to use UNION ALL to list all elements and bond types separately but in a single result set.\n\nHowever, since we want to know which is an element and which is a bond type, I'll create a query that returns both pieces of information:\n\n```sql\nSELECT 'element' as type, a.element as value\nFROM atom a\nWHERE a.molecule_id = 'TR002'\nUNION ALL\nSELECT 'bond_type' as type, b.bond_type as value\nFROM bond b\nWHERE b.molecule_id = 'TR002'\n```\n\nOr if we want them separately with clearer headings:\n\n```sql\nSELECT DISTINCT a.element\nFROM atom a\nWHERE a.molecule_id = 'TR002'\nUNION ALL\nSELECT DISTINCT b.bond_type\nFROM bond b\nWHERE b.molecule_id = 'TR002'\n```\n\nI think the best approach is to create a query that separately lists the elements and bond types:\n\n```sql\nSELECT 'Elements' as category, a.element as value\nFROM atom a\nWHERE a.molecule_id = 'TR002'\nUNION ALL\nSELECT 'Bond Types' as category, b.bond_type as value\nFROM bond b\nWHERE b.molecule_id = 'TR002'\n```\n\nBut looking at the question again, I think the user may want two separate columns - one for elements and one for bond types. In that case, I should modify my approach.\n\nActually, reading the question once more, I think the user wants a list of distinct elements and a list of distinct bond types for the molecule TR002. Let me create a query that provides that information in a clear format:\n\n```sql\nSELECT DISTINCT a.element, b.bond_type\nFROM atom a, bond b\nWHERE a.molecule_id = 'TR002' AND b.molecule_id = 'TR002'\n```\n\nWait, that's not right. This would give a Cartesian product of all elements with all bond types. Let me reconsider.\n\nI think two separate queries would be clearest:\n\n```sql\n-- Query for elements in molecule TR002\nSELECT DISTINCT element\nFROM atom\nWHERE molecule_id = 'TR002';\n\n-- Query for bond types in molecule TR002\nSELECT DISTINCT bond_type\nFROM bond\nWHERE molecule_id = 'TR002';\n```\n\nBut I need to return a single SQL query. Let me try to combine them in a meaningful way. I think separate columns would work:\n\n```sql\nSELECT DISTINCT a.element, NULL as bond_type\nFROM atom a\nWHERE a.molecule_id = 'TR002'\nUNION ALL\nSELECT DISTINCT NULL as element, b.bond_type\nFROM bond b\nWHERE b.molecule_id = 'TR002'\n```\n\nActually, let me revisit the question to make sure I'm addressing what's asked. The question says \"List the element and bond type included in the molecule with molecule ID of TR002\". This suggests we need to list both elements and bond types for that specific molecule.\n\nI think the following query is most appropriate:\n\n```sql\nSELECT 'element' as type, element as value\nFROM atom\nWHERE molecule_id = 'TR002'\nUNION ALL\nSELECT 'bond_type' as type, bond_type as value\nFROM bond\nWHERE molecule_id = 'TR002'\n```\n\nThis will list all elements and bond types for molecule TR002, with a column indicating whether each row is an element or a bond type.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT 'element' as type, element as value FROM atom WHERE molecule_id = 'TR002' UNION ALL SELECT DISTINCT 'bond_type' as type, bond_type as value FROM bond WHERE molecule_id = 'TR002'\"\n}\n```"
+    }
+  }
+}

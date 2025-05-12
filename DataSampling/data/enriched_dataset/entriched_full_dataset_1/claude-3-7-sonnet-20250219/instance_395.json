@@ -1,0 +1,81 @@
+{
+  "id": 395,
+  "dataset": "spider",
+  "database": {
+    "name": "course_teach",
+    "path": [
+      "spider_stratified_output_200/databases/course_teach/course_teach.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "course_teach",
+    "path": [
+      "spider_stratified_output_200/schemas/course_teach/course_teach.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the most common hometown of teachers.",
+  "sql": "SELECT Hometown FROM teacher GROUP BY Hometown ORDER BY COUNT(*) DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 42,
+    "word_length": 7,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 77,
+    "tables_count": 1,
+    "tables": [
+      "teacher"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Hometown FROM teacher GROUP BY Hometown ORDER BY COUNT(*) DESC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nLet's break down the database schema:\n\n1. `course` table:\n   - Columns: Course_ID, Staring_Date, Course\n   - Primary Key: Course_ID\n\n2. `teacher` table:\n   - Columns: Teacher_ID, Name, Age, Hometown\n   - Primary Key: Teacher_ID\n\n3. `course_arrange` table:\n   - Columns: Course_ID, Teacher_ID, Grade\n   - Primary Key: (Course_ID, Teacher_ID, Grade)\n   - Foreign Keys: Course_ID references course(Course_ID), Teacher_ID references teacher(Teacher_ID)\n\nThe question asks for the most common hometown of teachers. \n\nIn the `teacher` table, we have the \"Hometown\" column. To find the most common hometown, we need to:\n1. Group the teachers by their hometown\n2. Count the number of teachers in each hometown\n3. Order by the count in descending order\n4. Limit to get the top result (the most common)\n\nLet's write the SQL query for this:\n\n```sql\nSELECT Hometown, COUNT(*) as count\nFROM teacher\nGROUP BY Hometown\nORDER BY count DESC\nLIMIT 1;\n```\n\nThis query will return the most common hometown among teachers and the count of teachers from that hometown.\n\nHowever, there might be a tie, meaning there could be multiple hometowns with the same highest count. If we want to account for ties, we'd need a different approach. Let's use a subquery to get all hometowns with the maximum count:\n\n```sql\nSELECT Hometown, COUNT(*) as count\nFROM teacher\nGROUP BY Hometown\nHAVING COUNT(*) = (\n    SELECT COUNT(*)\n    FROM teacher\n    GROUP BY Hometown\n    ORDER BY COUNT(*) DESC\n    LIMIT 1\n);\n```\n\nBut the question specifically asks for \"the most common hometown\" (singular), so we'll go with the first query.\n\nFirst query:\n```sql\nSELECT Hometown, COUNT(*) as count\nFROM teacher\nGROUP BY Hometown\nORDER BY count DESC\nLIMIT 1;\n```\n\nOn second thought, I think the first query might not account for ties correctly. To ensure we catch all hometowns with the highest count (in case of a tie), let's use the second approach.\n\nLet me think more clearly about this. If we just want to list the most common hometown, rather than list all hometowns with the maximum count, then we should use the first query. That's the most straightforward interpretation of the question.\n\nLet's finalize on this:\n```sql\nSELECT Hometown\nFROM teacher\nGROUP BY Hometown\nORDER BY COUNT(*) DESC\nLIMIT 1;\n```\n\nThis will return the most common hometown. If there's a tie, it will return just one of the tied hometowns.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Hometown FROM teacher GROUP BY Hometown ORDER BY COUNT(*) DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

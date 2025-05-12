@@ -1,0 +1,89 @@
+{
+  "id": 208,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which type of label is the most numerous in atoms with hydrogen?",
+  "sql": "SELECT T.label FROM ( SELECT T2.label, COUNT(T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'h' GROUP BY T2.label ORDER BY COUNT(T2.molecule_id) DESC LIMIT 1 ) t",
+  "evidence": "with hydrogen refers to element = 'h'; label most numerous in atoms refers to MAX(COUNT(label)); ",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 64,
+    "word_length": 12,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 226,
+    "tables_count": 3,
+    "tables": [
+      "(",
+      "atom",
+      "molecule"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 3,
+    "clause_types": [
+      "GROUP BY",
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT m.label, COUNT(*) as count FROM molecule m JOIN atom a ON m.molecule_id = a.molecule_id WHERE a.element = 'h' GROUP BY m.label ORDER BY count DESC LIMIT 1;",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "raw_response": "<think>\nLet's analyze the database schema to understand the tables and relationships:\n\n1. `atom` table:\n   - `atom_id` (primary key)\n   - `molecule_id` (foreign key to molecule table)\n   - `element` (which can be 'h' for hydrogen)\n\n2. `molecule` table:\n   - `molecule_id` (primary key)\n   - `label` (what we need to count)\n\n3. `bond` table:\n   - `bond_id` (primary key)\n   - `molecule_id` (foreign key to molecule table)\n   - `bond_type`\n\n4. `connected` table:\n   - `atom_id` (foreign key to atom table)\n   - `atom_id2` (foreign key to atom table)\n   - `bond_id` (foreign key to bond table)\n\nThe question asks for the most numerous type of label in atoms with hydrogen. We need to:\n1. Find molecules that have hydrogen atoms (where element = 'h')\n2. Count the occurrences of each label in these molecules\n3. Identify the label with the maximum count\n\nHere's the SQL query approach:\n\n```sql\nSELECT m.label, COUNT(*) as label_count\nFROM molecule m\nJOIN atom a ON m.molecule_id = a.molecule_id\nWHERE a.element = 'h'\nGROUP BY m.label\nORDER BY label_count DESC\nLIMIT 1;\n```\n\nHowever, I need to be careful because the question might be asking for the label that appears most frequently in molecules that contain at least one hydrogen atom. \n\nLet's refine the query:\n\n```sql\nSELECT m.label, COUNT(DISTINCT m.molecule_id) as label_count\nFROM molecule m\nJOIN atom a ON m.molecule_id = a.molecule_id\nWHERE a.element = 'h'\nGROUP BY m.label\nORDER BY label_count DESC\nLIMIT 1;\n```\n\nActually, let me think about this more carefully. The question is asking for \"the most numerous label in atoms with hydrogen\". Since we're looking at atoms with hydrogen, I think we need to first identify molecules that contain hydrogen atoms, and then count the labels associated with those molecules.\n\nGiven the clarification in the question, I think what's being asked is:\n1. Find all atoms where element = 'h'\n2. Find the molecules these atoms belong to\n3. Count the occurrence of each label among these molecules\n4. Return the label with the maximum count\n\nLet me revise the query:\n</think>\n\nI need to find which label is most common among molecules that contain hydrogen atoms.\n\n```sql\nSELECT m.label, COUNT(*) as count\nFROM molecule m\nJOIN atom a ON m.molecule_id = a.molecule_id\nWHERE a.element = 'h'\nGROUP BY m.label\nORDER BY count DESC\nLIMIT 1;\n```\n\nThis query:\n1. Joins the molecule and atom tables\n2. Filters for only hydrogen atoms (element = 'h')\n3. Groups by the molecule label\n4. Counts how many times each label appears\n5. Orders by count in descending order\n6. Returns only the top result (the most numerous label)\n\n{\"sql\": \"SELECT m.label, COUNT(*) as count FROM molecule m JOIN atom a ON m.molecule_id = a.molecule_id WHERE a.element = 'h' GROUP BY m.label ORDER BY count DESC LIMIT 1;\"}"
+    }
+  }
+}

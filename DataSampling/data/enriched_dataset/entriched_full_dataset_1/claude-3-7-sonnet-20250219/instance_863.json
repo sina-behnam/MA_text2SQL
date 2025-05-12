@@ -1,0 +1,75 @@
+{
+  "id": 863,
+  "dataset": "spider",
+  "database": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/schemas/network_1/network_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Count the number of high schoolers.",
+  "sql": "SELECT count(*) FROM Highschooler",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 35,
+    "word_length": 6,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 33,
+    "tables_count": 1,
+    "tables": [
+      "Highschooler"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM Highschooler",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLooking at the database schema:\n\n1. `Highschooler`: Contains information about the students, including ID, name, and grade.\n2. `Friend`: Contains information about friendships between students.\n3. `Likes`: Contains information about which student likes which other student.\n\nSince I need to count the number of high schoolers, I need to get the total count of records in the `Highschooler` table.\n\nThis is a simple query using the `COUNT` function:\n\n```sql\nSELECT COUNT(*) FROM Highschooler;\n```\n\nThis query will return the total number of records in the `Highschooler` table, which represents the count of high schoolers.\n</think>\n\n```json\n{\"sql\": \"SELECT COUNT(*) FROM Highschooler\"}\n```"
+    }
+  }
+}

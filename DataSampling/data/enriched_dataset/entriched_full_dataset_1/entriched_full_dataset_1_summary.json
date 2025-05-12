@@ -1,0 +1,28 @@
+{
+  "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free": {
+    "num_evaluated": 521,
+    "num_with_prediction": 521,
+    "prediction_rate": 1.0,
+    "execution_accuracy": 0.5009596928982726,
+    "exact_match_accuracy": 0.04030710172744722,
+    "semantic_equivalent_accuracy": 0.5604606525911708,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    }
+  },
+  "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free": {
+    "num_evaluated": 521,
+    "num_with_prediction": 516,
+    "prediction_rate": 0.9904030710172744,
+    "execution_accuracy": 0.5678294573643411,
+    "exact_match_accuracy": 0.08139534883720931,
+    "semantic_equivalent_accuracy": 0.627906976744186,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "id": 903,
+  "dataset": "spider",
+  "database": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/schemas/network_1/network_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many likes correspond to each student id?",
+  "sql": "SELECT student_id ,  count(*) FROM Likes GROUP BY student_id",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 45,
+    "word_length": 9,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 60,
+    "tables_count": 1,
+    "tables": [
+      "Likes"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT liked_id AS student_id, COUNT(*) AS number_of_likes FROM Likes GROUP BY liked_id",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (10, 2) vs predicted (8, 2)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (10, 2) vs predicted (8, 2)",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. **Highschooler Table**:\n   - ID (int): primary key\n   - name (text)\n   - grade (int)\n\n2. **Friend Table**:\n   - student_id (int): part of a composite primary key, foreign key to Highschooler(ID)\n   - friend_id (int): part of a composite primary key, foreign key to Highschooler(ID)\n\n3. **Likes Table**:\n   - student_id (int): part of a composite primary key, foreign key to Highschooler(ID)\n   - liked_id (int): part of a composite primary key, foreign key to Highschooler(ID)\n\nThe question asks: \"How many likes correspond to each student id?\"\n\nThis isn't entirely clear, but there are two possible interpretations:\n\n1. For each student, how many other students like them? (i.e., count where the student is the liked_id)\n2. For each student, how many other students do they like? (i.e., count where the student is the student_id)\n\nLet's go with the first interpretation: For each student, how many other students like them?\n\nFor this, we need to count the occurrences of each `liked_id` in the `Likes` table.\n\n```sql\nSELECT liked_id, COUNT(*) as like_count\nFROM Likes\nGROUP BY liked_id\nORDER BY liked_id;\n```\n\nIf we want to include students who don't have any likes, we need to outer join with the Highschooler table:\n\n```sql\nSELECT h.ID, COUNT(l.student_id) as like_count\nFROM Highschooler h\nLEFT JOIN Likes l ON h.ID = l.liked_id\nGROUP BY h.ID\nORDER BY h.ID;\n```\n\nIf we want to include the student's name in the result:\n\n```sql\nSELECT h.ID, h.name, COUNT(l.student_id) as like_count\nFROM Highschooler h\nLEFT JOIN Likes l ON h.ID = l.liked_id\nGROUP BY h.ID, h.name\nORDER BY h.ID;\n```\n\nSince the question wasn't specific about whether to include students with no likes or to include the student's name, I'll go with the most comprehensive query for now.\n\nActually, let me reconsider the interpretation of the question. The question asked \"How many likes correspond to each student id?\" \n\nThe word \"correspond\" suggests we're looking for any relationship between a student and likes. Given the structure of the `Likes` table, a student can be linked to likes in two ways:\n1. They can be liked by other students (they are the `liked_id`).\n2. They can like other students (they are the `student_id`).\n\nSo both interpretations are valid. But since the table is named \"Likes\" and the column is \"student_id\", it's more likely the second interpretation is intended: For each student, how many other students do they like?\n\nBut let's be safe and provide a query that counts both ways:\n\n```sql\nSELECT h.ID, \n       COUNT(DISTINCT l1.liked_id) as students_they_like, \n       COUNT(DISTINCT l2.student_id) as students_who_like_them\nFROM Highschooler h\nLEFT JOIN Likes l1 ON h.ID = l1.student_id\nLEFT JOIN Likes l2 ON h.ID = l2.liked_id\nGROUP BY h.ID\nORDER BY h.ID;\n```\n\nActually, upon re-reading the question, it seems to be asking \"For each student, how many likes are associated with them?\" without specifying whether they are the liker or the likee. The most direct interpretation is probably to count the total number of likes where the student is either the liker or the likee.\n\nActually actually, the question \"How many likes correspond to each student id?\" is still ambiguous, so I'm going to go with the interpretation that seems most likely: for each student, how many other students like that student. This is probably the most natural interpretation.\n\n```sql\nSELECT h.ID, COUNT(l.student_id) as like_count\nFROM Highschooler h\nLEFT JOIN Likes l ON h.ID = l.liked_id\nGROUP BY h.ID\nORDER BY h.ID;\n```\n\nWait, this isn't quite right either. If we're counting how many students like each student, we need to count the number of rows in the Likes table where the student is the `liked_id`.\n\n```sql\nSELECT liked_id, COUNT(*) as like_count\nFROM Likes\nGROUP BY liked_id;\n```\n\nBut again, this won't include students who don't have any likes. To include them, we need to outer join with the Highschooler table:\n\n```sql\nSELECT h.ID, COUNT(l.student_id) as like_count\nFROM Highschooler h\nLEFT JOIN Likes l ON h.ID = l.liked_id\nGROUP BY h.ID;\n```\n\nAfter thinking more about it, I think the question is simply asking \"For each student, how many likes (entries in the Likes table) are associated with them?\" Given that students can both like and be liked, let's just go with this simple interpretation.\n</think>\n\nLooking at the Likes table structure, the question is asking how many students like each student. I'll count the likes each student receives.\n\n```json\n{\n  \"sql\": \"SELECT liked_id AS student_id, COUNT(*) AS number_of_likes FROM Likes GROUP BY liked_id\"\n}\n```"
+    }
+  }
+}

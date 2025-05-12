@@ -1,0 +1,103 @@
+{
+  "id": 1340,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Calculate the difference of the total amount spent in all events by the Student_Club in year 2019 and 2020.",
+  "sql": "SELECT SUM(CASE WHEN SUBSTR(T1.event_date, 1, 4) = '2019' THEN T2.spent ELSE 0 END) - SUM(CASE WHEN SUBSTR(T1.event_date, 1, 4) = '2020' THEN T2.spent ELSE 0 END) AS num FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event",
+  "evidence": "The first 4 strings of the event_date values in the event table can represent year; The difference of the total amount spent = SUBTRACT(spent where YEAR(event_date) = 2019, spent where YEAR(event_date) = 2020)",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 107,
+    "word_length": 19,
+    "entities": [
+      {
+        "text": "year 2019 and",
+        "label": "DATE",
+        "start": 88,
+        "end": 101
+      },
+      {
+        "text": "2020",
+        "label": "DATE",
+        "start": 102,
+        "end": 106
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2019",
+      "2020"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 244,
+    "tables_count": 2,
+    "tables": [
+      "event",
+      "budget"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "select the 2019 and 2020 totals and compute their difference.\n\nBut since the user wants the difference, I can structure the query to return (2020_total - 2019_total).\n\nSo, putting it all together:\n\nWith the CTE, I can sum the spent for each year, then in the main query, subtract the 2019 sum from the 2020 sum.\n\nBut I also need to handle cases where one of the years might not have any data, so using COALESCE to avoid NULL issues.\n\nWait, but in the CTE, if a year doesn't have any data, it won't appear. So when selecting, I should handle that.\n\nAlternatively, I can use conditional aggregation.\n\nAnother approach is to use a single query with conditional sums.\n\nSo, the query would look something like:\n\nSELECT \n    SUM(CASE WHEN year = '2020' THEN spent ELSE 0 END) AS total_2020,\n    SUM(CASE WHEN year = '2019' THEN spent ELSE 0 END) AS total_2019,\n    SUM(CASE WHEN year = '2020' THEN spent ELSE 0 END) - SUM(CASE WHEN year = '2019' THEN spent ELSE 0 END) AS difference\nFROM (\n    SELECT \n        e.event_id,\n        strftime('%Y', e.event_date) AS year,\n        b.spent\n    FROM event e\n    JOIN budget b ON e.event_id = b.link_to_event\n    WHERE e.type = 'Student_Club'\n) AS sub;",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"2019\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"2019\": syntax error"
+    }
+  }
+}

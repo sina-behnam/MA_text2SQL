@@ -1,0 +1,101 @@
+{
+  "id": 3,
+  "dataset": "bird",
+  "database": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/databases/california_schools/california_schools.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/california_schools/schools.csv",
+      "stratified_output/databases/california_schools/satscores.csv",
+      "stratified_output/databases/california_schools/frpm.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/schemas/california_schools/california_schools.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the unabbreviated mailing street address of the school with the highest FRPM count for K-12 students?",
+  "sql": "SELECT T2.MailStreet FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T1.`FRPM Count (K-12)` DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 109,
+    "word_length": 18,
+    "entities": [
+      {
+        "text": "FRPM",
+        "label": "ORG",
+        "start": 80,
+        "end": 84
+      },
+      {
+        "text": "K-12",
+        "label": "PRODUCT",
+        "start": 95,
+        "end": 99
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "PRODUCT"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "highest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 3,
+    "column_overlap_lemma_count": 4
+  },
+  "sql_analysis": {
+    "char_length": 133,
+    "tables_count": 2,
+    "tables": [
+      "schools",
+      "frpm"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT T1.MailStreet FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.`FRPM Count (K-12)` = (SELECT MAX(`FRPM Count (K-12)`) FROM frpm)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match"
+    }
+  }
+}

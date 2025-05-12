@@ -1,0 +1,108 @@
+{
+  "id": 798,
+  "dataset": "bird",
+  "database": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/databases/superhero/superhero.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/superhero/gender.csv",
+      "stratified_output/databases/superhero/superpower.csv",
+      "stratified_output/databases/superhero/publisher.csv",
+      "stratified_output/databases/superhero/superhero.csv",
+      "stratified_output/databases/superhero/colour.csv",
+      "stratified_output/databases/superhero/attribute.csv",
+      "stratified_output/databases/superhero/hero_power.csv",
+      "stratified_output/databases/superhero/race.csv",
+      "stratified_output/databases/superhero/alignment.csv",
+      "stratified_output/databases/superhero/hero_attribute.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "superhero",
+    "path": [
+      "stratified_output/schemas/superhero/superhero.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the publisher for Hawkman, Karate Kid and Speedy?",
+  "sql": "SELECT T2.publisher_name FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T1.superhero_name IN ('Hawkman', 'Karate Kid', 'Speedy')",
+  "evidence": "publisher refers to publisher_name; Hawkman refers to superhero_name = 'Hawkman'; Karate Kid refers to superhero_name = 'Karate Kid'; Speedy refers to superhero_name = 'Speedy';",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 57,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "Hawkman",
+        "label": "ORG",
+        "start": 26,
+        "end": 33
+      },
+      {
+        "text": "Karate Kid",
+        "label": "PERSON",
+        "start": 35,
+        "end": 45
+      },
+      {
+        "text": "Speedy",
+        "label": "PERSON",
+        "start": 50,
+        "end": 56
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 162,
+    "tables_count": 2,
+    "tables": [
+      "superhero",
+      "publisher"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT s.superhero_name, p.publisher_name \nFROM superhero s\nJOIN publisher p ON s.publisher_id = p.id\nWHERE s.superhero_name IN ('Hawkman', 'Karate Kid', 'Speedy')\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nBased on the provided schema, I need to write a SQL query to find the publisher name for three specific superheroes: Hawkman, Karate Kid, and Speedy.\n\nLet's analyze the relevant tables for this query:\n1. `superhero` table contains `superhero_name` and has a foreign key `publisher_id` that references the `publisher` table\n2. `publisher` table contains `publisher_name` which is what we need to return\n\nTo solve this problem, I need to:\n1. Join the `superhero` and `publisher` tables\n2. Filter for the three superhero names mentioned\n3. Return the publisher name for each superhero\n\nHere's how I'll structure the query:\n\n```sql\nSELECT s.superhero_name, p.publisher_name\nFROM superhero s\nJOIN publisher p ON s.publisher_id = p.id\nWHERE s.superhero_name IN ('Hawkman', 'Karate Kid', 'Speedy');\n```\n\nThis query will join the superhero table with the publisher table and filter for only the three superheroes we're looking for. It will return both the superhero name and the corresponding publisher name.\n\nHowever, upon further thought, the question is asking for \"the publisher\" (singular) for all three superheroes. This could mean either:\n1. Each superhero's individual publisher (which my query above handles)\n2. The common publisher if all three belong to the same publisher\n\nIf it's the latter, I should adjust my query to check if they all have the same publisher:\n\n```sql\nSELECT p.publisher_name\nFROM publisher p\nWHERE p.id = (\n    SELECT DISTINCT s.publisher_id\n    FROM superhero s\n    WHERE s.superhero_name IN ('Hawkman', 'Karate Kid', 'Speedy')\n    GROUP BY s.publisher_id\n    HAVING COUNT(DISTINCT s.superhero_name) = 3\n);\n```\n\nThis would return a result only if all three superheroes share the same publisher.\n\nBut I think the most straightforward interpretation is to simply show the publisher for each of these superheroes, so I'll go with the first query.\n\nHowever, I need to format my response as a JSON with a field named 'sql', so I'll provide just the SQL query part.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.superhero_name, p.publisher_name \nFROM superhero s\nJOIN publisher p ON s.publisher_id = p.id\nWHERE s.superhero_name IN ('Hawkman', 'Karate Kid', 'Speedy')\"\n}\n```"
+    }
+  }
+}

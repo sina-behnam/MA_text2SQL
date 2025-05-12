@@ -1,0 +1,91 @@
+{
+  "id": 677,
+  "dataset": "spider",
+  "database": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "poker_player",
+    "path": [
+      "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the nationalities that are shared by at least two people?",
+  "sql": "SELECT Nationality FROM people GROUP BY Nationality HAVING COUNT(*)  >=  2",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 66,
+    "word_length": 12,
+    "entities": [
+      {
+        "text": "at least two",
+        "label": "CARDINAL",
+        "start": 46,
+        "end": 58
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "two"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "least"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 74,
+    "tables_count": 1,
+    "tables": [
+      "people"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Nationality FROM people GROUP BY Nationality HAVING COUNT(*) >= 2",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. We have two tables:\n   - `poker_player`: Contains information about poker players, with `Poker_Player_ID` as the primary key and `People_ID` as a foreign key referencing the `people` table.\n   - `people`: Contains information about people, with `People_ID` as the primary key. It has columns for `Nationality`, `Name`, `Birth_Date`, and `Height`.\n\n2. The question asks for nationalities that are shared by at least two people.\n\nTo answer this, we need to:\n1. Count how many people have each nationality\n2. Filter to only include nationalities that have at least 2 people\n\nWe can use the `GROUP BY` clause to group by nationality and the `HAVING` clause to filter by count.\n\nHere's the SQL query:\n\n```sql\nSELECT Nationality\nFROM people\nGROUP BY Nationality\nHAVING COUNT(*) >= 2\n```\n\nThis query will:\n1. Select the `Nationality` column from the `people` table\n2. Group the results by `Nationality`\n3. Only include nationalities that appear at least twice in the table\n\nLet's put this in the required JSON format.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Nationality FROM people GROUP BY Nationality HAVING COUNT(*) >= 2\"\n}\n```"
+    }
+  }
+}

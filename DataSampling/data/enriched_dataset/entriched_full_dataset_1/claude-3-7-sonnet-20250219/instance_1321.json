@@ -1,0 +1,105 @@
+{
+  "id": 1321,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many events of the Student_Club did Sacha Harrison attend in 2019?",
+  "sql": "SELECT COUNT(T1.event_id) FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event INNER JOIN member AS T3 ON T2.link_to_member = T3.member_id WHERE T3.first_name = 'Sacha' AND T3.last_name = 'Harrison' AND SUBSTR(T1.event_date, 1, 4) = '2019'",
+  "evidence": "events attended in 2019 refers to YEAR(event_date) = 2019",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 70,
+    "word_length": 12,
+    "entities": [
+      {
+        "text": "Sacha Harrison",
+        "label": "PERSON",
+        "start": 40,
+        "end": 54
+      },
+      {
+        "text": "2019",
+        "label": "DATE",
+        "start": 65,
+        "end": 69
+      }
+    ],
+    "entity_types": [
+      "DATE",
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2019"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 265,
+    "tables_count": 3,
+    "tables": [
+      "attendance",
+      "event",
+      "member"
+    ],
+    "join_count": 2,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) AS event_count FROM attendance a JOIN member m ON a.link_to_member = m.member_id JOIN event e ON a.link_to_event = e.event_id WHERE m.first_name = 'Sacha' AND m.last_name = 'Harrison' AND e.type = 'Student_Club' AND STRFTIME('%Y', e.event_date) = '2019'",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The queries are not semantically equivalent because the generated query includes an additional filter 'e.type = \"Student_Club\"' that restricts results to only events of the Student_Club type. The gold query doesn't have this filter and would count all events Sacha Harrison attended in 2019, regardless of event type. Additionally, while both queries extract the year from event_date, they use different functions (SUBSTR vs STRFTIME) which may behave differently depending on the date format.",
+      "raw_response": "<think>\nLet's analyze the database schema to understand how to formulate the SQL query:\n\n1. We need to find events attended by a specific person named \"Sacha Harrison\".\n2. We need to count events of type \"Student_Club\".\n3. We need to filter events that occurred in 2019.\n\nFrom the database schema, we can identify the relevant tables:\n- `member` table to identify Sacha Harrison\n- `event` table to get event details including type and date\n- `attendance` table that links members to events they attended\n\nThe schema indicates:\n- `member` has columns including `member_id`, `first_name`, `last_name`\n- `event` has columns including `event_id`, `event_name`, `event_date`, `type`\n- `attendance` links members to events with `link_to_member` and `link_to_event`\n\nTo solve this problem, I'll need to:\n1. Join the `member` table with the `attendance` table to find events attended by Sacha Harrison\n2. Join the result with the `event` table to get event details\n3. Filter for events of type \"Student_Club\"\n4. Filter for events that occurred in 2019 (using the YEAR function on event_date)\n5. Count the matching events\n\nLet's write this query:\n```sql\nSELECT COUNT(*) AS event_count\nFROM attendance a\nJOIN member m ON a.link_to_member = m.member_id\nJOIN event e ON a.link_to_event = e.event_id\nWHERE m.first_name = 'Sacha' \nAND m.last_name = 'Harrison'\nAND e.type = 'Student_Club'\nAND STRFTIME('%Y', e.event_date) = '2019'\n```\n\nI'm using STRFTIME('%Y', e.event_date) to extract the year from the event_date field, assuming it's in a format SQLite can parse. If the date format is different, we might need to adjust this part.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) AS event_count FROM attendance a JOIN member m ON a.link_to_member = m.member_id JOIN event e ON a.link_to_event = e.event_id WHERE m.first_name = 'Sacha' AND m.last_name = 'Harrison' AND e.type = 'Student_Club' AND STRFTIME('%Y', e.event_date) = '2019'\"\n}\n```"
+    }
+  }
+}

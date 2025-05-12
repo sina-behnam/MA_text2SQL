@@ -1,0 +1,98 @@
+{
+  "id": 553,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the phone number of the man with the first name Timmothy and the last name Ward?",
+  "sql": "SELECT cell_mobile_number FROM Students WHERE first_name  =  'Timmothy' AND last_name  =  'Ward'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 88,
+    "word_length": 18,
+    "entities": [
+      {
+        "text": "first",
+        "label": "ORDINAL",
+        "start": 45,
+        "end": 50
+      },
+      {
+        "text": "Timmothy",
+        "label": "PERSON",
+        "start": 56,
+        "end": 64
+      },
+      {
+        "text": "Ward",
+        "label": "ORG",
+        "start": 83,
+        "end": 87
+      }
+    ],
+    "entity_types": [
+      "PERSON",
+      "ORG",
+      "ORDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "first"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 96,
+    "tables_count": 1,
+    "tables": [
+      "Students"
+    ],
+    "join_count": 0,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nLet's analyze the database schema to find where I can get information about a person named Timmothy Ward.\n\nLooking through the tables, the 'Students' table seems most relevant since it contains information about people with fields like 'first_name', 'last_name', and 'cell_mobile_number'.\n\nHere's the schema of the Students table:\n```\nCREATE TABLE `Students` (\n  `student_id` INTEGER PRIMARY KEY,\n  `current_address_id` INTEGER NOT NULL,\n  `permanent_address_id` INTEGER NOT NULL,\n  `first_name` VARCHAR(80),\n  `middle_name` VARCHAR(40),\n  `last_name` VARCHAR(40),\n  `cell_mobile_number` VARCHAR(40),\n  `email_address` VARCHAR(40),\n  `ssn` VARCHAR(40),\n  `date_first_registered` DATETIME,\n  `date_left` DATETIME,\n  `other_student_details` VARCHAR(255),\n  FOREIGN KEY (`current_address_id` ) REFERENCES `Addresses`(`address_id` ),\n  FOREIGN KEY (`permanent_address_id` ) REFERENCES `Addresses`(`address_id` )\n)\n```\n\nSo, I need to query the Students table to find a student with the first name 'Timmothy' and last name 'Ward', and then retrieve their phone number which is in the 'cell_mobile_number' field.\n\nThe SQL query should be:\n```sql\nSELECT cell_mobile_number\nFROM Students\nWHERE first_name = 'Timmothy' AND last_name = 'Ward'\n```\n\nThis should return the phone number of Timmothy Ward if he exists in the database.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT cell_mobile_number FROM Students WHERE first_name = 'Timmothy' AND last_name = 'Ward'\"\n}\n```"
+    }
+  }
+}

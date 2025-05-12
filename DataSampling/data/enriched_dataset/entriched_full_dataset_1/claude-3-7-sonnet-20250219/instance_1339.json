@@ -1,0 +1,108 @@
+{
+  "id": 1339,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Calculate the total average cost that Elijah Allen spent in the events on September and October.",
+  "sql": "SELECT AVG(T2.cost) FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member WHERE T1.last_name = 'Allen' AND T1.first_name = 'Elijah' AND (SUBSTR(T2.expense_date, 6, 2) = '09' OR SUBSTR(T2.expense_date, 6, 2) = '10')",
+  "evidence": "Elijah Allen is the full name; full name refers to first_name, last_name; The 5th and 6th string of the expense_date in the expense table can refer to month; events in September and October refers to month(expense_date) = 9 OR month(expense_date) = 10",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 96,
+    "word_length": 16,
+    "entities": [
+      {
+        "text": "Elijah Allen",
+        "label": "PERSON",
+        "start": 38,
+        "end": 50
+      },
+      {
+        "text": "September",
+        "label": "DATE",
+        "start": 74,
+        "end": 83
+      },
+      {
+        "text": "October",
+        "label": "DATE",
+        "start": 88,
+        "end": 95
+      }
+    ],
+    "entity_types": [
+      "DATE",
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 239,
+    "tables_count": 2,
+    "tables": [
+      "member",
+      "expense"
+    ],
+    "join_count": 1,
+    "where_conditions": 4,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(e.cost) AS average_cost FROM expense e JOIN member m ON e.link_to_member = m.member_id WHERE m.first_name = 'Elijah' AND m.last_name = 'Allen' AND (SUBSTR(e.expense_date, 6, 2) = '09' OR SUBSTR(e.expense_date, 6, 2) = '10')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the question:\n- We need to calculate the total average cost that Elijah Allen spent in events during September and October.\n- We need to find \"Elijah Allen\" in the member table (using first_name and last_name fields).\n- We need to check for expenses in September and October by checking the 5th and 6th characters of the expense_date in the expense table.\n\nNow, let's understand the schema:\n1. `member` table has `first_name`, `last_name`, and `member_id` columns.\n2. `expense` table has `cost`, `expense_date`, and `link_to_member` columns, where `link_to_member` is a foreign key referencing `member_id` in the `member` table.\n\nSince the hint mentions that the month can be extracted from the 5th and 6th characters of the expense_date, we can use the SUBSTR function in SQL to extract these characters and check if they are \"09\" (September) or \"10\" (October).\n\nHere's the approach:\n1. Find Elijah Allen's member_id from the member table.\n2. Find all expenses where the link_to_member matches Elijah Allen's member_id and the month (derived from the expense_date) is either September or October.\n3. Calculate the average of the cost column from these expenses.\n\nNow let's build the SQL query:\n</think>\n\nI'll provide a SQL query to calculate the average cost of expenses by Elijah Allen for September and October events.\n\n```json\n{\n  \"sql\": \"SELECT AVG(e.cost) AS average_cost FROM expense e JOIN member m ON e.link_to_member = m.member_id WHERE m.first_name = 'Elijah' AND m.last_name = 'Allen' AND (SUBSTR(e.expense_date, 6, 2) = '09' OR SUBSTR(e.expense_date, 6, 2) = '10')\"\n}\n```"
+    }
+  }
+}

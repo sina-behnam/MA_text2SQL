@@ -1,0 +1,101 @@
+{
+  "id": 23,
+  "dataset": "bird",
+  "database": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/databases/california_schools/california_schools.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/california_schools/schools.csv",
+      "stratified_output/databases/california_schools/satscores.csv",
+      "stratified_output/databases/california_schools/frpm.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/schemas/california_schools/california_schools.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List the names of schools with more than 30 difference in enrollements between K-12 and ages 5-17? Please also give the full street adress of the schools.",
+  "sql": "SELECT T1.School, T1.Street FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.`Enrollment (K-12)` - T2.`Enrollment (Ages 5-17)` > 30",
+  "evidence": "Diffrence in enrollement = `Enrollment (K-12)` - `Enrollment (Ages 5-17)`",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 154,
+    "word_length": 28,
+    "entities": [
+      {
+        "text": "more than 30",
+        "label": "CARDINAL",
+        "start": 31,
+        "end": 43
+      },
+      {
+        "text": "K-12",
+        "label": "PRODUCT",
+        "start": 79,
+        "end": 83
+      }
+    ],
+    "entity_types": [
+      "PRODUCT",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "30",
+      "5",
+      "17"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "more"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 159,
+    "tables_count": 2,
+    "tables": [
+      "schools",
+      "frpm"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT f.`School Name`, s.Street, s.City, s.State, s.Zip, (f.`Enrollment (K-12)` - f.`Enrollment (Ages 5-17)`) AS enrollment_difference FROM frpm f JOIN schools s ON f.CDSCode = s.CDSCode WHERE (f.`Enrollment (K-12)` - f.`Enrollment (Ages 5-17)`) > 30 ORDER BY enrollment_difference DESC",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1239, 2) vs predicted (1239, 6)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1239, 2) vs predicted (1239, 6)",
+      "raw_response": "<think>\nBased on the user's question, I need to find schools where the difference between `Enrollment (K-12)` and `Enrollment (Ages 5-17)` is greater than 30, and then provide the names of these schools along with their full street addresses.\n\nLet's analyze the schema:\n\n1. The `frpm` table contains both `Enrollment (K-12)` and `Enrollment (Ages 5-17)` fields.\n2. The `schools` table contains school names (`School`) and street address information (`Street`, `City`, `Zip`, `State`).\n3. These tables can be linked via the `CDSCode` field, which appears to be the primary key in both tables.\n\nTo solve this problem, I need to:\n1. Calculate the difference between `Enrollment (K-12)` and `Enrollment (Ages 5-17)` for each school in the `frpm` table.\n2. Filter for schools where the absolute value of this difference is greater than 30.\n3. Join with the `schools` table to get the school's full address.\n4. Select the school name and address information.\n\nHere's the SQL query:\n```sql\nSELECT \n    frpm.`School Name`, \n    schools.Street, \n    schools.City, \n    schools.State, \n    schools.Zip,\n    (frpm.`Enrollment (K-12)` - frpm.`Enrollment (Ages 5-17)`) AS enrollment_difference\nFROM \n    frpm\nJOIN \n    schools ON frpm.CDSCode = schools.CDSCode\nWHERE \n    ABS(frpm.`Enrollment (K-12)` - frpm.`Enrollment (Ages 5-17)`) > 30\nORDER BY \n    enrollment_difference DESC;\n```\n\nThe query:\n1. Joins the `frpm` and `schools` tables using the `CDSCode` field.\n2. Calculates the difference between the two enrollment fields.\n3. Filters for schools where the absolute difference is greater than 30.\n4. Returns the school name and address information, along with the calculated difference for reference.\n5. Orders the results by the enrollment difference in descending order to show the largest differences first.\n\nWait, the problem doesn't actually mention absolute differences. It just says \"with more than 30 difference\" which could be interpreted as needing the difference to be greater than 30, not just the absolute difference. Let me adjust the query:\n\n```sql\nSELECT \n    frpm.`School Name`, \n    schools.Street, \n    schools.City, \n    schools.State, \n    schools.Zip,\n    (frpm.`Enrollment (K-12)` - frpm.`Enrollment (Ages 5-17)`) AS enrollment_difference\nFROM \n    frpm\nJOIN \n    schools ON frpm.CDSCode = schools.CDSCode\nWHERE \n    (frpm.`Enrollment (K-12)` - frpm.`Enrollment (Ages 5-17)`) > 30\nORDER BY \n    enrollment_difference DESC;\n```\n\nThis will give us schools where the K-12 enrollment is more than 30 students higher than the 5-17 age enrollment.\n\nActually, let me re-read the problem statement to make sure I'm interpreting it correctly. \"List the names of schools with more than 30 difference in enrollments between K-12 and ages 5-17.\" The use of \"more than 30 difference\" suggests that we're looking for the absolute difference to be greater than 30, regardless of which enrollment is higher.\n\nBut then there's a PS: \"Difference in enrollment = `Enrollment (K-12)` - `Enrollment (Ages 5-17)`\". This indicates that we're specifically looking at the result of subtracting the 5-17 enrollment from the K-12 enrollment, and this result should be greater than 30.\n\nGiven this clarification, my second interpretation is correct: we want schools where the K-12 enrollment is more than 30 students higher than the 5-17 age enrollment. Let's go with that.\n</think>\n\nLooking at your question, I need to find schools where the difference between K-12 enrollment and ages 5-17 enrollment exceeds 30, along with their full address information.\n\n```json\n{\n  \"sql\": \"SELECT f.`School Name`, s.Street, s.City, s.State, s.Zip, (f.`Enrollment (K-12)` - f.`Enrollment (Ages 5-17)`) AS enrollment_difference FROM frpm f JOIN schools s ON f.CDSCode = s.CDSCode WHERE (f.`Enrollment (K-12)` - f.`Enrollment (Ages 5-17)`) > 30 ORDER BY enrollment_difference DESC\"\n}\n```"
+    }
+  }
+}

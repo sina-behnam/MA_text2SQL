@@ -1,0 +1,92 @@
+{
+  "id": 218,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the number of United Airlines flights leaving from AHD Airport.",
+  "sql": "SELECT count(*) FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T2.Airline  =  T1.uid WHERE T1.Airline  =  \"United Airlines\" AND T2.SourceAirport  =  \"AHD\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 70,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "United Airlines",
+        "label": "ORG",
+        "start": 21,
+        "end": 36
+      },
+      {
+        "text": "AHD Airport",
+        "label": "FAC",
+        "start": 58,
+        "end": 69
+      }
+    ],
+    "entity_types": [
+      "FAC",
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 149,
+    "tables_count": 2,
+    "tables": [
+      "FLIGHTS",
+      "AIRLINES"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM flights f JOIN airlines a ON f.Airline = a.uid WHERE a.Airline = 'United Airlines' AND f.SourceAirport = 'AHD'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. `airlines` table with columns: uid, Airline, Abbreviation, Country\n2. `airports` table with columns: City, AirportCode, AirportName, Country, CountryAbbrev\n3. `flights` table with columns: Airline, FlightNo, SourceAirport, DestAirport\n\nThe question is asking for the number of United Airlines flights leaving from AHD Airport.\n\nTo solve this query, we need to:\n1. Identify United Airlines in the `airlines` table\n2. Count the flights from the `flights` table where the airline is United Airlines and the source airport is AHD\n\nSo, we need to join the `airlines` and `flights` tables, filter for United Airlines and AHD as the source airport, and count the results.\n\nThe SQL query would be:\n\n```sql\nSELECT COUNT(*) \nFROM flights f\nJOIN airlines a ON f.Airline = a.uid\nWHERE a.Airline = 'United Airlines' \nAND f.SourceAirport = 'AHD'\n```\n\nThis assumes that \"United Airlines\" is the exact name in the database. If it's not, we might need to adjust the filter.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM flights f JOIN airlines a ON f.Airline = a.uid WHERE a.Airline = 'United Airlines' AND f.SourceAirport = 'AHD'\"\n}\n```"
+    }
+  }
+}

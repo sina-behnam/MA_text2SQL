@@ -1,0 +1,95 @@
+{
+  "id": 1373,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many of the members' hometowns are from Maryland state?",
+  "sql": "SELECT COUNT(T2.member_id) FROM zip_code AS T1 INNER JOIN member AS T2 ON T1.zip_code = T2.zip WHERE T1.state = 'Maryland'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 59,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "Maryland",
+        "label": "GPE",
+        "start": 44,
+        "end": 52
+      }
+    ],
+    "entity_types": [
+      "GPE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 122,
+    "tables_count": 2,
+    "tables": [
+      "member",
+      "zip_code"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM member m JOIN zip_code z ON m.zip = z.zip_code WHERE z.state = 'Maryland' OR z.short_state = 'MD'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the question and the database schema to provide the appropriate SQL query.\n\nThe question asks: \"How many of the members' hometowns are from Maryland state?\"\n\nLooking at the database schema, we need to:\n1. Identify how members and their hometowns are stored\n2. Figure out how to filter for Maryland state\n3. Count the number of members from Maryland\n\nFrom the schema, I can see:\n- `member` table contains information about members\n- The `member` table has a `zip` column which references the `zip_code` table\n- The `zip_code` table has a `state` column and a `short_state` column\n\nSo the relationship is:\n- Each member has a zip code\n- Each zip code belongs to a city/state\n- We need to count members whose zip code is in Maryland\n\nTo solve this, I'll need to:\n1. Join the `member` table with the `zip_code` table\n2. Filter for zip codes in Maryland\n3. Count distinct members\n\nThe SQL query should be:\n\n```sql\nSELECT COUNT(*) \nFROM member m\nJOIN zip_code z ON m.zip = z.zip_code\nWHERE z.state = 'Maryland' OR z.short_state = 'MD'\n```\n\nActually, since we're not explicitly told whether the state name is stored as \"Maryland\" or the abbreviation \"MD\", I'll include both in the WHERE clause. Based on the column names, I'm assuming that `state` contains the full name and `short_state` contains the abbreviation.\n\nLet me check if this makes sense:\n- We're joining `member` and `zip_code` tables based on the zip code\n- We're filtering for Maryland\n- We're counting the number of members\n\nI think this query will give us the correct count of members whose hometowns are in Maryland.\n\nActually, to be more precise, let me simplify this. Since the question only asks for the count of members from Maryland, I'll use:\n\n```sql\nSELECT COUNT(*) \nFROM member m\nJOIN zip_code z ON m.zip = z.zip_code\nWHERE z.state = 'Maryland'\n```\n\nI'm assuming the `state` column contains the full state name. If it uses abbreviations instead, the query would be:\n\n```sql\nSELECT COUNT(*) \nFROM member m\nJOIN zip_code z ON m.zip = z.zip_code\nWHERE z.short_state = 'MD'\n```\n\nSince I'm not completely sure which one is used for Maryland in the database, I'll use both conditions in an OR clause, as in my earlier approach:\n\n```sql\nSELECT COUNT(*) \nFROM member m\nJOIN zip_code z ON m.zip = z.zip_code\nWHERE z.state = 'Maryland' OR z.short_state = 'MD'\n```\n\nThis will work regardless of whether the database uses the full state name or the abbreviation for Maryland.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM member m JOIN zip_code z ON m.zip = z.zip_code WHERE z.state = 'Maryland' OR z.short_state = 'MD'\"\n}\n```"
+    }
+  }
+}

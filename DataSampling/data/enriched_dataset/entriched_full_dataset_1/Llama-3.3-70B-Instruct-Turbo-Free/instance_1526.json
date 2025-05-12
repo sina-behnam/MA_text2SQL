@@ -1,0 +1,103 @@
+{
+  "id": 1526,
+  "dataset": "bird",
+  "database": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/databases/debit_card_specializing/debit_card_specializing.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/debit_card_specializing/customers.csv",
+      "stratified_output/databases/debit_card_specializing/gasstations.csv",
+      "stratified_output/databases/debit_card_specializing/products.csv",
+      "stratified_output/databases/debit_card_specializing/yearmonth.csv",
+      "stratified_output/databases/debit_card_specializing/transactions_1k.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "debit_card_specializing",
+    "path": [
+      "stratified_output/schemas/debit_card_specializing/debit_card_specializing.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For the customer who paid 634.8 in 2012/8/25, what was the consumption decrease rate from Year 2012 to 2013?",
+  "sql": "SELECT CAST(SUM(IIF(SUBSTR(Date, 1, 4) = '2012', Consumption, 0)) - SUM(IIF(SUBSTR(Date, 1, 4) = '2013', Consumption, 0)) AS FLOAT) / SUM(IIF(SUBSTR(Date, 1, 4) = '2012', Consumption, 0)) FROM yearmonth WHERE CustomerID = ( SELECT T1.CustomerID FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T1.Date = '2012-08-25' AND T1.Price = 634.8 )",
+  "evidence": "'2012/8/24' can be represented by '2012-08-24'; Consumption decrease rate = (consumption_2012 - consumption_2013) / consumption_2012",
+  "difficulty": "challenging",
+  "question_analysis": {
+    "char_length": 108,
+    "word_length": 19,
+    "entities": [
+      {
+        "text": "634.8",
+        "label": "CARDINAL",
+        "start": 26,
+        "end": 31
+      },
+      {
+        "text": "Year 2012 to 2013",
+        "label": "DATE",
+        "start": 90,
+        "end": 107
+      }
+    ],
+    "entity_types": [
+      "DATE",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "634.8",
+      "2012",
+      "2013"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 389,
+    "tables_count": 3,
+    "tables": [
+      "gasstations",
+      "transactions_1k",
+      "yearmonth"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 3,
+    "aggregation_functions": [
+      "SUM"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T15:42:14.218700"
+    },
+    "predicted_output": {
+      "generated_sql": "WITH target_customer AS (SELECT CustomerID FROM transactions_1k WHERE Date = '2012-08-25' AND Amount * Price = 634.8), consumption_2012 AS (SELECT Consumption FROM yearmonth WHERE CustomerID = (SELECT CustomerID FROM target_customer) AND Date LIKE '2012%'), consumption_2013 AS (SELECT Consumption FROM yearmonth WHERE CustomerID = (SELECT CustomerID FROM target_customer) AND Date LIKE '2013%') SELECT ((SUM(CASE WHEN Date LIKE '2012%' THEN Consumption END) - SUM(CASE WHEN Date LIKE '2013%' THEN Consumption END)) / SUM(CASE WHEN Date LIKE '2012%' THEN Consumption END)) * 100 AS decrease_rate FROM yearmonth WHERE CustomerID = (SELECT CustomerID FROM target_customer)",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The Gold SQL Query and the Generated SQL Query are not semantically equivalent. Although they aim to calculate the consumption decrease rate, there are differences in their approaches. The Gold SQL Query uses IIF and SUBSTR functions to filter the data, whereas the Generated SQL Query uses Common Table Expressions (CTEs) and CASE statements. Moreover, the Generated SQL Query multiplies the result by 100, which is not present in the Gold SQL Query. This multiplication by 100 changes the scale of the result, making the two queries non-equivalent."
+    }
+  }
+}

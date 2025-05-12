@@ -1,0 +1,101 @@
+{
+  "id": 16,
+  "dataset": "bird",
+  "database": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/databases/california_schools/california_schools.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/california_schools/schools.csv",
+      "stratified_output/databases/california_schools/satscores.csv",
+      "stratified_output/databases/california_schools/frpm.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/schemas/california_schools/california_schools.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many schools in merged Alameda have number of test takers less than 100?",
+  "sql": "SELECT COUNT(T1.CDSCode) FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.StatusType = 'Merged' AND T2.NumTstTakr < 100 AND T1.County = 'Lake'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 76,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "Alameda",
+        "label": "GPE",
+        "start": 27,
+        "end": 34
+      },
+      {
+        "text": "less than 100",
+        "label": "CARDINAL",
+        "start": 62,
+        "end": 75
+      }
+    ],
+    "entity_types": [
+      "GPE",
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "100"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "less"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 171,
+    "tables_count": 2,
+    "tables": [
+      "satscores",
+      "schools"
+    ],
+    "join_count": 1,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM schools s JOIN satscores sat ON s.CDSCode = sat.cds WHERE s.County = 'Alameda' AND sat.NumTstTakr < 100",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "These queries are not equivalent because they differ in two critical conditions: (1) The gold query filters for schools with StatusType = 'Merged' while the generated query has no such filter; (2) The gold query looks at 'Lake' county while the generated query looks at 'Alameda' county. Also, the gold query counts CDSCode specifically while the generated query uses COUNT(*), though this would return the same count in this join scenario.",
+      "raw_response": "<think>\nLet me understand the question and the database schema:\n\n1. The question asks for the number of schools in merged Alameda that have fewer than 100 test takers.\n2. \"merged Alameda\" likely refers to schools in Alameda County that have been merged, or it could mean schools in the city of Alameda.\n3. The \"test takers\" information seems to be in the `satscores` table, specifically in the `NumTstTakr` column.\n\nTo answer this question, I need to:\n1. Filter schools that are in Alameda County or City (from the `schools` table)\n2. Join with the `satscores` table to get the number of test takers\n3. Filter for schools where `NumTstTakr` < 100\n4. Count the resulting number of schools\n\nLooking at the schema:\n- The `schools` table has a `County` column that can be used to identify schools in Alameda County.\n- The `satscores` table has a `NumTstTakr` column that represents the number of test takers.\n- The tables are linked by `CDSCode` in `schools` and `cds` in `satscores`.\n\nLet me construct the SQL query:\n\n```sql\nSELECT COUNT(*) \nFROM schools s\nJOIN satscores sat ON s.CDSCode = sat.cds\nWHERE s.County = 'Alameda' AND sat.NumTstTakr < 100\n```\n\nHowever, I'm not entirely clear on what \"merged Alameda\" means. It could refer to:\n1. Schools in Alameda County\n2. Schools in the city of Alameda\n3. Schools that have been merged in Alameda County/City\n\nSince the most likely interpretation is schools in Alameda County, I'll go with that. If \"merged\" refers to a specific status of schools, we might need more information or look for a column that indicates this status.\n\nLet me adjust the query to be more precise:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM schools s JOIN satscores sat ON s.CDSCode = sat.cds WHERE s.County = 'Alameda' AND sat.NumTstTakr < 100\"\n}\n```"
+    }
+  }
+}

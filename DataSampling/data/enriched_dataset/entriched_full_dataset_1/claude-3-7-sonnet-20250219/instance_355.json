@@ -1,0 +1,90 @@
+{
+  "id": 355,
+  "dataset": "bird",
+  "database": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/databases/card_games/card_games.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/card_games/legalities.csv",
+      "stratified_output/databases/card_games/cards.csv",
+      "stratified_output/databases/card_games/rulings.csv",
+      "stratified_output/databases/card_games/set_translations.csv",
+      "stratified_output/databases/card_games/sets.csv",
+      "stratified_output/databases/card_games/foreign_data.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/schemas/card_games/card_games.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the keyword found on card 'Angel of Mercy'?",
+  "sql": "SELECT DISTINCT keywords FROM cards WHERE name = 'Angel of Mercy'",
+  "evidence": "Angel of Mercy' is the name of card;",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 51,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "Angel of Mercy'",
+        "label": "WORK_OF_ART",
+        "start": 35,
+        "end": 50
+      }
+    ],
+    "entity_types": [
+      "WORK_OF_ART"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 65,
+    "tables_count": 1,
+    "tables": [
+      "cards"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT keywords FROM cards WHERE name = 'Angel of Mercy'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to find the keyword associated with the card \"Angel of Mercy\". Looking at the database schema:\n\n1. We have a table called \"cards\" which contains information about cards.\n2. The \"cards\" table has a field called \"keywords\" which likely contains the keywords associated with a card.\n3. The \"name\" field in the \"cards\" table would contain the name of the card, which in this case is \"Angel of Mercy\".\n\nSo, I need to write a SQL query that selects the \"keywords\" field from the \"cards\" table where the \"name\" field is equal to \"Angel of Mercy\".\n\nThe query would be:\n```sql\nSELECT keywords\nFROM cards\nWHERE name = 'Angel of Mercy';\n```\n\nThis query will return the keywords associated with the \"Angel of Mercy\" card.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT keywords FROM cards WHERE name = 'Angel of Mercy'\"\n}\n```"
+    }
+  }
+}

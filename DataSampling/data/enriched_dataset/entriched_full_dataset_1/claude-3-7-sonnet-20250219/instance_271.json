@@ -1,0 +1,80 @@
+{
+  "id": 271,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Does bond id TR001_1_8 have both element of chlorine and carbon?",
+  "sql": "SELECT T2.bond_id, T2.atom_id2, T1.element AS flag_have_CaCl FROM atom AS T1 INNER JOIN connected AS T2 ON T2.atom_id = T1.atom_id WHERE T2.bond_id = 'TR001_1_8' AND (T1.element = 'c1' OR T1.element = 'c')",
+  "evidence": "chlorine refers to element = 'cl'; carbon refers to element = 'c'",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 64,
+    "word_length": 12,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 205,
+    "tables_count": 2,
+    "tables": [
+      "atom",
+      "connected"
+    ],
+    "join_count": 1,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"SELECT \n    CASE \n        WHEN SUM(a.element = 'cl') > 0 AND SUM(a.element = 'c') > 0 THEN 'Yes'\n        ELSE 'No'\n    END AS has_both_chlorine_and_carbon\nFROM connected c\nJOIN atom a ON c.atom_id = a.atom_id OR c.atom_id2 = a.atom_id\nWHERE c.bond_id = 'TR001_1_8'\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet's understand the database schema first:\n\n1. `atom` table: Contains information about atoms, including the atom_id, molecule_id, and element.\n2. `bond` table: Contains information about bonds, including the bond_id, molecule_id, and bond_type.\n3. `connected` table: Contains information about how atoms are connected, including the atom_id, atom_id2, and bond_id.\n4. `molecule` table: Contains information about molecules, including the molecule_id and label.\n\nThe question asks if bond with ID \"TR001_1_8\" has both elements of chlorine (element = 'cl') and carbon (element = 'c').\n\nTo solve this, I need to:\n1. Find all atoms connected by this specific bond from the `connected` table.\n2. Join with the `atom` table to get the elements of those atoms.\n3. Check if both chlorine and carbon are present among these atoms.\n\nHere's how I would structure the SQL query:\n\n```sql\nWITH BondAtoms AS (\n    SELECT a.atom_id, a.element\n    FROM connected c\n    JOIN atom a ON c.atom_id = a.atom_id OR c.atom_id2 = a.atom_id\n    WHERE c.bond_id = 'TR001_1_8'\n)\nSELECT \n    COUNT(DISTINCT CASE WHEN element = 'cl' THEN 1 END) > 0 as has_chlorine,\n    COUNT(DISTINCT CASE WHEN element = 'c' THEN 1 END) > 0 as has_carbon\nFROM BondAtoms;\n```\n\nActually, I think there's a problem with the approach above. The `connected` table has atom_id and atom_id2, both of which reference the atom table. So we need to make sure we're capturing both atoms connected by the bond.\n\nLet's revise the query:\n\n```sql\nWITH BondAtoms AS (\n    SELECT a.atom_id, a.element\n    FROM connected c\n    JOIN atom a ON c.atom_id = a.atom_id\n    WHERE c.bond_id = 'TR001_1_8'\n    UNION\n    SELECT a.atom_id, a.element\n    FROM connected c\n    JOIN atom a ON c.atom_id2 = a.atom_id\n    WHERE c.bond_id = 'TR001_1_8'\n)\nSELECT \n    COUNT(DISTINCT CASE WHEN element = 'cl' THEN 1 END) > 0 as has_chlorine,\n    COUNT(DISTINCT CASE WHEN element = 'c' THEN 1 END) > 0 as has_carbon\nFROM BondAtoms;\n```\n\nActually, let's simplify this a bit. We can directly check if the bond has both chlorine and carbon atoms connected to it:\n\n```sql\nSELECT \n    COUNT(DISTINCT CASE WHEN a.element = 'cl' THEN 1 END) > 0 AND \n    COUNT(DISTINCT CASE WHEN a.element = 'c' THEN 1 END) > 0 AS has_both_cl_and_c\nFROM connected c\nJOIN atom a ON c.atom_id = a.atom_id OR c.atom_id2 = a.atom_id\nWHERE c.bond_id = 'TR001_1_8';\n```\n\nActually, I think I need to refine this further. Let's create a cleaner approach. The query should return TRUE if the bond with ID \"TR001_1_8\" connects atoms such that at least one of them is chlorine and at least one of them is carbon.\n\n```sql\nSELECT \n    EXISTS (\n        SELECT 1\n        FROM connected c\n        JOIN atom a ON c.atom_id = a.atom_id OR c.atom_id2 = a.atom_id\n        WHERE c.bond_id = 'TR001_1_8' AND a.element = 'cl'\n    ) AND \n    EXISTS (\n        SELECT 1\n        FROM connected c\n        JOIN atom a ON c.atom_id = a.atom_id OR c.atom_id2 = a.atom_id\n        WHERE c.bond_id = 'TR001_1_8' AND a.element = 'c'\n    ) AS has_both_cl_and_c;\n```\n\nWait, this approach is also a bit inefficient. Let me reconsider the approach. I think a simple way to do this is to count the number of atoms connected by the bond that are chlorine and carbon, and then check if both counts are greater than 0.\n\n```sql\nSELECT \n    SUM(CASE WHEN a.element = 'cl' THEN 1 ELSE 0 END) > 0 AND \n    SUM(CASE WHEN a.element = 'c' THEN 1 ELSE 0 END) > 0 AS has_both_cl_and_c\nFROM connected c\nLEFT JOIN atom a ON c.atom_id = a.atom_id\nLEFT JOIN atom a2 ON c.atom_id2 = a2.atom_id\nWHERE c.bond_id = 'TR001_1_8' AND (a.element IN ('cl', 'c') OR a2.element IN ('cl', 'c'));\n```\n\nActually, the above approach is also too complex. Let's simplify it again.\n\nAccording to the schema, the `connected` table connects two atoms with a bond. So, each row in this table represents a bond connecting two atoms.\n\nFor the specific bond \"TR001_1_8\", I need to check if it connects a chlorine atom and a carbon atom. I'll retrieve the elements of the two atoms connected by this bond and check if chlorine and carbon are among them.\n\n```sql\nSELECT \n    COUNT(DISTINCT a.element) = 2 AS has_both_cl_and_c\nFROM connected c\nJOIN atom a ON c.atom_id = a.atom_id OR c.atom_id2 = a.atom_id\nWHERE c.bond_id = 'TR001_1_8' AND a.element IN ('cl', 'c')\nGROUP BY c.bond_id;\n```\n\nThat doesn't work correctly. Let me try a different approach.\n\n```sql\nSELECT \n    EXISTS (\n        SELECT 1\n        FROM connected c\n        JOIN atom a ON c.atom_id = a.atom_id OR c.atom_id2 = a.atom_id\n        WHERE c.bond_id = 'TR001_1_8' AND a.element = 'cl'\n    ) AND \n    EXISTS (\n        SELECT 1\n        FROM connected c\n        JOIN atom a ON c.atom_id = a.atom_id OR c.atom_id2 = a.atom_id\n        WHERE c.bond_id = 'TR001_1_8' AND a.element = 'c'\n    ) AS has_both_cl_and_c;\n```\n\nI think this approach should work. It checks if there's at least one chlorine atom and at least one carbon atom connected by the bond with ID \"TR001_1_8\".\n</think>\n\nI'll check if the bond with ID \"TR001_1_8\" has both chlorine and carbon elements connected to it. To do this, I need to join the connected and atom tables to find the elements of atoms linked by this bond.\n\n```json\n{\n  \"sql\": \"SELECT \n    CASE \n        WHEN SUM(a.element = 'cl') > 0 AND SUM(a.element = 'c') > 0 THEN 'Yes'\n        ELSE 'No'\n    END AS has_both_chlorine_and_carbon\nFROM connected c\nJOIN atom a ON c.atom_id = a.atom_id OR c.atom_id2 = a.atom_id\nWHERE c.bond_id = 'TR001_1_8'\"\n}\n```"
+    }
+  }
+}

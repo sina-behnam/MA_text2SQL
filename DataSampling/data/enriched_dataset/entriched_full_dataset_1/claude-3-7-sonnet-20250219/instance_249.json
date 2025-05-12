@@ -1,0 +1,82 @@
+{
+  "id": 249,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are flight numbers of flights arriving at Airport \"APG\"?",
+  "sql": "SELECT FlightNo FROM FLIGHTS WHERE DestAirport  =  \"APG\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 61,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "Airport",
+        "label": "WORK_OF_ART",
+        "start": 47,
+        "end": 54
+      }
+    ],
+    "entity_types": [
+      "WORK_OF_ART"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 56,
+    "tables_count": 1,
+    "tables": [
+      "FLIGHTS"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT FlightNo FROM flights WHERE DestAirport = 'APG'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nBased on the provided database schema, I need to write a SQL query to find flight numbers of flights arriving at Airport \"APG\".\n\nLet's analyze the relevant tables:\n\n1. `airlines` - This table contains information about airlines, with columns:\n   - `uid` (INTEGER, PRIMARY KEY)\n   - `Airline` (TEXT)\n   - `Abbreviation` (TEXT)\n   - `Country` (TEXT)\n\n2. `airports` - This table contains information about airports, with columns:\n   - `City` (TEXT)\n   - `AirportCode` (TEXT, PRIMARY KEY)\n   - `AirportName` (TEXT)\n   - `Country` (TEXT)\n   - `CountryAbbrev` (TEXT)\n\n3. `flights` - This table contains information about flights, with columns:\n   - `Airline` (INTEGER, part of PRIMARY KEY)\n   - `FlightNo` (INTEGER, part of PRIMARY KEY)\n   - `SourceAirport` (TEXT, FOREIGN KEY referencing airports.AirportCode)\n   - `DestAirport` (TEXT, FOREIGN KEY referencing airports.AirportCode)\n\nThe question asks for flight numbers of flights arriving at Airport \"APG\". In the `flights` table, the destination airport is stored in the `DestAirport` column. So I need to find all flights where `DestAirport` is \"APG\".\n\nHere's the SQL query:\n\n```sql\nSELECT FlightNo\nFROM flights\nWHERE DestAirport = 'APG'\n```\n\nThis query selects the flight numbers (FlightNo) from the flights table where the destination airport (DestAirport) is \"APG\".\n\nActually, I might also want to include the airline information so the flight number is more meaningful. Let me modify the query to join with the airlines table:\n\n```sql\nSELECT f.FlightNo\nFROM flights f\nWHERE f.DestAirport = 'APG'\n```\n\nActually, since the question specifically asks for \"flight numbers,\" I'll keep the query simple and just return the flight numbers without joining to get airline names. If the user wants more information, they can ask for it in a follow-up question.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT FlightNo FROM flights WHERE DestAirport = 'APG'\"\n}\n```"
+    }
+  }
+}

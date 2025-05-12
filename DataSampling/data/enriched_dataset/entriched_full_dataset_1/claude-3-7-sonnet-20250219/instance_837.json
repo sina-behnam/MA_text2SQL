@@ -1,0 +1,84 @@
+{
+  "id": 837,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the names of conductors, sorted descending by the number of years they have worked?",
+  "sql": "SELECT Name FROM conductor ORDER BY Year_of_Work DESC",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 92,
+    "word_length": 16,
+    "entities": [
+      {
+        "text": "the number of years",
+        "label": "DATE",
+        "start": 55,
+        "end": 74
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 53,
+    "tables_count": 1,
+    "tables": [
+      "conductor"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "ORDER BY"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name FROM conductor ORDER BY Year_of_Work DESC",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nLet's analyze the database schema to understand what tables and fields are relevant for answering this question.\n\nThe question asks for names of conductors, sorted by the number of years they have worked (in descending order).\n\nLooking at the schema, we have the following tables:\n1. `conductor` - Contains information about conductors\n2. `orchestra` - Contains information about orchestras, including which conductor leads it\n3. `performance` - Contains information about performances by orchestras\n4. `show` - Contains information about shows related to performances\n\nFor this question, I need to focus on the `conductor` table. The relevant fields seem to be:\n- `Name` - The name of the conductor\n- `Year_of_Work` - Presumably this indicates how many years the conductor has worked\n\nSo, I need to write a query that selects conductor names and sorts them by `Year_of_Work` in descending order.\n\n```sql\nSELECT Name\nFROM conductor\nORDER BY Year_of_Work DESC;\n```\n\nThis query will select the names of all conductors from the `conductor` table and sort them by the `Year_of_Work` field in descending order, showing conductors with the most years of work first.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Name FROM conductor ORDER BY Year_of_Work DESC\"\n}\n```"
+    }
+  }
+}

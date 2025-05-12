@@ -1,0 +1,94 @@
+{
+  "id": 396,
+  "dataset": "bird",
+  "database": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/databases/card_games/card_games.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/card_games/legalities.csv",
+      "stratified_output/databases/card_games/cards.csv",
+      "stratified_output/databases/card_games/rulings.csv",
+      "stratified_output/databases/card_games/set_translations.csv",
+      "stratified_output/databases/card_games/sets.csv",
+      "stratified_output/databases/card_games/foreign_data.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "card_games",
+    "path": [
+      "stratified_output/schemas/card_games/card_games.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many cards with a 1993 frame version and available on paper have a sensitive content warning?",
+  "sql": "SELECT COUNT(id) FROM cards WHERE frameVersion = 1993 AND availability = 'paper' AND hasContentWarning = 1",
+  "evidence": "sensitive content warning refer to hasContentWarning = 1; available on paper refer to availability = 'paper' 1993 refer to frameVersion",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 97,
+    "word_length": 17,
+    "entities": [
+      {
+        "text": "1993",
+        "label": "DATE",
+        "start": 22,
+        "end": 26
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "1993"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 106,
+    "tables_count": 1,
+    "tables": [
+      "cards"
+    ],
+    "join_count": 0,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM cards WHERE frameVersion = '1993' AND availability = 'paper' AND hasContentWarning = 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me understand the query requirements:\n\n1. We need to count cards that have a 1993 frame version.\n2. These cards should be available on paper.\n3. These cards should have a sensitive content warning.\n\nLooking at the database schema, I can see the relevant fields in the \"cards\" table:\n- `frameVersion`: This should be '1993' for the first criteria.\n- `availability`: This should be 'paper' for the second criteria.\n- `hasContentWarning`: This should be 1 for the third criteria.\n\nSo I need to count the cards where all these conditions are met. Let me construct the SQL query:\n\n```sql\nSELECT COUNT(*) \nFROM cards \nWHERE frameVersion = '1993' \nAND availability = 'paper' \nAND hasContentWarning = 1;\n```\n\nWait, looking more closely at the schema, I see the `availability` field is of TEXT type. It's not clear from the schema whether this is a single value or could contain multiple values (like a comma-separated list or JSON array). Given the context, I'm going to assume it could be a list and we need to check if 'paper' is included in the list.\n\nLet me adjust the query:\n\n```sql\nSELECT COUNT(*) \nFROM cards \nWHERE frameVersion = '1993' \nAND availability LIKE '%paper%' \nAND hasContentWarning = 1;\n```\n\nThis will count the cards where:\n1. The frame version is '1993'\n2. The availability field contains the word 'paper'\n3. The hasContentWarning field is 1 (indicating there is a content warning)\n\nThis should give us the count of cards that meet all three criteria.\n\nActually, let me reconsider the availability field. Since we're querying for the count, it's better to ensure we're capturing exactly the correct set of cards. Using LIKE with wildcards might match unintended substrings. \n\nI think I need to consider the format of the `availability` field. If it's a JSON array, we'd need to use a JSON extraction function. If it's a comma-separated list, we'd need to use string functions. Without knowing the exact format, I'll provide the most general solution using LIKE for now, but noting the potential for more specific handling depending on the data format.\n\nSo, the final query is:\n\n```sql\nSELECT COUNT(*) \nFROM cards \nWHERE frameVersion = '1993' \nAND availability LIKE '%paper%' \nAND hasContentWarning = 1;\n```\n\nHmm, I'm still not confident about the `availability` field. Let's assume it's a plain text field that contains exactly one value. In that case, we would use:\n\n```sql\nSELECT COUNT(*) \nFROM cards \nWHERE frameVersion = '1993' \nAND availability = 'paper' \nAND hasContentWarning = 1;\n```\n\nThis is the most straightforward interpretation based on the schema.\n</think>\n\nBased on your question, I need to count cards with a 1993 frame version, available on paper, and having a sensitive content warning.\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM cards WHERE frameVersion = '1993' AND availability = 'paper' AND hasContentWarning = 1\"\n}\n```"
+    }
+  }
+}

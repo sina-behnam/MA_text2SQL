@@ -1,0 +1,78 @@
+{
+  "id": 287,
+  "dataset": "spider",
+  "database": {
+    "name": "employee_hire_evaluation",
+    "path": [
+      "spider_stratified_output_200/databases/employee_hire_evaluation/employee_hire_evaluation.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "employee_hire_evaluation",
+    "path": [
+      "spider_stratified_output_200/schemas/employee_hire_evaluation/employee_hire_evaluation.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the number of employees hired in each shop; show the shop name as well.",
+  "sql": "SELECT count(*) ,  t2.name FROM hiring AS t1 JOIN shop AS t2 ON t1.shop_id  =  t2.shop_id GROUP BY t2.name",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 76,
+    "word_length": 15,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 106,
+    "tables_count": 2,
+    "tables": [
+      "shop",
+      "hiring"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 1,
+    "clause_types": [
+      "GROUP BY"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT s.Name AS shop_name, COUNT(h.Employee_ID) AS employee_count FROM hiring h JOIN shop s ON h.Shop_ID = s.Shop_ID GROUP BY h.Shop_ID, s.Name",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Both queries count employees per shop with identical join conditions. The differences are purely stylistic: (1) Column ordering: the generated query shows shop name first, then count; (2) Column aliases are used in the generated query but not in the gold query; (3) COUNT(*) vs COUNT(Employee_ID) would give the same results unless Employee_ID can be NULL, which is unlikely for an ID field; (4) The generated query groups by both Shop_ID and Name, but since Shop_ID is likely the primary key of the shop table, this would produce the same grouping as just grouping by Name.",
+      "raw_response": "<think>\nBased on the database schema provided, I need to find the number of employees hired in each shop and include the shop name in the output.\n\nThe database has the following tables:\n1. employee - Contains employee information\n2. shop - Contains shop information\n3. hiring - Contains information about which employee works at which shop\n4. evaluation - Contains employee evaluation information\n\nTo solve this problem, I need to:\n1. Count the number of employees for each shop from the hiring table\n2. Join with the shop table to get the shop name\n\nFrom the hiring table, I'll count employees grouped by Shop_ID, and then join with the shop table to get the shop name.\n\nThe query would look like:\n```sql\nSELECT s.Name AS shop_name, COUNT(h.Employee_ID) AS employee_count\nFROM hiring h\nJOIN shop s ON h.Shop_ID = s.Shop_ID\nGROUP BY h.Shop_ID, s.Name\n```\n\nThis query will:\n1. Join the hiring table with the shop table using Shop_ID\n2. Count the number of Employee_ID entries in the hiring table for each Shop_ID\n3. Group the results by Shop_ID and shop name\n4. Return the shop name and the count of employees\n\nThis should give us the number of employees hired in each shop along with the shop name.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT s.Name AS shop_name, COUNT(h.Employee_ID) AS employee_count FROM hiring h JOIN shop s ON h.Shop_ID = s.Shop_ID GROUP BY h.Shop_ID, s.Name\"\n}\n```"
+    }
+  }
+}

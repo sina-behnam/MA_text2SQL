@@ -1,0 +1,92 @@
+{
+  "id": 552,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the date and id of the transcript with at least 2 courses listed?",
+  "sql": "SELECT T2.transcript_date ,  T1.transcript_id FROM Transcript_Contents AS T1 JOIN Transcripts AS T2 ON T1.transcript_id  =  T2.transcript_id GROUP BY T1.transcript_id HAVING count(*)  >=  2",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 73,
+    "word_length": 16,
+    "entities": [
+      {
+        "text": "at least 2",
+        "label": "CARDINAL",
+        "start": 47,
+        "end": 57
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "least"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 189,
+    "tables_count": 2,
+    "tables": [
+      "Transcripts",
+      "Transcript_Contents"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT t.transcript_id, t.transcript_date FROM Transcripts t JOIN Transcript_Contents tc ON t.transcript_id = tc.transcript_id GROUP BY t.transcript_id, t.transcript_date HAVING COUNT(DISTINCT tc.student_course_id) >= 2",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "While these queries appear similar, there are two key differences that make them not semantically equivalent: 1) The generated query uses COUNT(DISTINCT tc.student_course_id) whereas the gold query uses count(*). This means if a transcript contains duplicate student_course_ids, the gold query would count each occurrence while the generated query would count unique courses only. 2) The generated query includes transcript_date in the GROUP BY clause while the gold query only groups by transcript_id. If transcript_id does not functionally determine transcript_date, this could produce different grouping results.",
+      "raw_response": "<think>\nI need to write a SQL query to find transcripts that have at least 2 courses listed. Let's analyze the related tables from the schema:\n\n1. `Transcripts` - Contains transcript_id and transcript_date\n2. `Transcript_Contents` - Links transcripts to student courses\n3. `Student_Enrolment_Courses` - Contains information about courses students are enrolled in\n4. `Courses` - Course information\n\nTo find transcripts with at least 2 courses listed, I need to:\n1. Count the number of courses for each transcript\n2. Filter to only include transcripts with a count >= 2\n3. Return the transcript_id and transcript_date\n\nHere's how to approach it:\n\n```sql\nSELECT t.transcript_id, t.transcript_date\nFROM Transcripts t\nJOIN Transcript_Contents tc ON t.transcript_id = tc.transcript_id\nGROUP BY t.transcript_id, t.transcript_date\nHAVING COUNT(DISTINCT tc.student_course_id) >= 2\n```\n\nLet me think if this is correct:\n- Each row in `Transcript_Contents` represents a course (student_course_id) in a transcript\n- By counting distinct student_course_id for each transcript, I'll get the number of courses\n- The HAVING clause filters to only include transcripts with at least 2 courses\n\nThis should work to find the transcripts with at least 2 courses listed.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT t.transcript_id, t.transcript_date FROM Transcripts t JOIN Transcript_Contents tc ON t.transcript_id = tc.transcript_id GROUP BY t.transcript_id, t.transcript_date HAVING COUNT(DISTINCT tc.student_course_id) >= 2\"\n}\n```"
+    }
+  }
+}

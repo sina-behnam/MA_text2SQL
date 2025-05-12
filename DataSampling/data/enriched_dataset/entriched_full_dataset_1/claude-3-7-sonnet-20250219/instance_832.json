@@ -1,0 +1,78 @@
+{
+  "id": 832,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the maximum and minimum share of performances whose type is not \"Live final\".",
+  "sql": "SELECT max(SHARE) ,  min(SHARE) FROM performance WHERE TYPE != \"Live final\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 86,
+    "word_length": 15,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 75,
+    "tables_count": 1,
+    "tables": [
+      "performance"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "MIN",
+      "MAX"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT MAX(Share) AS maximum_share, MIN(Share) AS minimum_share FROM performance WHERE Type != 'Live final'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema and the question:\n\n1. The question asks for the maximum and minimum share of performances whose type is not \"Live final\".\n2. We need to look at the \"performance\" table since it contains the \"Type\" and \"Share\" columns.\n3. We need to filter performances where Type is not \"Live final\".\n4. Then we need to find the maximum and minimum values of the \"Share\" column for those filtered performances.\n\nOne thing to note is that the \"Share\" column is of type text, not a numeric type. This could mean that the values are stored as strings (perhaps with a '%' symbol). If that's the case, we may need to convert these values to numbers before finding the max and min.\n\nHowever, since we don't know the exact format of the \"Share\" values, let's first assume they are numeric values stored as text, and we can find the max and min directly.\n\nThe SQL query would be:\n\n```sql\nSELECT \n    MAX(Share) AS maximum_share,\n    MIN(Share) AS minimum_share\nFROM \n    performance\nWHERE \n    Type != 'Live final'\n```\n\nIf the \"Share\" values are stored with a '%' symbol or any other non-numeric character, we might need to convert them to numbers first. For example, if they're like \"25%\", we'd need to remove the '%' and convert to a number. But without knowing the exact format, let's stick with the simpler query for now.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT MAX(Share) AS maximum_share, MIN(Share) AS minimum_share FROM performance WHERE Type != 'Live final'\"\n}\n```"
+    }
+  }
+}

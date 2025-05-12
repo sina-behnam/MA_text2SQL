@@ -1,0 +1,104 @@
+{
+  "id": 1321,
+  "dataset": "bird",
+  "database": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/databases/student_club/student_club.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/student_club/income.csv",
+      "stratified_output/databases/student_club/budget.csv",
+      "stratified_output/databases/student_club/zip_code.csv",
+      "stratified_output/databases/student_club/expense.csv",
+      "stratified_output/databases/student_club/member.csv",
+      "stratified_output/databases/student_club/attendance.csv",
+      "stratified_output/databases/student_club/event.csv",
+      "stratified_output/databases/student_club/major.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_club",
+    "path": [
+      "stratified_output/schemas/student_club/student_club.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many events of the Student_Club did Sacha Harrison attend in 2019?",
+  "sql": "SELECT COUNT(T1.event_id) FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event INNER JOIN member AS T3 ON T2.link_to_member = T3.member_id WHERE T3.first_name = 'Sacha' AND T3.last_name = 'Harrison' AND SUBSTR(T1.event_date, 1, 4) = '2019'",
+  "evidence": "events attended in 2019 refers to YEAR(event_date) = 2019",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 70,
+    "word_length": 12,
+    "entities": [
+      {
+        "text": "Sacha Harrison",
+        "label": "PERSON",
+        "start": 40,
+        "end": 54
+      },
+      {
+        "text": "2019",
+        "label": "DATE",
+        "start": 65,
+        "end": 69
+      }
+    ],
+    "entity_types": [
+      "DATE",
+      "PERSON"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "2019"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 265,
+    "tables_count": 3,
+    "tables": [
+      "attendance",
+      "event",
+      "member"
+    ],
+    "join_count": 2,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+      "model_type": "together_ai",
+      "timestamp": "2025-05-10T13:34:15.119363"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT e.event_id) AS number_of_events\nFROM member m\nINNER JOIN attendance a ON m.member_id = a.link_to_member\nINNER JOIN event e ON a.link_to_event = e.event_id\nWHERE m.first_name = 'Sacha'\n  AND m.last_name = 'Harrison'\n  AND e.event_name = 'Student_Club'\n  AND e.event_date LIKE '2019%';",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The queries are not equivalent because the generated query includes an additional condition (e.event_name = 'Student_Club') that is not present in the gold query, potentially limiting the results to only events of the Student_Club."
+    }
+  }
+}

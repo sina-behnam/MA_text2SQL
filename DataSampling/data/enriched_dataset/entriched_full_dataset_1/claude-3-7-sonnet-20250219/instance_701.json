@@ -1,0 +1,73 @@
+{
+  "id": 701,
+  "dataset": "spider",
+  "database": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/databases/voter_1/voter_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "voter_1",
+    "path": [
+      "spider_stratified_output_200/schemas/voter_1/voter_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the names of the contestants whose names contain the substring 'Al' .",
+  "sql": "select contestant_name from contestants where contestant_name like \"%al%\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 76,
+    "word_length": 12,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 73,
+    "tables_count": 1,
+    "tables": [
+      "contestants"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT contestant_name FROM CONTESTANTS WHERE contestant_name LIKE '%Al%'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nFrom the database schema provided, I need to write a SQL query to find contestants whose names contain the substring 'Al'. \n\nThe contestant information is stored in the `CONTESTANTS` table, which has the following columns:\n- `contestant_number` (integer, primary key)\n- `contestant_name` (varchar(50), not null)\n\nTo search for a substring within a string in SQL, I can use the `LIKE` operator with wildcard characters:\n- `%` matches any sequence of characters (including zero characters)\n- `_` matches exactly one character\n\nSince I want to find names containing 'Al' anywhere in the string, I would use the pattern '%Al%'. The '%' before and after 'Al' indicates that there can be any characters (or no characters) before and after 'Al' in the name.\n\nThe SQL query would be:\n```sql\nSELECT contestant_name\nFROM CONTESTANTS\nWHERE contestant_name LIKE '%Al%'\n```\n\nThis query will return the contestant_name for all rows in the CONTESTANTS table where the contestant_name contains the substring 'Al'. The search will be case-sensitive or case-insensitive depending on the database system's default collation.\n\nIf I need to make the search case-insensitive in systems where it's case-sensitive by default, I could use LOWER() or UPPER() functions, like:\n```sql\nSELECT contestant_name\nFROM CONTESTANTS\nWHERE LOWER(contestant_name) LIKE '%al%'\n```\n\nBut for most common database systems, the standard query should work, as it's a straightforward substring match using the LIKE operator.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT contestant_name FROM CONTESTANTS WHERE contestant_name LIKE '%Al%'\"\n}\n```"
+    }
+  }
+}

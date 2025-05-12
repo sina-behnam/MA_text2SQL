@@ -1,0 +1,82 @@
+{
+  "id": 199,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "In the molecule containing sodium atoms, how many are non-carcinogenic?",
+  "sql": "SELECT COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'na' AND T2.label = '-'",
+  "evidence": "non-carcinogenic refers to label = '-'; sodium atoms refers to element = 'na'",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 71,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 157,
+    "tables_count": 2,
+    "tables": [
+      "atom",
+      "molecule"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT m.molecule_id) FROM molecule m JOIN atom a ON m.molecule_id = a.molecule_id WHERE a.element = 'na' AND m.label = '-'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the problem and the database schema:\n\n1. We need to find molecules that:\n   - Contain sodium atoms (element = 'na' in the `atom` table)\n   - Are non-carcinogenic (label = '-' in the `molecule` table)\n\n2. Then, we need to count these non-carcinogenic molecules with sodium atoms.\n\nLooking at the database schema:\n- The `molecule` table contains molecule information including the `label` field (where '-' indicates non-carcinogenic)\n- The `atom` table contains atom information including `element` (where 'na' indicates sodium) and links to molecules\n\nI need to:\n1. Find molecules containing sodium atoms by joining the `molecule` and `atom` tables\n2. Filter for non-carcinogenic molecules (label = '-')\n3. Count the result\n\nHere's the SQL query:\n\n```sql\nSELECT COUNT(DISTINCT m.molecule_id) \nFROM molecule m\nJOIN atom a ON m.molecule_id = a.molecule_id\nWHERE a.element = 'na' AND m.label = '-';\n```\n\nWait, upon re-reading the problem: \"In the molecule containing sodium atoms, how many are non-carcinogenic?\"\n\nI think this is asking for the count of non-carcinogenic molecules among those that contain sodium atoms. So we need to:\n1. Find all molecules containing sodium atoms\n2. Count how many of these are non-carcinogenic (label = '-')\n\nLet me revise the query:\n\n```sql\nSELECT COUNT(DISTINCT m.molecule_id) \nFROM molecule m\nJOIN atom a ON m.molecule_id = a.molecule_id\nWHERE a.element = 'na' AND m.label = '-';\n```\n\nActually, this is the same query. Let me make sure I understand the question correctly.\n\n\"In the molecule containing sodium atoms, how many are non-carcinogenic?\"\n\nOn second thought, I think the question might be asking for counting non-carcinogenic molecules that contain sodium atoms, which is what the query I provided does.\n\nActually, let's try to be even more precise. The phrase \"In the molecule containing sodium atoms, how many are non-carcinogenic?\" suggests we need to:\n1. Find all molecules that contain at least one sodium atom\n2. Count how many of these molecules are labeled as non-carcinogenic\n\nSo the query would be:\n\n```sql\nSELECT COUNT(*) \nFROM molecule m\nWHERE m.label = '-' \nAND m.molecule_id IN (\n    SELECT DISTINCT molecule_id \n    FROM atom \n    WHERE element = 'na'\n);\n```\n\nThis query first finds all molecule IDs that contain sodium atoms, then counts how many of these molecules are labeled as non-carcinogenic.\n\nActually, this is equivalent to my original JOIN query. Either approach should work, but the JOIN version might be more efficient in some database systems.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT m.molecule_id) FROM molecule m JOIN atom a ON m.molecule_id = a.molecule_id WHERE a.element = 'na' AND m.label = '-'\"\n}\n```"
+    }
+  }
+}

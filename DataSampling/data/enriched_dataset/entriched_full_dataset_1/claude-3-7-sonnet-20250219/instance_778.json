@@ -1,0 +1,84 @@
+{
+  "id": 778,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the country codes for countries that do not speak English?",
+  "sql": "SELECT CountryCode FROM countrylanguage EXCEPT SELECT CountryCode FROM countrylanguage WHERE LANGUAGE  =  \"English\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 67,
+    "word_length": 12,
+    "entities": [
+      {
+        "text": "English",
+        "label": "LANGUAGE",
+        "start": 59,
+        "end": 66
+      }
+    ],
+    "entity_types": [
+      "LANGUAGE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 115,
+    "tables_count": 1,
+    "tables": [
+      "countrylanguage"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT c.Code FROM country c WHERE NOT EXISTS (SELECT 1 FROM countrylanguage cl WHERE cl.CountryCode = c.Code AND cl.Language = 'English')",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (173, 1) vs predicted (179, 1)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (173, 1) vs predicted (179, 1)",
+      "raw_response": "<think>\nBased on the database schema provided, we have three tables:\n\n1. `city` - Contains information about cities\n2. `country` - Contains information about countries\n3. `countrylanguage` - Contains information about languages spoken in countries\n\nTo find the country codes for countries that do not speak English, we need to:\n\n1. Identify all country codes from the `country` table\n2. Identify country codes where English is spoken (from the `countrylanguage` table)\n3. Get the difference between the two sets (1-2)\n\nSo, I need to find country codes that are in the `country` table but not in the subset of country codes from the `countrylanguage` table where the language is 'English'.\n\nLet me compose the SQL query:\n\n```sql\nSELECT c.Code\nFROM country c\nWHERE c.Code NOT IN (\n    SELECT cl.CountryCode\n    FROM countrylanguage cl\n    WHERE cl.Language = 'English'\n)\n```\n\nThis should return all country codes where English is not spoken.\n\nActually, let me refine this query a bit. It's possible that there are countries in the database where we don't have language information at all. If that's the case, the above query would include those countries as \"not speaking English\" which might not be accurate.\n\nTo be more precise, I should find all country codes where there is language information, but English is not one of the languages:\n\n```sql\nSELECT DISTINCT c.Code\nFROM country c\nJOIN countrylanguage cl ON c.Code = cl.CountryCode\nWHERE c.Code NOT IN (\n    SELECT cl2.CountryCode\n    FROM countrylanguage cl2\n    WHERE cl2.Language = 'English'\n)\n```\n\nThis will give us all country codes that have at least one language entry in the `countrylanguage` table but none of those entries is for the English language.\n\nHowever, there's an even more direct way to solve this:\n\n```sql\nSELECT DISTINCT c.Code\nFROM country c\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM countrylanguage cl\n    WHERE cl.CountryCode = c.Code\n    AND cl.Language = 'English'\n)\n```\n\nThis query finds all country codes where there does not exist a corresponding entry in the `countrylanguage` table for the English language.\n\nI think this last approach is the most accurate for the question asked. It will return all country codes for countries that do not have English listed as one of their languages in the countrylanguage table.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT c.Code FROM country c WHERE NOT EXISTS (SELECT 1 FROM countrylanguage cl WHERE cl.CountryCode = c.Code AND cl.Language = 'English')\"\n}\n```"
+    }
+  }
+}

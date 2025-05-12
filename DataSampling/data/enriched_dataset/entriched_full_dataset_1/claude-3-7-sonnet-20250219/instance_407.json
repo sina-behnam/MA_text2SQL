@@ -1,0 +1,92 @@
+{
+  "id": 407,
+  "dataset": "spider",
+  "database": {
+    "name": "course_teach",
+    "path": [
+      "spider_stratified_output_200/databases/course_teach/course_teach.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "course_teach",
+    "path": [
+      "spider_stratified_output_200/schemas/course_teach/course_teach.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Show names of teachers that teach at least two courses.",
+  "sql": "SELECT T2.Name FROM course_arrange AS T1 JOIN teacher AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T2.Name HAVING COUNT(*)  >=  2",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 55,
+    "word_length": 10,
+    "entities": [
+      {
+        "text": "at least two",
+        "label": "CARDINAL",
+        "start": 34,
+        "end": 46
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "two"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "least"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 134,
+    "tables_count": 2,
+    "tables": [
+      "teacher",
+      "course_arrange"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT t.Name FROM teacher t JOIN course_arrange ca ON t.Teacher_ID = ca.Teacher_ID GROUP BY t.Teacher_ID, t.Name HAVING COUNT(DISTINCT ca.Course_ID) >= 2",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. `course` table:\n   - Course_ID (PK): The unique identifier for a course\n   - Staring_Date: Start date of the course\n   - Course: The name of the course\n\n2. `teacher` table:\n   - Teacher_ID (PK): The unique identifier for a teacher\n   - Name: The name of the teacher\n   - Age: The age of the teacher\n   - Hometown: The hometown of the teacher\n\n3. `course_arrange` table (junction table):\n   - Course_ID (PK, FK): References the Course_ID in the course table\n   - Teacher_ID (PK, FK): References the Teacher_ID in the teacher table\n   - Grade (PK): Likely represents the grade level for the course arrangement\n\nThe question asks for names of teachers who teach at least two courses. We need to:\n1. Count how many courses each teacher teaches\n2. Select only those teachers who teach at least two courses\n3. Return their names\n\nTo do this, we'll:\n1. Join the `teacher` table with the `course_arrange` table to link teachers to courses\n2. Group by teacher ID and name\n3. Count the number of distinct courses per teacher\n4. Filter for counts >= 2\n\nHere's the SQL query:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT t.Name FROM teacher t JOIN course_arrange ca ON t.Teacher_ID = ca.Teacher_ID GROUP BY t.Teacher_ID, t.Name HAVING COUNT(DISTINCT ca.Course_ID) >= 2\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "id": 207,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many flights depart from City Aberdeen?",
+  "sql": "SELECT count(*) FROM FLIGHTS AS T1 JOIN AIRPORTS AS T2 ON T1.SourceAirport  =  T2.AirportCode WHERE T2.City  =  \"Aberdeen\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 43,
+    "word_length": 7,
+    "entities": [
+      {
+        "text": "City Aberdeen",
+        "label": "ORG",
+        "start": 29,
+        "end": 42
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 122,
+    "tables_count": 2,
+    "tables": [
+      "FLIGHTS",
+      "AIRPORTS"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM flights WHERE SourceAirport IN (SELECT AirportCode FROM airports WHERE City = 'Aberdeen')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. `airlines` table:\n   - Contains information about airlines\n   - Has columns: uid, Airline, Abbreviation, Country\n\n2. `airports` table:\n   - Contains information about airports\n   - Has columns: City, AirportCode, AirportName, Country, CountryAbbrev\n   - AirportCode is the primary key\n\n3. `flights` table:\n   - Contains information about flights\n   - Has columns: Airline, FlightNo, SourceAirport, DestAirport\n   - Primary key is (Airline, FlightNo)\n   - SourceAirport is a foreign key referencing AirportCode in the airports table\n   - DestAirport is a foreign key referencing AirportCode in the airports table\n\nThe question asks for the number of flights departing from City Aberdeen. We need to:\n1. Find the airport(s) in Aberdeen city from the `airports` table\n2. Count the flights in the `flights` table where the SourceAirport matches the AirportCode(s) from step 1\n\nLet's write the query:\n```sql\nSELECT COUNT(*) \nFROM flights\nWHERE SourceAirport IN (\n    SELECT AirportCode \n    FROM airports \n    WHERE City = 'Aberdeen'\n)\n```\n\nThis query:\n1. First finds all airport codes in Aberdeen city\n2. Then counts all flights where the source airport is among these airport codes\n\nThis should give us the total number of flights departing from Aberdeen.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM flights WHERE SourceAirport IN (SELECT AirportCode FROM airports WHERE City = 'Aberdeen')\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": 822,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many conductors are there?",
+  "sql": "SELECT count(*) FROM conductor",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 30,
+    "word_length": 5,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 30,
+    "tables_count": 1,
+    "tables": [
+      "conductor"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM conductor",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the schema and user's question to provide an appropriate SQL query.\n\nThe user wants to know how many conductors there are. The relevant table is the \"conductor\" table, which appears to have information about conductors, with each conductor having a unique Conductor_ID.\n\nTo count the number of conductors, I need to use the COUNT function on the Conductor_ID column:\n\n```sql\nSELECT COUNT(*) FROM conductor\n```\n\nThis will return the total number of rows (conductors) in the conductor table, which answers the user's question \"How many conductors are there?\".\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM conductor\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "id": 855,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the orchestras that do not have any performances?",
+  "sql": "SELECT Orchestra FROM orchestra WHERE Orchestra_ID NOT IN (SELECT Orchestra_ID FROM performance)",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 58,
+    "word_length": 10,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 96,
+    "tables_count": 2,
+    "tables": [
+      "performance)",
+      "orchestra"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT o.Orchestra_ID, o.Orchestra FROM orchestra o LEFT JOIN performance p ON o.Orchestra_ID = p.Orchestra_ID WHERE p.Performance_ID IS NULL",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (1, 1) vs predicted (1, 2)",
+      "raw_response": "<think>\nLet's break down the database schema:\n\n1. `conductor` table: Contains information about conductors.\n2. `orchestra` table: Contains information about orchestras. It has a foreign key reference to the `conductor` table.\n3. `performance` table: Contains information about performances. It has a foreign key reference to the `orchestra` table.\n4. `show` table: Contains information about shows. It has a foreign key reference to the `performance` table.\n\nThe question asks for orchestras that do not have any performances.\n\nTo find orchestras that do not have any performances, I need to:\n1. Identify orchestras from the `orchestra` table.\n2. Check which of these orchestras do not have any records in the `performance` table (using the `Orchestra_ID` as the linking field).\n\nOne way to do this is to use a LEFT JOIN between the `orchestra` and `performance` tables, and then filter for rows where there is no matching performance (i.e., where the `performance.Performance_ID` is NULL).\n\nSQL query:\n```sql\nSELECT o.Orchestra_ID, o.Orchestra\nFROM orchestra o\nLEFT JOIN performance p ON o.Orchestra_ID = p.Orchestra_ID\nWHERE p.Performance_ID IS NULL;\n```\n\nThis will return all orchestras (with their IDs and names) that do not have any performances associated with them in the `performance` table.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT o.Orchestra_ID, o.Orchestra FROM orchestra o LEFT JOIN performance p ON o.Orchestra_ID = p.Orchestra_ID WHERE p.Performance_ID IS NULL\"\n}\n```"
+    }
+  }
+}

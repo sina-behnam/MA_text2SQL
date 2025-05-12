@@ -1,0 +1,83 @@
+{
+  "id": 796,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the government form name and total population for each government form whose average life expectancy is longer than 72.",
+  "sql": "SELECT sum(Population) ,  GovernmentForm FROM country GROUP BY GovernmentForm HAVING avg(LifeExpectancy)  >  72",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 124,
+    "word_length": 20,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [
+      "72"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "longer"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 111,
+    "tables_count": 1,
+    "tables": [
+      "country"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "AVG",
+      "SUM"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT GovernmentForm, SUM(Population) AS TotalPopulation FROM country GROUP BY GovernmentForm HAVING AVG(LifeExpectancy) > 72",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "The queries are semantically equivalent. The only differences are: (1) the column order in the SELECT clause is reversed, (2) the second query uses column aliasing (AS TotalPopulation) while the first one doesn't, and (3) the second query uses uppercase SQL functions (SUM, AVG) while the first uses lowercase (sum, avg). These are all syntactic differences that don't affect the query results - both queries group countries by government form, calculate the total population, and filter for government forms where average life expectancy exceeds 72.",
+      "raw_response": "<think>\nLet's analyze the database schema to understand the structure and relationships.\n\nThere are three tables in the schema:\n1. `city` - Contains information about cities\n2. `country` - Contains information about countries\n3. `countrylanguage` - Contains information about languages spoken in countries\n\nFor this question, I need to:\n1. Find government forms whose average life expectancy is longer than 72\n2. Return the government form name and total population for each such government form\n\nLooking at the tables, I can see that:\n- The `country` table has the columns `GovernmentForm` and `LifeExpectancy`\n- The `country` table also has a `Population` column\n\nSo I need to:\n1. Group countries by their government form\n2. Calculate the average life expectancy for each government form\n3. Filter out those with average life expectancy <= 72\n4. Return the government form name and sum of population for each qualifying government form\n\nHere's the SQL query:\n\n```sql\nSELECT \n    GovernmentForm,\n    SUM(Population) AS TotalPopulation\nFROM \n    country\nGROUP BY \n    GovernmentForm\nHAVING \n    AVG(LifeExpectancy) > 72\nORDER BY \n    TotalPopulation DESC;\n```\n\nThis query:\n1. Selects the government form and calculates the sum of population\n2. Groups the results by government form\n3. Filters groups to only include those with average life expectancy > 72\n4. Orders the results by total population in descending order for better readability\n\nI'm assuming we want to include only countries where LifeExpectancy is not NULL. If we need to handle NULL values differently, the query would need to be adjusted.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT GovernmentForm, SUM(Population) AS TotalPopulation FROM country GROUP BY GovernmentForm HAVING AVG(LifeExpectancy) > 72\"\n}\n```"
+    }
+  }
+}

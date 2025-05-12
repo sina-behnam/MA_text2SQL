@@ -1,0 +1,81 @@
+{
+  "id": 1274,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "For the patients whose anti-SSB are normal, how many of them have other symptoms observed in their examination?",
+  "sql": "SELECT COUNT(DISTINCT T1.ID) FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.SSB = 'negative' OR '0' AND T1.Symptoms IS NOT NULL",
+  "evidence": "anti-SSB are normal refers to SSB IN ('negative', '0'); have other symptoms refers to Symptoms IS NOT NULL; Should compute the number of distinct ones",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 111,
+    "word_length": 19,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 3,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 157,
+    "tables_count": 2,
+    "tables": [
+      "Examination",
+      "Laboratory"
+    ],
+    "join_count": 1,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT e.ID) FROM Examination e WHERE e.Symptoms IS NOT NULL AND e.ID IN (SELECT DISTINCT l.ID FROM Laboratory l WHERE l.SSB IN ('negative', '0'))",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "The queries are not semantically equivalent due to a critical issue in the Gold query's WHERE clause. In the Gold query, 'WHERE T2.SSB = 'negative' OR '0' AND T1.Symptoms IS NOT NULL' is missing parentheses around the SSB conditions, making it evaluate as '(T2.SSB = 'negative') OR ('0' AND T1.Symptoms IS NOT NULL)'. Since '0' as a condition is always true, this effectively becomes '(T2.SSB = 'negative') OR (T1.Symptoms IS NOT NULL)', which is much broader than the Generated query's correctly structured condition that properly filters for SSB being specifically 'negative' or '0'. The Generated query uses a subquery with IN while the Gold uses INNER JOIN, but this difference would be acceptable if the WHERE clause was correctly written.",
+      "raw_response": "<think>\nLet's analyze the database schema and the question:\n\nThe question is asking: For patients with normal anti-SSB (which is defined as SSB being 'negative' or '0' in the Laboratory table), how many of them have other symptoms observed in their examination (which means Symptoms IS NOT NULL in the Examination table)? And I need to count the number of distinct patients.\n\nFrom the database schema:\n1. The Laboratory table has the SSB column which represents anti-SSB results.\n2. The Examination table has the Symptoms column.\n3. Both tables are linked to the Patient table through the ID column.\n\nI need to:\n1. Find patients who have SSB as 'negative' or '0' in the Laboratory table.\n2. Then check how many of these patients have non-null Symptoms in the Examination table.\n3. Count the number of distinct patient IDs.\n\nLet's write the SQL query:\n\n```sql\nSELECT COUNT(DISTINCT e.ID) \nFROM Examination e\nWHERE e.Symptoms IS NOT NULL\nAND e.ID IN (\n    SELECT DISTINCT l.ID\n    FROM Laboratory l\n    WHERE l.SSB IN ('negative', '0')\n)\n```\n\nThis query will:\n1. Select IDs from the Laboratory table where SSB is 'negative' or '0'.\n2. Then count how many distinct patient IDs among these have non-null Symptoms in the Examination table.\n\nLet me double-check this:\n\nWe first get a list of patients who have normal anti-SSB.\nThen, we count how many of these patients have other symptoms observed in their examination.\n\nI think this query correctly addresses the question. Let me format it according to the expected response.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT e.ID) FROM Examination e WHERE e.Symptoms IS NOT NULL AND e.ID IN (SELECT DISTINCT l.ID FROM Laboratory l WHERE l.SSB IN ('negative', '0'))\"\n}\n```"
+    }
+  }
+}

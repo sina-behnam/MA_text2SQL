@@ -1,0 +1,95 @@
+{
+  "id": 61,
+  "dataset": "bird",
+  "database": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/databases/california_schools/california_schools.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/california_schools/schools.csv",
+      "stratified_output/databases/california_schools/satscores.csv",
+      "stratified_output/databases/california_schools/frpm.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "california_schools",
+    "path": [
+      "stratified_output/schemas/california_schools/california_schools.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "How many chartered schools located in the city of Hickman are owned by the Elementary School District?",
+  "sql": "SELECT COUNT(School) FROM schools WHERE DOC = 52 AND Charter = 1 AND City = 'Hickman'",
+  "evidence": "Elementary School District refers to DOC = 52; Chartered schools refer to Charter = 1 in the table schools",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 102,
+    "word_length": 17,
+    "entities": [
+      {
+        "text": "Hickman",
+        "label": "ORG",
+        "start": 50,
+        "end": 57
+      },
+      {
+        "text": "the Elementary School District",
+        "label": "ORG",
+        "start": 71,
+        "end": 101
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 3,
+    "column_overlap_lemma_count": 3
+  },
+  "sql_analysis": {
+    "char_length": 85,
+    "tables_count": 1,
+    "tables": [
+      "schools"
+    ],
+    "join_count": 0,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) AS count_of_chartered_schools FROM schools WHERE Charter = 1 AND City = 'Hickman' AND DOC = '52'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the question:\n- Looking for chartered schools (which means Charter = 1 in the schools table)\n- Located in the city of Hickman\n- Owned by Elementary School District (which is indicated by DOC = 52 in the schools table)\n\nI need to count these schools. Let's build the SQL query.\n\nFrom the `schools` table:\n1. I need to filter for Charter = 1 (chartered schools)\n2. I need to filter for City = 'Hickman'\n3. I need to filter for DOC = 52 (Elementary School District)\n4. I need to count the number of schools that match these criteria\n\nThe SQL query should be:\n```sql\nSELECT COUNT(*) AS count_of_chartered_schools\nFROM schools\nWHERE Charter = 1\nAND City = 'Hickman'\nAND DOC = '52'\n```\n\nNote that DOC is defined as TEXT in the schema, so I need to use quotes around '52'.\n\nLet's check if this query addresses the requirements:\n- It counts records from the schools table\n- It filters for chartered schools (Charter = 1)\n- It filters for schools in Hickman (City = 'Hickman')\n- It filters for Elementary School District (DOC = '52')\n\nThis query should give us the count of chartered schools in Hickman that are owned by the Elementary School District.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) AS count_of_chartered_schools FROM schools WHERE Charter = 1 AND City = 'Hickman' AND DOC = '52'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "id": 346,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the codes of template types that are not used for any document?",
+  "sql": "SELECT template_type_code FROM Templates EXCEPT SELECT template_type_code FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 72,
+    "word_length": 14,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 152,
+    "tables_count": 2,
+    "tables": [
+      "Templates",
+      "Documents"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Template_Type_Code FROM Ref_Template_Types WHERE Template_Type_Code NOT IN (SELECT DISTINCT t.Template_Type_Code FROM Templates t JOIN Documents d ON t.Template_ID = d.Template_ID)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nThe question asks for template types that are not used for any document. \n\nLet's break down the database schema to understand the relationships:\n\n1. `Ref_Template_Types` - Contains template type information with `Template_Type_Code` as the primary key.\n2. `Templates` - Contains template information with `Template_ID` as the primary key and has a foreign key `Template_Type_Code` referencing `Ref_Template_Types`.\n3. `Documents` - Contains document information with `Document_ID` as the primary key and has a foreign key `Template_ID` referencing `Templates`.\n4. `Paragraphs` - Contains paragraph information with `Paragraph_ID` as the primary key and has a foreign key `Document_ID` referencing `Documents`.\n\nTo find template types that are not used for any document, I need to identify template types that don't have any templates associated with them or have templates that aren't used in any documents.\n\nHere's how I can approach this:\n\n1. Get all template types from `Ref_Template_Types`.\n2. Exclude the template types that are associated with templates that are used in documents.\n\nSQL query:\n```sql\nSELECT rtt.Template_Type_Code\nFROM Ref_Template_Types rtt\nWHERE rtt.Template_Type_Code NOT IN (\n    SELECT DISTINCT t.Template_Type_Code\n    FROM Templates t\n    JOIN Documents d ON t.Template_ID = d.Template_ID\n)\n```\n\nThis query will return the template type codes that are not associated with any document through templates. It works by:\n1. Selecting all template type codes from the `Ref_Template_Types` table.\n2. Excluding any template type code that appears in a subquery result, which finds all template type codes associated with templates that are used in at least one document.\n\nHowever, there's a potential issue: a template type might have templates created for it, but those templates might not be used in any documents. To make sure we're addressing this case, let's refine the query:\n\n```sql\nSELECT rtt.Template_Type_Code\nFROM Ref_Template_Types rtt\nLEFT JOIN Templates t ON rtt.Template_Type_Code = t.Template_Type_Code\nLEFT JOIN Documents d ON t.Template_ID = d.Template_ID\nGROUP BY rtt.Template_Type_Code\nHAVING COUNT(d.Document_ID) = 0\n```\n\nWait, I think I'm overcomplicating this. Let's simplify.\n\nFirst, let's identify template types that have templates, which are then used in documents:\n\n```sql\nSELECT DISTINCT rtt.Template_Type_Code\nFROM Ref_Template_Types rtt\nJOIN Templates t ON rtt.Template_Type_Code = t.Template_Type_Code\nJOIN Documents d ON t.Template_ID = d.Template_ID\n```\n\nNow, I can use this as a subquery to exclude these template types:\n\n```sql\nSELECT Template_Type_Code\nFROM Ref_Template_Types\nWHERE Template_Type_Code NOT IN (\n    SELECT DISTINCT t.Template_Type_Code\n    FROM Templates t\n    JOIN Documents d ON t.Template_ID = d.Template_ID\n)\n```\n\nLet me recheck the logic:\n- I'm selecting all template type codes from `Ref_Template_Types`.\n- I'm excluding any template type code that is associated with a template that is used in at least one document.\n\nThis should give me all template types that are not used for any document.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Template_Type_Code FROM Ref_Template_Types WHERE Template_Type_Code NOT IN (SELECT DISTINCT t.Template_Type_Code FROM Templates t JOIN Documents d ON t.Template_ID = d.Template_ID)\"\n}\n```"
+    }
+  }
+}

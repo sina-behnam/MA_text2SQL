@@ -1,0 +1,82 @@
+{
+  "id": 250,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Give the flight numbers of flights landing at APG.",
+  "sql": "SELECT FlightNo FROM FLIGHTS WHERE DestAirport  =  \"APG\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 50,
+    "word_length": 9,
+    "entities": [
+      {
+        "text": "APG",
+        "label": "ORG",
+        "start": 46,
+        "end": 49
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 56,
+    "tables_count": 1,
+    "tables": [
+      "FLIGHTS"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT FlightNo FROM flights WHERE DestAirport = 'APG'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema:\n\n1. We have 3 tables: `airlines`, `airports`, and `flights`.\n2. The question asks for flight numbers of flights landing at APG.\n\nFrom the schema:\n- `flights` table contains information about flights, including `FlightNo` (flight number) and `DestAirport` (destination airport).\n- It seems `DestAirport` is where the flight lands.\n- APG appears to be an airport code.\n\nSo, I need to find all flight numbers where `DestAirport` is 'APG'. Let's construct the SQL query:\n\n```sql\nSELECT FlightNo\nFROM flights\nWHERE DestAirport = 'APG'\n```\n\nThis query selects flight numbers from the flights table where the destination airport is APG. The result will be a list of flight numbers that land at APG.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT FlightNo FROM flights WHERE DestAirport = 'APG'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "id": 1282,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Please list the top three patients' birthdays with the highest glutamic pylvic transaminase in the normal range.",
+  "sql": "SELECT T1.Birthday FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GPT < 60 ORDER BY T2.GPT DESC LIMIT 3",
+  "evidence": "highest glutamic pylvic transaminase in the normal range refers to MAX(GPT < 60);",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 112,
+    "word_length": 17,
+    "entities": [
+      {
+        "text": "three",
+        "label": "CARDINAL",
+        "start": 20,
+        "end": 25
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "three"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "highest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 129,
+    "tables_count": 2,
+    "tables": [
+      "Laboratory",
+      "Patient"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT p.Birthday FROM Patient p JOIN (SELECT ID, MAX(GPT) as MaxGPT FROM Laboratory WHERE GPT < 60 GROUP BY ID) l ON p.ID = l.ID ORDER BY l.MaxGPT DESC LIMIT 3",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "These queries are not semantically equivalent. The gold query returns birthdays for patients associated with the 3 highest individual GPT values under 60, regardless of which patient they belong to. The generated query first finds the maximum GPT value under 60 for each patient, then selects the top 3 patients based on those maximum values. If a patient has multiple lab tests with different GPT values, these queries would produce different results.",
+      "raw_response": "<think>\nLet's analyze the given database schema and the question.\n\nWe need to find the top three patients' birthdays with the highest glutamic pylvic transaminase (GPT) in the normal range (less than 60).\n\nAccording to the schema:\n1. The `Laboratory` table contains a column named `GPT` which is the glutamic pylvic transaminase.\n2. The `Patient` table contains a column named `Birthday`.\n3. The `Laboratory` table has a foreign key `ID` that references the `Patient` table's `ID`.\n\nSo we need to:\n1. Join the `Laboratory` and `Patient` tables on their `ID` columns.\n2. Filter where `GPT < 60` (as specified in the question).\n3. Find the maximum `GPT` value for each patient.\n4. Order by this maximum `GPT` value in descending order.\n5. Limit the results to the top 3.\n\nLet's write the SQL query:\n\n```sql\nSELECT p.Birthday\nFROM Patient p\nJOIN (\n    SELECT ID, MAX(GPT) as MaxGPT\n    FROM Laboratory\n    WHERE GPT < 60\n    GROUP BY ID\n) l ON p.ID = l.ID\nORDER BY l.MaxGPT DESC\nLIMIT 3;\n```\n\nWait, let me reconsider this. The question specifically mentions \"highest glutamic pylvic transaminase in the normal range\" which refers to the maximum value of GPT that is still within the normal range.\n\nSo, I want to filter patients who have GPT < 60, find the maximum GPT value for each patient (which will be the highest glutamic pylvic transaminase in the normal range for that patient), order by that maximum, and get the top 3 birthdays.\n\nActually, I think the query I've written above is correct. Let me double-check:\n\n1. We're joining the Patient table with a subquery that calculates the maximum GPT value for each patient within the normal range (< 60).\n2. We're ordering by this maximum value in descending order.\n3. We're limiting the results to the top 3.\n\nThis should give us the top three patients' birthdays with the highest glutamic pylvic transaminase in the normal range.\n\nHowever, let me formalize it a bit more clearly:\n\n```sql\nSELECT p.Birthday\nFROM Patient p\nJOIN (\n    SELECT ID, MAX(GPT) as MaxGPT\n    FROM Laboratory\n    WHERE GPT < 60\n    GROUP BY ID\n) l ON p.ID = l.ID\nORDER BY l.MaxGPT DESC\nLIMIT 3;\n```\n\nThis query should work as expected.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT p.Birthday FROM Patient p JOIN (SELECT ID, MAX(GPT) as MaxGPT FROM Laboratory WHERE GPT < 60 GROUP BY ID) l ON p.ID = l.ID ORDER BY l.MaxGPT DESC LIMIT 3\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "id": 12,
+  "dataset": "spider",
+  "database": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "concert_singer",
+    "path": [
+      "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "List all song names by singers above the average age.",
+  "sql": "SELECT song_name FROM singer WHERE age  >  (SELECT avg(age) FROM singer)",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 53,
+    "word_length": 10,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 3
+  },
+  "sql_analysis": {
+    "char_length": 72,
+    "tables_count": 2,
+    "tables": [
+      "singer)",
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the request and database schema:\n\n1. The request is to \"List all song names by singers above the average age.\"\n2. We'll need to use the `singer` table which contains information about singers, their songs, and ages.\n\nTo solve this, we need to:\n1. Calculate the average age of all singers\n2. Find singers whose age is above that average\n3. Return the song names of those singers\n\nLooking at the `singer` table schema, it has the following columns:\n- Singer_ID (int, primary key)\n- Name (text)\n- Country (text)\n- Song_Name (text)\n- Song_release_year (text)\n- Age (int)\n- Is_male (bool)\n\nNow let's create the SQL query:\n\n```sql\nSELECT Song_Name\nFROM singer\nWHERE Age > (SELECT AVG(Age) FROM singer)\n```\n\nThis query:\n1. Calculates the average age of all singers using a subquery: `(SELECT AVG(Age) FROM singer)`\n2. Selects singer records where Age is greater than the calculated average\n3. Returns only the Song_Name column from those records\n\nThis should give us the list of all song names by singers whose age is above the average age of all singers.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Song_Name FROM singer WHERE Age > (SELECT AVG(Age) FROM singer)\"\n}\n```"
+    }
+  }
+}

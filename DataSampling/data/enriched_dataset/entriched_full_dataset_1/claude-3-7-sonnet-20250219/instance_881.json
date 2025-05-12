@@ -1,0 +1,91 @@
+{
+  "id": 881,
+  "dataset": "spider",
+  "database": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "network_1",
+    "path": [
+      "spider_stratified_output_200/schemas/network_1/network_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which grades have 4 or more high schoolers?",
+  "sql": "SELECT grade FROM Highschooler GROUP BY grade HAVING count(*)  >=  4",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 43,
+    "word_length": 8,
+    "entities": [
+      {
+        "text": "4",
+        "label": "CARDINAL",
+        "start": 18,
+        "end": 19
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "4"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "more"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 68,
+    "tables_count": 1,
+    "tables": [
+      "Highschooler"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "GROUP BY",
+      "HAVING"
+    ],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT grade FROM Highschooler GROUP BY grade HAVING COUNT(*) >= 4",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nThe database has three tables:\n1. `Highschooler`: Contains information about high school students with fields ID, name, and grade.\n2. `Friend`: Represents friendships between students.\n3. `Likes`: Represents when one student likes another.\n\nThe question is asking for grades that have 4 or more high schoolers. This means I need to:\n1. Count the number of students in each grade\n2. Filter for grades that have at least 4 students\n\nTo answer this, I'll need to use the `Highschooler` table, group by the `grade` column, and count the number of students in each grade. Then I'll filter for grades where this count is at least 4.\n\nHere's the SQL query:\n```sql\nSELECT grade\nFROM Highschooler\nGROUP BY grade\nHAVING COUNT(*) >= 4\n```\n\nThis query:\n1. Selects the grade column\n2. Groups the results by grade\n3. Uses HAVING to filter for groups (grades) that have a count of at least 4 students\n\nThe resulting output will show all grades that have 4 or more high schoolers.\n</think>\n\n```json\n{\"sql\": \"SELECT grade FROM Highschooler GROUP BY grade HAVING COUNT(*) >= 4\"}\n```"
+    }
+  }
+}

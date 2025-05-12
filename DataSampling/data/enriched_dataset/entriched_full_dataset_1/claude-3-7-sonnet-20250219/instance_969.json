@@ -1,0 +1,75 @@
+{
+  "id": 969,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the number of professionals who have ever treated dogs.",
+  "sql": "SELECT count(DISTINCT professional_id) FROM Treatments",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 60,
+    "word_length": 10,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 54,
+    "tables_count": 1,
+    "tables": [
+      "Treatments"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT professional_id) FROM Treatments",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nTo answer this question, I need to find the number of professionals who have ever treated dogs. \n\nFrom the database schema, I can see the following relevant tables:\n1. `Professionals` - contains information about professionals\n2. `Treatments` - contains information about treatments given to dogs, including the professional who administered the treatment\n3. `Dogs` - contains information about the dogs\n\nThe `Treatments` table has a foreign key relationship with both the `Professionals` table (via `professional_id`) and the `Dogs` table (via `dog_id`). This table records when a professional treats a dog.\n\nSo to find the number of professionals who have ever treated dogs, I need to:\n1. Count the distinct number of professionals in the `Treatments` table\n\nHere's the SQL query to do this:\n```sql\nSELECT COUNT(DISTINCT professional_id) \nFROM Treatments\n```\n\nThis query will count the number of unique professional IDs in the Treatments table, which represents the number of professionals who have ever treated dogs.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT professional_id) FROM Treatments\"\n}\n```"
+    }
+  }
+}

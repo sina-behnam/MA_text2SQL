@@ -1,0 +1,73 @@
+{
+  "id": 352,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Return the type code of the template type with the description \"Book\".",
+  "sql": "SELECT template_type_code FROM Ref_template_types WHERE template_type_description  =  \"Book\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 70,
+    "word_length": 12,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 92,
+    "tables_count": 1,
+    "tables": [
+      "Ref_template_types"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Template_Type_Code FROM Ref_Template_Types WHERE Template_Type_Description = 'Book'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema to find the information requested.\n\nThe request is: Return the type code of the template type with the description \"Book\".\n\nLooking at the tables:\n1. `Ref_Template_Types`: Contains template types with a code and description\n2. `Templates`: Contains templates with references to template types\n3. `Documents`: Contains documents with references to templates\n4. `Paragraphs`: Contains paragraphs with references to documents\n\nSince we're looking for a template type with the description \"Book\", we need to focus on the `Ref_Template_Types` table. This table has:\n- `Template_Type_Code`: The code we want to retrieve\n- `Template_Type_Description`: The description field that should contain \"Book\"\n\nSo, the SQL query should select the `Template_Type_Code` from `Ref_Template_Types` where the `Template_Type_Description` is \"Book\".\n\nHere's the SQL query:\n```sql\nSELECT Template_Type_Code \nFROM Ref_Template_Types \nWHERE Template_Type_Description = 'Book'\n```\n\nThis query will return the type code for the template type that has the description \"Book\".\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Template_Type_Code FROM Ref_Template_Types WHERE Template_Type_Description = 'Book'\"\n}\n```"
+    }
+  }
+}

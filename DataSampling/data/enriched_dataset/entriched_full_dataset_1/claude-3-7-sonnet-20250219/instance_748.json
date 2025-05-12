@@ -1,0 +1,90 @@
+{
+  "id": 748,
+  "dataset": "spider",
+  "database": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "world_1",
+    "path": [
+      "spider_stratified_output_200/schemas/world_1/world_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the names of nations where both English and French are official languages?",
+  "sql": "SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \"English\" AND T2.IsOfficial  =  \"T\" INTERSECT SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \"French\" AND T2.IsOfficial  =  \"T\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 83,
+    "word_length": 14,
+    "entities": [
+      {
+        "text": "English",
+        "label": "LANGUAGE",
+        "start": 41,
+        "end": 48
+      },
+      {
+        "text": "French",
+        "label": "NORP",
+        "start": 53,
+        "end": 59
+      }
+    ],
+    "entity_types": [
+      "NORP",
+      "LANGUAGE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 306,
+    "tables_count": 2,
+    "tables": [
+      "countrylanguage",
+      "country"
+    ],
+    "join_count": 2,
+    "where_conditions": 3,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT c.Name FROM country c WHERE c.Code IN (SELECT CountryCode FROM countrylanguage WHERE Language = 'English' AND IsOfficial = 'T') AND c.Code IN (SELECT CountryCode FROM countrylanguage WHERE Language = 'French' AND IsOfficial = 'T')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nThe question asks for nations where both English and French are official languages. Let me analyze the database schema to figure out how to retrieve this information.\n\nFrom the schema, I can see three tables:\n1. `city` - Information about cities\n2. `country` - Information about countries\n3. `countrylanguage` - Information about languages spoken in countries\n\nSince we're looking for countries with specific official languages, we'll need to use the `countrylanguage` and `country` tables.\n\nIn the `countrylanguage` table:\n- `CountryCode` links to the `country` table\n- `Language` specifies the language\n- `IsOfficial` indicates if the language is official (seems to be a text field with values like 'T' or 'F')\n\nWe need to find countries where:\n1. English is an official language AND\n2. French is also an official language\n\nWe can approach this with a query that selects countries from the `country` table where we can find entries in the `countrylanguage` table for both English and French with `IsOfficial` = 'T'.\n\nHere's how we can formulate the SQL query:\n</think>\n\n```json\n{\"sql\": \"SELECT c.Name FROM country c WHERE c.Code IN (SELECT CountryCode FROM countrylanguage WHERE Language = 'English' AND IsOfficial = 'T') AND c.Code IN (SELECT CountryCode FROM countrylanguage WHERE Language = 'French' AND IsOfficial = 'T')\"}\n```"
+    }
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "id": 1111,
+  "dataset": "bird",
+  "database": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/databases/european_football_2/european_football_2.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/european_football_2/Team_Attributes.csv",
+      "stratified_output/databases/european_football_2/Player.csv",
+      "stratified_output/databases/european_football_2/Match.csv",
+      "stratified_output/databases/european_football_2/League.csv",
+      "stratified_output/databases/european_football_2/Country.csv",
+      "stratified_output/databases/european_football_2/Player_Attributes.csv",
+      "stratified_output/databases/european_football_2/Team.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "european_football_2",
+    "path": [
+      "stratified_output/schemas/european_football_2/european_football_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "State the chance creation passing class for \"PEC Zwolle\" on 2013/9/20.",
+  "sql": "SELECT t2.chanceCreationPassingClass FROM Team AS t1 INNER JOIN Team_Attributes AS t2 ON t1.team_api_id = t2.team_api_id WHERE t1.team_long_name = 'PEC Zwolle' AND SUBSTR(t2.`date`, 1, 10) = '2013-09-20'",
+  "evidence": "\"PEC Zwolle\" refers to team_long_name = 'PEC Zwolle'; on 2013/9/20 refers to date = '2013-09-20 00:00:00'",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 70,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "2013/9/20",
+        "label": "CARDINAL",
+        "start": 60,
+        "end": 69
+      }
+    ],
+    "entity_types": [
+      "CARDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 203,
+    "tables_count": 2,
+    "tables": [
+      "Team_Attributes",
+      "Team"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT ta.chanceCreationPassingClass FROM Team t JOIN Team_Attributes ta ON t.team_api_id = ta.team_api_id WHERE t.team_long_name = 'PEC Zwolle' AND ta.date = '2013-09-20 00:00:00'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nBased on the question, I need to find the chance creation passing class for the team \"PEC Zwolle\" on the date \"2013-09-20 00:00:00\".\n\nLooking at the database schema, I can see:\n\n1. The `Team` table has a column `team_long_name` which will help me identify \"PEC Zwolle\"\n2. The `Team_Attributes` table has columns for various team attributes including `chanceCreationPassingClass`\n3. The `Team_Attributes` table also has a `date` column to filter by the specific date\n4. The `Team_Attributes` table is linked to the `Team` table through `team_api_id`\n\nSo, I need to:\n1. Join `Team` and `Team_Attributes` tables\n2. Filter by `team_long_name = 'PEC Zwolle'`\n3. Filter by `date = '2013-09-20 00:00:00'`\n4. Select the `chanceCreationPassingClass` column\n\nHere's the SQL query:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT ta.chanceCreationPassingClass FROM Team t JOIN Team_Attributes ta ON t.team_api_id = ta.team_api_id WHERE t.team_long_name = 'PEC Zwolle' AND ta.date = '2013-09-20 00:00:00'\"\n}\n```"
+    }
+  }
+}

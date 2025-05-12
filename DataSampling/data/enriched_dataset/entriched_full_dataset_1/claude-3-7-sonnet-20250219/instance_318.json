@@ -1,0 +1,75 @@
+{
+  "id": 318,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Count the number of templates.",
+  "sql": "SELECT count(*) FROM Templates",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 30,
+    "word_length": 5,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 30,
+    "tables_count": 1,
+    "tables": [
+      "Templates"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM Templates",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema provided to understand how to count the number of templates.\n\nFrom the schema, we can see that there are 4 tables:\n1. `Ref_Template_Types` - Contains types of templates\n2. `Templates` - Contains the actual templates\n3. `Documents` - Contains documents that may be based on templates\n4. `Paragraphs` - Contains paragraphs associated with documents\n\nThe question is asking to count the number of templates. The templates are stored in the `Templates` table, so we need to count the number of records in this table.\n\nHowever, we need to consider whether we should count all template records or if we should apply some filtering. Looking at the `Templates` table schema:\n\n```sql\nCREATE TABLE Templates (\nTemplate_ID INTEGER NOT NULL,\nVersion_Number INTEGER NOT NULL,\nTemplate_Type_Code CHAR(15) NOT NULL,\nDate_Effective_From DATETIME,\nDate_Effective_To DATETIME,\nTemplate_Details VARCHAR(255) NOT NULL,\nPRIMARY KEY (Template_ID),\nFOREIGN KEY (Template_Type_Code) REFERENCES Ref_Template_Types (Template_Type_Code)\n)\n```\n\nWe can see that each template has a `Template_ID` and a `Version_Number`. This suggests that a single template (as identified by `Template_ID`) might have multiple versions.\n\nThere are a few ways to interpret \"count the number of templates\":\n1. Count the total number of template records (including all versions)\n2. Count the number of unique templates (unique `Template_ID` values)\n3. Count only the currently effective templates (based on `Date_Effective_From` and `Date_Effective_To`)\n\nSince the question doesn't specify, I'll go with option 1, which is to count all template records. This will give us the total number of templates, including all versions.\n\nThe SQL query to count all template records is:\n\n```sql\nSELECT COUNT(*) FROM Templates\n```\n\nIf the intent was to count unique templates (ignoring versions), we would use:\n\n```sql\nSELECT COUNT(DISTINCT Template_ID) FROM Templates\n```\n\nIf the intent was to count only currently effective templates, we would add a WHERE clause:\n\n```sql\nSELECT COUNT(*) FROM Templates\nWHERE (Date_Effective_From IS NULL OR Date_Effective_From <= CURRENT_TIMESTAMP)\nAND (Date_Effective_To IS NULL OR Date_Effective_To >= CURRENT_TIMESTAMP)\n```\n\nSince the question simply asks to count the number of templates without any qualifiers, I'll go with the first query to count all template records.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM Templates\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "id": 320,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the ids, version numbers, and type codes for each template?",
+  "sql": "SELECT template_id ,  version_number ,  template_type_code FROM Templates",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 68,
+    "word_length": 12,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 73,
+    "tables_count": 1,
+    "tables": [
+      "Templates"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Template_ID, Version_Number, Template_Type_Code FROM Templates",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nBased on the database schema provided, I need to understand the tables and their relationships to answer the question about template IDs, version numbers, and type codes.\n\nLooking at the schema, there are 4 tables:\n1. `Ref_Template_Types` - Contains template type information\n2. `Templates` - Contains the template details, including IDs, versions, and type codes\n3. `Documents` - Contains document information linked to templates\n4. `Paragraphs` - Contains paragraph information for documents\n\nThe question asks for the \"ids, version numbers, and type codes for each template.\" Let's analyze where this information is stored:\n\n- Template IDs are in the `Template_ID` column of the `Templates` table\n- Version numbers are in the `Version_Number` column of the `Templates` table\n- Type codes are in the `Template_Type_Code` column of the `Templates` table\n\nTherefore, I need to write a SQL query that selects these three columns from the `Templates` table. The query should be straightforward as all the information needed is in a single table.\n\nSQL query:\n```sql\nSELECT Template_ID, Version_Number, Template_Type_Code \nFROM Templates\n```\n\nThis will return all the template IDs, their version numbers, and their type codes. The query doesn't need to join with any other tables since all the requested information is contained within the `Templates` table.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Template_ID, Version_Number, Template_Type_Code FROM Templates\"\n}\n```"
+    }
+  }
+}

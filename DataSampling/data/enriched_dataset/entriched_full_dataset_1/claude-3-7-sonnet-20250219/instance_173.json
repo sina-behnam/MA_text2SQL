@@ -1,0 +1,76 @@
+{
+  "id": 173,
+  "dataset": "spider",
+  "database": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "car_1",
+    "path": [
+      "spider_stratified_output_200/schemas/car_1/car_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the name of the countries where there is not a single car maker?",
+  "sql": "SELECT CountryName FROM countries EXCEPT SELECT T1.CountryName FROM countries AS T1 JOIN CAR_MAKERS AS T2 ON T1.countryId  =  T2.Country;",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 73,
+    "word_length": 15,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": true,
+    "negation_words": [
+      "not"
+    ],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 137,
+    "tables_count": 2,
+    "tables": [
+      "CAR_MAKERS",
+      "countries"
+    ],
+    "join_count": 1,
+    "where_conditions": 0,
+    "subquery_count": 1,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT c.CountryName FROM countries c LEFT JOIN car_makers m ON c.CountryId = m.Country WHERE m.Id IS NULL",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nI need to find countries from the `countries` table that don't have any corresponding entries in the `car_makers` table.\n\nLooking at the schema:\n- `countries` table has `CountryId` and `CountryName`\n- `car_makers` table has a `Country` column that references `countries.CountryId`\n\nTo find countries with no car makers, I need to:\n1. Select all countries from the `countries` table\n2. Exclude countries that appear in the `car_makers` table's `Country` column\n\nI can use a LEFT JOIN and filter for NULL values, or use NOT EXISTS, or NOT IN. Let's go with a LEFT JOIN approach:\n\n```sql\nSELECT c.CountryName\nFROM countries c\nLEFT JOIN car_makers m ON c.CountryId = m.Country\nWHERE m.Id IS NULL\n```\n\nThis query:\n1. Gets all countries from the `countries` table\n2. Tries to find matching car makers for each country\n3. Only keeps countries where no matching car maker was found (m.Id IS NULL)\n\nI could also use NOT EXISTS:\n\n```sql\nSELECT c.CountryName\nFROM countries c\nWHERE NOT EXISTS (\n    SELECT 1 \n    FROM car_makers m \n    WHERE c.CountryId = m.Country\n)\n```\n\nOr NOT IN:\n\n```sql\nSELECT c.CountryName\nFROM countries c\nWHERE c.CountryId NOT IN (\n    SELECT Country\n    FROM car_makers\n    WHERE Country IS NOT NULL\n)\n```\n\nAll three should work. Let's go with the LEFT JOIN approach as it's often most readable.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT c.CountryName FROM countries c LEFT JOIN car_makers m ON c.CountryId = m.Country WHERE m.Id IS NULL\"\n}\n```"
+    }
+  }
+}

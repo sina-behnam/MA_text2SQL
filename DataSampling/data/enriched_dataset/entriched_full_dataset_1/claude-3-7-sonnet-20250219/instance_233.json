@@ -1,0 +1,83 @@
+{
+  "id": 233,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are airlines that have some flight departing from airport 'AHD'?",
+  "sql": "SELECT T1.Airline FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline WHERE T2.SourceAirport  =  \"AHD\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 69,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "AHD",
+        "label": "ORG",
+        "start": 64,
+        "end": 67
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 114,
+    "tables_count": 2,
+    "tables": [
+      "FLIGHTS",
+      "AIRLINES"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT a.Airline FROM airlines a JOIN flights f ON a.uid = f.Airline WHERE f.SourceAirport = 'AHD'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema to understand the tables and their relationships.\n\n1. **airlines table**:\n   - uid: INTEGER PRIMARY KEY\n   - Airline: TEXT\n   - Abbreviation: TEXT\n   - Country: TEXT\n\n2. **airports table**:\n   - City: TEXT\n   - AirportCode: TEXT PRIMARY KEY\n   - AirportName: TEXT\n   - Country: TEXT\n   - CountryAbbrev: TEXT\n\n3. **flights table**:\n   - Airline: INTEGER\n   - FlightNo: INTEGER\n   - SourceAirport: TEXT (foreign key to airports.AirportCode)\n   - DestAirport: TEXT (foreign key to airports.AirportCode)\n   - PRIMARY KEY(Airline, FlightNo)\n\nThe question asks for airlines that have some flight departing from airport 'AHD'. \n\nTo answer this, I need to:\n1. Join the `airlines` table with the `flights` table to get the airlines that have flights.\n2. Filter the flights to only those where the `SourceAirport` is 'AHD'.\n\nIn the schema, the `Airline` column in the `flights` table is an INTEGER, which likely refers to the `uid` column in the `airlines` table (which is the primary key). So I'll need to join on `flights.Airline = airlines.uid`.\n\nHere's the SQL query:\n</think>\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT a.Airline FROM airlines a JOIN flights f ON a.uid = f.Airline WHERE f.SourceAirport = 'AHD'\"\n}\n```"
+    }
+  }
+}

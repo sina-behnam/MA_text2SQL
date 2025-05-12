@@ -1,0 +1,73 @@
+{
+  "id": 349,
+  "dataset": "spider",
+  "database": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "cre_Doc_Template_Mgt",
+    "path": [
+      "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the template type descriptions for template type code \"AD\".",
+  "sql": "SELECT template_type_description FROM Ref_template_types WHERE template_type_code  =  \"AD\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 67,
+    "word_length": 11,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 90,
+    "tables_count": 1,
+    "tables": [
+      "Ref_template_types"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Template_Type_Description FROM Ref_Template_Types WHERE Template_Type_Code = 'AD'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema to answer the question.\n\nThe user wants to know the template type description for template type code \"AD\". Looking at the schema, we have several tables:\n\n1. Ref_Template_Types\n2. Templates\n3. Documents\n4. Paragraphs\n\nFor this query, I need to focus on the Ref_Template_Types table, which has the following columns:\n- Template_Type_Code\n- Template_Type_Description\n\nThe user is asking for the description of template type with code \"AD\", so I need to query the Ref_Template_Types table and filter by Template_Type_Code = 'AD'.\n\nHere's the SQL query:\n```sql\nSELECT Template_Type_Description \nFROM Ref_Template_Types \nWHERE Template_Type_Code = 'AD'\n```\n\nThis query will return the description for the template type with code \"AD\".\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Template_Type_Description FROM Ref_Template_Types WHERE Template_Type_Code = 'AD'\"\n}\n```"
+    }
+  }
+}

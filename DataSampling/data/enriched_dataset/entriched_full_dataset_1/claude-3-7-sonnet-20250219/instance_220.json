@@ -1,0 +1,93 @@
+{
+  "id": 220,
+  "dataset": "spider",
+  "database": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "flight_2",
+    "path": [
+      "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Count the number of United Airlines flights that arrive in Aberdeen.",
+  "sql": "SELECT count(*) FROM FLIGHTS AS T1 JOIN AIRPORTS AS T2 ON T1.DestAirport  =  T2.AirportCode JOIN AIRLINES AS T3 ON T3.uid  =  T1.Airline WHERE T2.City  =  \"Aberdeen\" AND T3.Airline  =  \"United Airlines\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 68,
+    "word_length": 11,
+    "entities": [
+      {
+        "text": "United Airlines",
+        "label": "ORG",
+        "start": 20,
+        "end": 35
+      },
+      {
+        "text": "Aberdeen",
+        "label": "GPE",
+        "start": 59,
+        "end": 67
+      }
+    ],
+    "entity_types": [
+      "GPE",
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 202,
+    "tables_count": 3,
+    "tables": [
+      "AIRLINES",
+      "FLIGHTS",
+      "AIRPORTS"
+    ],
+    "join_count": 2,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM flights JOIN airlines ON flights.Airline = airlines.uid WHERE airlines.Airline = 'United Airlines' AND flights.DestAirport IN (SELECT AirportCode FROM airports WHERE City = 'Aberdeen')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the database schema and the question:\n\n1. We have three tables:\n   - `airlines` - Information about airlines (Airline name, Abbreviation, Country)\n   - `airports` - Information about airports (City, AirportCode, AirportName, Country)\n   - `flights` - Information about flights (Airline, FlightNo, SourceAirport, DestAirport)\n\n2. The question asks for the count of United Airlines flights that arrive in Aberdeen.\n\nThis means we need to:\n1. Find the `uid` for United Airlines in the `airlines` table\n2. Find the `AirportCode` for Aberdeen in the `airports` table\n3. Count the number of flights in the `flights` table where the airline is United Airlines and the destination airport is Aberdeen\n\nLet's create the SQL query:\n\nWe'll need to join all three tables:\n- Join `airlines` and `flights` on `airlines.uid = flights.Airline`\n- Join `flights` and `airports` on `flights.DestAirport = airports.AirportCode`\n\nThen we filter for United Airlines and Aberdeen, and count the results.\n\n```sql\nSELECT COUNT(*) \nFROM flights\nJOIN airlines ON flights.Airline = airlines.uid\nJOIN airports ON flights.DestAirport = airports.AirportCode\nWHERE airlines.Airline = 'United Airlines' \nAND airports.City = 'Aberdeen'\n```\n\nThis query should count all flights operated by United Airlines that have Aberdeen as the destination city.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM flights JOIN airlines ON flights.Airline = airlines.uid WHERE airlines.Airline = 'United Airlines' AND flights.DestAirport IN (SELECT AirportCode FROM airports WHERE City = 'Aberdeen')\"\n}\n```"
+    }
+  }
+}

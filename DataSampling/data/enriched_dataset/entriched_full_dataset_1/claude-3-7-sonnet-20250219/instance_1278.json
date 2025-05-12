@@ -1,0 +1,90 @@
+{
+  "id": 1278,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Of the patients with an normal level of IGG, how many of them admitted to the hospital?",
+  "sql": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.IGG > 900 AND T2.IGG <2000 AND  T1.Admission = '+'",
+  "evidence": "normal level of IGG refers to 900 < IGG < 2000; admitted to the hospital refers to Admission = '+';",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 87,
+    "word_length": 17,
+    "entities": [
+      {
+        "text": "IGG",
+        "label": "ORG",
+        "start": 40,
+        "end": 43
+      }
+    ],
+    "entity_types": [
+      "ORG"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 143,
+    "tables_count": 2,
+    "tables": [
+      "Laboratory",
+      "Patient"
+    ],
+    "join_count": 1,
+    "where_conditions": 3,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(DISTINCT p.ID) as admitted_patients_count FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.IGG > 900 AND l.IGG < 2000 AND p.Admission = '+'",
+      "execution_correct": false,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "These queries are not semantically equivalent because of the use of DISTINCT in the second query. The first query uses COUNT(T1.ID) which will count each row in the result set, while the second query uses COUNT(DISTINCT p.ID) which will only count unique patient IDs. If a patient has multiple laboratory records with IGG values in the normal range (900-2000), the first query would count that patient multiple times, whereas the second query would count them only once. The other differences (aliases, formatting) are merely syntactic and don't affect the results.",
+      "raw_response": "<think>\nLet me analyze the question and the database schema.\n\nThe question asks: \"Of the patients with a normal level of IGG, how many of them admitted to the hospital?\" \n- Normal level of IGG is defined as: 900 < IGG < 2000\n- Admitted to the hospital means: Admission = '+'\n\nFrom the database schema, I can see:\n1. The `Patient` table has an `Admission` column which indicates whether a patient was admitted to the hospital.\n2. The `Laboratory` table has an `IGG` column which contains the IGG level.\n\nTo answer this question, I need to:\n1. Join the `Patient` and `Laboratory` tables.\n2. Filter for patients with IGG levels between 900 and 2000.\n3. Count the number of these patients who have Admission = '+'.\n\nLet's write the SQL query:\n\n```sql\nSELECT COUNT(DISTINCT p.ID) as count_admitted_patients\nFROM Patient p\nJOIN Laboratory l ON p.ID = l.ID\nWHERE l.IGG > 900 AND l.IGG < 2000\nAND p.Admission = '+'\n```\n\nThis query:\n1. Joins the Patient and Laboratory tables on their ID.\n2. Filters for patients with IGG levels between 900 and 2000.\n3. Further filters for patients with Admission = '+'.\n4. Counts the distinct patient IDs that meet these criteria.\n\nI'm using COUNT(DISTINCT p.ID) because a patient might have multiple laboratory tests, and we want to count each patient only once.\n</think>\n\nBased on the database schema and requirements, I need to count patients who have normal IGG levels (900 < IGG < 2000) and were admitted to the hospital (Admission = '+').\n\n```json\n{\n  \"sql\": \"SELECT COUNT(DISTINCT p.ID) as admitted_patients_count FROM Patient p JOIN Laboratory l ON p.ID = l.ID WHERE l.IGG > 900 AND l.IGG < 2000 AND p.Admission = '+'\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "id": 70,
+  "dataset": "spider",
+  "database": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/databases/pets_1/pets_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "pets_1",
+    "path": [
+      "spider_stratified_output_200/schemas/pets_1/pets_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the id and weight of every pet who is older than 1?",
+  "sql": "SELECT petid ,  weight FROM pets WHERE pet_age  >  1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 59,
+    "word_length": 15,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [
+      "1"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "older"
+    ],
+    "has_comparatives": true,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 52,
+    "tables_count": 1,
+    "tables": [
+      "pets"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT PetID, weight FROM Pets WHERE pet_age > 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. We have three tables:\n   - `Student`: Contains student information with primary key `StuID`.\n   - `Has_Pet`: A junction table that establishes a many-to-many relationship between students and pets.\n   - `Pets`: Contains pet information with primary key `PetID`.\n\n2. The question asks for the id and weight of every pet that is older than 1.\n\nLooking at the `Pets` table, I can see that it has the following relevant columns:\n- `PetID`: The pet's ID\n- `pet_age`: The pet's age\n- `weight`: The pet's weight\n\nTo find pets older than 1, I need to query the `Pets` table and filter by `pet_age > 1`. Then, I need to select the `PetID` and `weight` columns.\n\nSo, the SQL query would be:\n```sql\nSELECT PetID, weight\nFROM Pets\nWHERE pet_age > 1\n```\n\nThis will give us the ID and weight of all pets that are older than 1.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT PetID, weight FROM Pets WHERE pet_age > 1\"\n}\n```"
+    }
+  }
+}

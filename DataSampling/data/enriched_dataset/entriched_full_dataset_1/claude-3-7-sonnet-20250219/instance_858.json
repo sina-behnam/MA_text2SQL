@@ -1,0 +1,75 @@
+{
+  "id": 858,
+  "dataset": "spider",
+  "database": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "orchestra",
+    "path": [
+      "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Find the number of orchestras whose record format is \"CD\" or \"DVD\".",
+  "sql": "SELECT COUNT(*) FROM orchestra WHERE Major_Record_Format  =  \"CD\" OR Major_Record_Format  =  \"DVD\"",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 67,
+    "word_length": 12,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 98,
+    "tables_count": 1,
+    "tables": [
+      "orchestra"
+    ],
+    "join_count": 0,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "COUNT"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT COUNT(*) FROM orchestra WHERE Major_Record_Format IN ('CD', 'DVD')",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand the schema:\n\n1. `conductor` table with information about conductors\n2. `orchestra` table with information about orchestras, linked to conductors\n3. `performance` table with performances by orchestras\n4. `show` table with individual shows of performances\n\nThe question asks for the number of orchestras whose record format is \"CD\" or \"DVD\".\n\nLooking at the `orchestra` table schema, I can see it has a column called `Major_Record_Format`. This is likely where the record format information is stored.\n\nTo count orchestras with \"CD\" or \"DVD\" as their record format, I need to:\n1. Count records from the `orchestra` table\n2. Add a WHERE clause to filter for records where `Major_Record_Format` is either \"CD\" or \"DVD\"\n\nThe SQL query would be:\n```sql\nSELECT COUNT(*) \nFROM orchestra \nWHERE Major_Record_Format = 'CD' OR Major_Record_Format = 'DVD'\n```\n\nI can also use the IN operator for a more concise query:\n```sql\nSELECT COUNT(*) \nFROM orchestra \nWHERE Major_Record_Format IN ('CD', 'DVD')\n```\n\nEither of these queries will give the count of orchestras whose record format is either \"CD\" or \"DVD\".\n</think>\n\n```json\n{\n  \"sql\": \"SELECT COUNT(*) FROM orchestra WHERE Major_Record_Format IN ('CD', 'DVD')\"\n}\n```"
+    }
+  }
+}

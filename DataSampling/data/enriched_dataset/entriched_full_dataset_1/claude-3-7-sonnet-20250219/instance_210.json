@@ -1,0 +1,80 @@
+{
+  "id": 210,
+  "dataset": "bird",
+  "database": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/databases/toxicology/toxicology.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/toxicology/bond.csv",
+      "stratified_output/databases/toxicology/molecule.csv",
+      "stratified_output/databases/toxicology/atom.csv",
+      "stratified_output/databases/toxicology/connected.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "toxicology",
+    "path": [
+      "stratified_output/schemas/toxicology/toxicology.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What atoms are connected in single type bonds?",
+  "sql": "SELECT T2.atom_id, T2.atom_id2 FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T1.bond_type = '-'",
+  "evidence": "single type bond refers to bond_type = '-';",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 46,
+    "word_length": 8,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 125,
+    "tables_count": 2,
+    "tables": [
+      "bond",
+      "connected"
+    ],
+    "join_count": 1,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT a1.atom_id AS atom1_id, a1.element AS atom1_element, a2.atom_id AS atom2_id, a2.element AS atom2_element FROM bond b JOIN connected c ON b.bond_id = c.bond_id JOIN atom a1 ON c.atom_id = a1.atom_id JOIN atom a2 ON c.atom_id2 = a2.atom_id WHERE b.bond_type = '-'",
+      "execution_correct": false,
+      "execution_error": "Results have different shapes: ground truth (21056, 2) vs predicted (21056, 4)",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Results have different shapes: ground truth (21056, 2) vs predicted (21056, 4)",
+      "raw_response": "<think>\nLet's break down what we need to do:\n\n1. Find atoms that are connected by a single bond.\n2. A single bond is defined as `bond_type = '-'`.\n\nFrom the schema, we have:\n- `atom` table: Contains information about atoms with `atom_id`, `molecule_id`, and `element`.\n- `bond` table: Contains information about bonds with `bond_id`, `molecule_id`, and `bond_type`.\n- `connected` table: Defines the connection between atoms through bonds, with fields `atom_id`, `atom_id2`, and `bond_id`.\n- `molecule` table: Contains information about molecules with `molecule_id` and `label`.\n\nTo solve this, we need to:\n\n1. Find bonds where `bond_type = '-'` (single bonds).\n2. Join with the `connected` table to find which atoms are connected by these bonds.\n3. Join with the `atom` table to get information about the connected atoms.\n\nLet's write the SQL query:\n\n```sql\nSELECT a1.atom_id AS atom1_id, a1.element AS atom1_element, \n       a2.atom_id AS atom2_id, a2.element AS atom2_element, \n       b.bond_id, b.bond_type\nFROM bond b\nJOIN connected c ON b.bond_id = c.bond_id\nJOIN atom a1 ON c.atom_id = a1.atom_id\nJOIN atom a2 ON c.atom_id2 = a2.atom_id\nWHERE b.bond_type = '-'\n```\n\nThis query will select:\n- The ID and element of the first atom involved in the connection.\n- The ID and element of the second atom involved in the connection.\n- The bond ID and type (which will always be '-' because of the WHERE clause).\n\nThe query performs the following steps:\n1. Filters bonds to include only those with `bond_type = '-'`.\n2. Joins with the `connected` table to find which atoms are connected by these bonds.\n3. Joins with the `atom` table twice (as a1 and a2) to get information about both connected atoms.\n\nActually, I think I should adjust this query a bit. Since I'm specifically looking for atoms connected by single bonds, I might want to focus more on the atoms and less on the bond details. Let's revise:\n\n```sql\nSELECT a1.atom_id AS atom1_id, a1.element AS atom1_element, \n       a2.atom_id AS atom2_id, a2.element AS atom2_element\nFROM bond b\nJOIN connected c ON b.bond_id = c.bond_id\nJOIN atom a1 ON c.atom_id = a1.atom_id\nJOIN atom a2 ON c.atom_id2 = a2.atom_id\nWHERE b.bond_type = '-'\n```\n\nThis gives a cleaner result focused on the atoms connected by single bonds.\n</think>\n\nLooking at the database schema, I need to find atoms connected by bonds where the bond_type is '-' (single bond).\n\nTo do this, I'll join the `atom`, `bond`, and `connected` tables to identify which atoms are connected by single bonds.\n\n```json\n{\n  \"sql\": \"SELECT a1.atom_id AS atom1_id, a1.element AS atom1_element, a2.atom_id AS atom2_id, a2.element AS atom2_element FROM bond b JOIN connected c ON b.bond_id = c.bond_id JOIN atom a1 ON c.atom_id = a1.atom_id JOIN atom a2 ON c.atom_id2 = a2.atom_id WHERE b.bond_type = '-'\"\n}\n```"
+    }
+  }
+}

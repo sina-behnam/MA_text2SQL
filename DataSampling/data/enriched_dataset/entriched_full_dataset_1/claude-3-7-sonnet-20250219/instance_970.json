@@ -1,0 +1,73 @@
+{
+  "id": 970,
+  "dataset": "spider",
+  "database": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "dog_kennels",
+    "path": [
+      "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Which professionals live in a city containing the substring 'West'? List his or her role, street, city and state.",
+  "sql": "SELECT role_code ,  street ,  city ,  state FROM professionals WHERE city LIKE '%West%'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 113,
+    "word_length": 19,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 3,
+    "column_overlap_lemma_count": 3
+  },
+  "sql_analysis": {
+    "char_length": 87,
+    "tables_count": 1,
+    "tables": [
+      "professionals"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 4
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT role_code AS role, street, city, state FROM Professionals WHERE city LIKE '%West%'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nBased on the database schema, I need to find professionals who live in a city containing the substring 'West'. The query should return the professional's role, street, city, and state.\n\nLet's analyze the tables:\n1. `Professionals` table contains information about professionals including their `role_code`, `street`, `city`, and `state`.\n\nI need to use the LIKE operator to find cities containing 'West'. \n\nHowever, I notice that the Professionals table has a `role_code` field, but it doesn't seem to have a direct description of what that role is. The schema doesn't show a separate table for professional roles. I'll just include the `role_code` as the role in my query since that's what's available.\n\nSo my query will be:\n\n```sql\nSELECT \n    role_code AS role,\n    street,\n    city,\n    state\nFROM \n    Professionals\nWHERE \n    city LIKE '%West%'\n```\n\nThis query selects the role_code, street, city, and state of all professionals whose city field contains the substring 'West' anywhere in it.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT role_code AS role, street, city, state FROM Professionals WHERE city LIKE '%West%'\"\n}\n```"
+    }
+  }
+}

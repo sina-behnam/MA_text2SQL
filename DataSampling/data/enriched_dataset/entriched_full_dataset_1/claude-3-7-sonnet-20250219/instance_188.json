@@ -1,0 +1,109 @@
+{
+  "id": 188,
+  "dataset": "bird",
+  "database": {
+    "name": "financial",
+    "path": [
+      "stratified_output/databases/financial/financial.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/financial/loan.csv",
+      "stratified_output/databases/financial/client.csv",
+      "stratified_output/databases/financial/district.csv",
+      "stratified_output/databases/financial/trans.csv",
+      "stratified_output/databases/financial/account.csv",
+      "stratified_output/databases/financial/card.csv",
+      "stratified_output/databases/financial/order.csv",
+      "stratified_output/databases/financial/disp.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "financial",
+    "path": [
+      "stratified_output/schemas/financial/financial.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "Among the accounts who have loan validity more than 24 months, list out the accounts that have the lowest approved amount and have account opening date before 1997.",
+  "sql": "SELECT T1.account_id FROM loan AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE T1.duration > 24 AND STRFTIME('%Y', T2.date) < '1997' ORDER BY T1.amount ASC LIMIT 1",
+  "evidence": "",
+  "difficulty": "moderate",
+  "question_analysis": {
+    "char_length": 164,
+    "word_length": 28,
+    "entities": [
+      {
+        "text": "more than 24 months",
+        "label": "DATE",
+        "start": 42,
+        "end": 61
+      },
+      {
+        "text": "1997",
+        "label": "DATE",
+        "start": 159,
+        "end": 163
+      }
+    ],
+    "entity_types": [
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "24",
+      "1997"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [
+      "more"
+    ],
+    "has_comparatives": true,
+    "superlatives": [
+      "lowest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 2,
+    "table_overlap_lemma_count": 2,
+    "column_overlap_count": 2,
+    "column_overlap_lemma_count": 2
+  },
+  "sql_analysis": {
+    "char_length": 185,
+    "tables_count": 2,
+    "tables": [
+      "loan",
+      "account"
+    ],
+    "join_count": 1,
+    "where_conditions": 2,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "json\n{\n  \"sql\": \"WITH filtered_accounts AS (\n    SELECT a.account_id, a.date AS opening_date, l.amount\n    FROM account a\n    JOIN loan l ON a.account_id = l.account_id\n    WHERE l.duration > 24\n    AND a.date < '1997-01-01'\n)\nSELECT account_id, opening_date, amount\nFROM filtered_accounts\nWHERE amount = (\n    SELECT MIN(amount)\n    FROM filtered_accounts\n)\"\n}",
+      "execution_correct": false,
+      "execution_error": "Execution error: near \"json\": syntax error",
+      "exact_match": false,
+      "semantic_equivalent": false,
+      "semantic_explanation": "Execution failed: Execution error: near \"json\": syntax error",
+      "raw_response": "<think>\nLet me break down what the user is asking for:\n\n1. Find accounts that have a loan with validity (duration) more than 24 months\n2. Among these accounts, find the ones with the lowest approved amount\n3. Filter to only include accounts that were opened before 1997\n4. List out these accounts\n\nLooking at the schema:\n- The `account` table has account information including account opening date (`date`)\n- The `loan` table has loan information including duration (`duration`) and amount (`amount`)\n\nSo I need to:\n1. Join the `account` and `loan` tables\n2. Filter for loans with duration > 24\n3. Filter for accounts opened before 1997-01-01\n4. Find the minimum approved amount\n5. Return the accounts that have this minimum amount\n\nLet me craft the SQL query:\n\n```sql\nWITH filtered_accounts AS (\n    SELECT a.account_id, a.date AS opening_date, l.amount\n    FROM account a\n    JOIN loan l ON a.account_id = l.account_id\n    WHERE l.duration > 24\n    AND a.date < '1997-01-01'\n),\nmin_amount AS (\n    SELECT MIN(amount) AS min_amount\n    FROM filtered_accounts\n)\nSELECT account_id, opening_date, amount\nFROM filtered_accounts\nWHERE amount = (SELECT min_amount FROM min_amount)\n```\n\nThis query:\n1. Creates a CTE that joins accounts and loans, filtering for accounts with loans > 24 months duration and opened before 1997\n2. Finds the minimum loan amount from this filtered set\n3. Returns all accounts from the filtered set that have this minimum amount\n\nLet me review it once more to ensure it's correct:\n\n- We're joining the account and loan tables correctly on account_id\n- We're filtering for loans with duration > 24 months\n- We're filtering for accounts opened before 1997-01-01\n- We're finding the minimum loan amount\n- We're returning accounts with that minimum amount\n\nThe query looks correct. I'll format it as the requested JSON response.\n</think>\n\nLooking at this request, I need to find accounts with loans over 24 months duration, with the lowest approved amount, and opened before 1997.\n\n```json\n{\n  \"sql\": \"WITH filtered_accounts AS (\n    SELECT a.account_id, a.date AS opening_date, l.amount\n    FROM account a\n    JOIN loan l ON a.account_id = l.account_id\n    WHERE l.duration > 24\n    AND a.date < '1997-01-01'\n)\nSELECT account_id, opening_date, amount\nFROM filtered_accounts\nWHERE amount = (\n    SELECT MIN(amount)\n    FROM filtered_accounts\n)\"\n}\n```"
+    }
+  }
+}

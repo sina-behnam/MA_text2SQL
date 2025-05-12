@@ -1,0 +1,78 @@
+{
+  "id": 1010,
+  "dataset": "spider",
+  "database": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/databases/singer/singer.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "singer",
+    "path": [
+      "spider_stratified_output_200/schemas/singer/singer.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the name of the singer with the largest net worth?",
+  "sql": "SELECT Name FROM singer ORDER BY Net_Worth_Millions DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 58,
+    "word_length": 12,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "largest"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 1,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 64,
+    "tables_count": 1,
+    "tables": [
+      "singer"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Name FROM singer WHERE Net_Worth_Millions = (SELECT MAX(Net_Worth_Millions) FROM singer)",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema to understand the structure.\n\nThere are two tables:\n1. `singer` with columns:\n   - `Singer_ID` (primary key)\n   - `Name`\n   - `Birth_Year`\n   - `Net_Worth_Millions`\n   - `Citizenship`\n\n2. `song` with columns:\n   - `Song_ID` (primary key)\n   - `Title`\n   - `Singer_ID` (foreign key referencing singer.Singer_ID)\n   - `Sales`\n   - `Highest_Position`\n\nThe question is asking for the name of the singer with the largest net worth.\n\nLooking at the `singer` table, it has a column called `Net_Worth_Millions` which represents the net worth of singers in millions of currency units. To find the singer with the largest net worth, I need to find the record with the maximum value in the `Net_Worth_Millions` column and return the corresponding `Name`.\n\nHere's the SQL query to do this:\n\n```sql\nSELECT Name\nFROM singer\nWHERE Net_Worth_Millions = (SELECT MAX(Net_Worth_Millions) FROM singer)\n```\n\nThis query first uses a subquery to find the maximum net worth value, and then returns the name of the singer(s) who has that net worth. If there are multiple singers with the same maximum net worth, this will return all of them.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Name FROM singer WHERE Net_Worth_Millions = (SELECT MAX(Net_Worth_Millions) FROM singer)\"\n}\n```"
+    }
+  }
+}

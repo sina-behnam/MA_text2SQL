@@ -1,0 +1,87 @@
+{
+  "id": 466,
+  "dataset": "spider",
+  "database": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "wta_1",
+    "path": [
+      "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the name of the winner with the most rank points who participated in the Australian Open tournament?",
+  "sql": "SELECT winner_name FROM matches WHERE tourney_name  =  'Australian Open' ORDER BY winner_rank_points DESC LIMIT 1",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 108,
+    "word_length": 19,
+    "entities": [
+      {
+        "text": "the Australian Open",
+        "label": "EVENT",
+        "start": 77,
+        "end": 96
+      }
+    ],
+    "entity_types": [
+      "EVENT"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [
+      "most"
+    ],
+    "has_superlatives": true,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 113,
+    "tables_count": 1,
+    "tables": [
+      "matches"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 2,
+    "clause_types": [
+      "ORDER BY",
+      "LIMIT"
+    ],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT winner_name FROM matches WHERE tourney_name = 'Australian Open' ORDER BY winner_rank_points DESC LIMIT 1",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": true,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Exact match found",
+      "raw_response": "<think>\nLet's analyze the database schema and the question:\n\n1. We need to find the winner in the 'Australian Open' tournament\n2. Among all the winners, we need the one with the most rank points\n\nFrom the database schema, we have three tables:\n- players: Contains player information\n- matches: Contains match details, including winner and tournament information\n- rankings: Contains player rankings over time\n\nThe question specifically asks about a winner at the Australian Open tournament. We need to look at the 'matches' table which has 'tourney_name' and 'winner_rank_points' columns.\n\nTo find the winner with the most rank points in the Australian Open:\n1. Filter matches where tourney_name is 'Australian Open'\n2. Select the winner name and rank points\n3. Order by rank points in descending order\n4. Take the top result\n\nHere's the SQL query:\n```sql\nSELECT winner_name, winner_rank_points\nFROM matches\nWHERE tourney_name = 'Australian Open'\nORDER BY winner_rank_points DESC\nLIMIT 1;\n```\n\nThis query will give us the name of the winner with the most rank points in the Australian Open tournament. I'm assuming that 'winner_name' in the matches table already contains the full name of the player. If we needed to join with the players table, we would do that using 'winner_id' = 'player_id'.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT winner_name FROM matches WHERE tourney_name = 'Australian Open' ORDER BY winner_rank_points DESC LIMIT 1\"\n}\n```"
+    }
+  }
+}

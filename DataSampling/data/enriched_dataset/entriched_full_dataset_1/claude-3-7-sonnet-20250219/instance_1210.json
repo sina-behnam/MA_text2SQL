@@ -1,0 +1,80 @@
+{
+  "id": 1210,
+  "dataset": "bird",
+  "database": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/databases/thrombosis_prediction/thrombosis_prediction.sqlite"
+    ],
+    "csv_files": [
+      "stratified_output/databases/thrombosis_prediction/Laboratory.csv",
+      "stratified_output/databases/thrombosis_prediction/Patient.csv",
+      "stratified_output/databases/thrombosis_prediction/Examination.csv"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "thrombosis_prediction",
+    "path": [
+      "stratified_output/schemas/thrombosis_prediction/thrombosis_prediction.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the average index of the lactate dehydrogenase (LDH) for all patients with lactate dehydrogenase (LDH) within the normal range.",
+  "sql": "SELECT AVG(LDH) FROM Laboratory WHERE LDH < 500",
+  "evidence": "average index of the lactate dehydrogenase (LDH) refers to AVG(LDH); (LDH) within the normal range refers to LDH < 500",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 135,
+    "word_length": 21,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 47,
+    "tables_count": 1,
+    "tables": [
+      "Laboratory"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 1,
+    "aggregation_functions": [
+      "AVG"
+    ],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(LDH) as average_ldh FROM Laboratory WHERE LDH < 500",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me understand the question:\n\nI need to calculate the average value of the LDH (Lactate Dehydrogenase) for all patients where the LDH value is within the normal range, which is defined as LDH < 500.\n\nLooking at the database schema:\n- The LDH values are stored in the `Laboratory` table.\n- The `LDH` column is of INTEGER type.\n\nSo I need to:\n1. Select LDH values from the Laboratory table where LDH < 500\n2. Calculate the average of these values\n\nHere's the SQL query to do this:\n\n```sql\nSELECT AVG(LDH) as average_ldh\nFROM Laboratory\nWHERE LDH < 500;\n```\n\nThis query will:\n- Select all rows from the Laboratory table where LDH is less than 500\n- Calculate the average of the LDH values for these rows\n- Return this average as \"average_ldh\"\n\nThis should give us the average index of the lactate dehydrogenase (LDH) for all patients with lactate dehydrogenase (LDH) within the normal range, as requested.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(LDH) as average_ldh FROM Laboratory WHERE LDH < 500\"\n}\n```"
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "id": 622,
+  "dataset": "spider",
+  "database": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "tvshow",
+    "path": [
+      "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What is the weekly rank for the episode \"A Love of a Lifetime\"?",
+  "sql": "SELECT Weekly_Rank FROM TV_series WHERE Episode = \"A Love of a Lifetime\";",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 63,
+    "word_length": 13,
+    "entities": [
+      {
+        "text": "weekly",
+        "label": "DATE",
+        "start": 12,
+        "end": 18
+      },
+      {
+        "text": "A Love of a Lifetime",
+        "label": "WORK_OF_ART",
+        "start": 41,
+        "end": 61
+      }
+    ],
+    "entity_types": [
+      "WORK_OF_ART",
+      "DATE"
+    ],
+    "has_entities": true,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 1,
+    "column_overlap_lemma_count": 1
+  },
+  "sql_analysis": {
+    "char_length": 73,
+    "tables_count": 1,
+    "tables": [
+      "TV_series"
+    ],
+    "join_count": 0,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 1
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT Weekly_Rank FROM TV_series WHERE Episode = 'A Love of a Lifetime'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's analyze the database schema:\n\n1. We have three tables: `TV_Channel`, `TV_series`, and `Cartoon`.\n2. The question asks about the weekly rank for an episode called \"A Love of a Lifetime\".\n\nSince we're looking for episode information, we should check the `TV_series` table, which has an \"Episode\" column and a \"Weekly_Rank\" column.\n\nTo find the weekly rank for the episode \"A Love of a Lifetime\", we need to query the `TV_series` table where the Episode column matches \"A Love of a Lifetime\" and retrieve the Weekly_Rank value.\n\nThe SQL query would be:\n\n```sql\nSELECT Weekly_Rank\nFROM TV_series\nWHERE Episode = 'A Love of a Lifetime';\n```\n\nThis query will return the weekly rank for the episode \"A Love of a Lifetime\" if it exists in the `TV_series` table.\n</think>\n\n```json\n{\n  \"sql\": \"SELECT Weekly_Rank FROM TV_series WHERE Episode = 'A Love of a Lifetime'\"\n}\n```"
+    }
+  }
+}

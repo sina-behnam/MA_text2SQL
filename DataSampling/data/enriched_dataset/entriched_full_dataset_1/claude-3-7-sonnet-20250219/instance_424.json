@@ -1,0 +1,76 @@
+{
+  "id": 424,
+  "dataset": "spider",
+  "database": {
+    "name": "museum_visit",
+    "path": [
+      "spider_stratified_output_200/databases/museum_visit/museum_visit.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "museum_visit",
+    "path": [
+      "spider_stratified_output_200/schemas/museum_visit/museum_visit.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the average and maximum number of tickets bought in all visits?",
+  "sql": "SELECT avg(num_of_ticket) ,  max(num_of_ticket) FROM visit",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 72,
+    "word_length": 13,
+    "entities": [],
+    "entity_types": [],
+    "has_entities": false,
+    "numbers": [],
+    "has_numbers": false,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 1,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 58,
+    "tables_count": 1,
+    "tables": [
+      "visit"
+    ],
+    "join_count": 0,
+    "where_conditions": 0,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 2,
+    "aggregation_functions": [
+      "AVG",
+      "MAX"
+    ],
+    "select_columns": 2
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT AVG(Num_of_Ticket) AS average_tickets, MAX(Num_of_Ticket) AS maximum_tickets FROM visit",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet me analyze the database schema:\n\n1. We have three tables:\n   - `museum`: Contains information about museums (ID, Name, Staff count, Open year)\n   - `visitor`: Contains information about visitors (ID, Name, Membership level, Age)\n   - `visit`: Contains information about visits (Museum_ID, visitor_ID, Number of tickets, Total spent)\n\nThe question is asking for the average and maximum number of tickets bought in all visits. This information is stored in the `visit` table in the `Num_of_Ticket` column.\n\nTo find the average number of tickets, I'll use the `AVG()` function on the `Num_of_Ticket` column.\nTo find the maximum number of tickets, I'll use the `MAX()` function on the `Num_of_Ticket` column.\n\nThe SQL query would be:\n```sql\nSELECT \n  AVG(Num_of_Ticket) AS average_tickets,\n  MAX(Num_of_Ticket) AS maximum_tickets\nFROM visit;\n```\n\nThis query will return a single row with two columns:\n1. `average_tickets`: The average number of tickets bought across all visits\n2. `maximum_tickets`: The maximum number of tickets bought in any single visit\n</think>\n\n```json\n{\n  \"sql\": \"SELECT AVG(Num_of_Ticket) AS average_tickets, MAX(Num_of_Ticket) AS maximum_tickets FROM visit\"\n}\n```"
+    }
+  }
+}

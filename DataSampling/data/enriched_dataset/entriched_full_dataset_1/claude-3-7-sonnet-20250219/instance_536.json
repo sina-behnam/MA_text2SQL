@@ -1,0 +1,93 @@
+{
+  "id": 536,
+  "dataset": "spider",
+  "database": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+    ],
+    "type": "sqlite"
+  },
+  "schemas": {
+    "name": "student_transcripts_tracking",
+    "path": [
+      "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+    ],
+    "type": "csv"
+  },
+  "question": "What are the first, middle, and last names for everybody enrolled in a Bachelors program?",
+  "sql": "SELECT DISTINCT T1.first_name ,  T1.middle_name ,  T1.last_name FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id JOIN Degree_Programs AS T3 ON T2.degree_program_id  =  T3.degree_program_id WHERE T3.degree_summary_name  =  'Bachelor'",
+  "evidence": "",
+  "difficulty": "simple",
+  "question_analysis": {
+    "char_length": 89,
+    "word_length": 15,
+    "entities": [
+      {
+        "text": "first",
+        "label": "ORDINAL",
+        "start": 13,
+        "end": 18
+      },
+      {
+        "text": "Bachelors",
+        "label": "ORG",
+        "start": 71,
+        "end": 80
+      }
+    ],
+    "entity_types": [
+      "ORG",
+      "ORDINAL"
+    ],
+    "has_entities": true,
+    "numbers": [
+      "first"
+    ],
+    "has_numbers": true,
+    "has_negation": false,
+    "negation_words": [],
+    "comparatives": [],
+    "has_comparatives": false,
+    "superlatives": [],
+    "has_superlatives": false,
+    "table_overlap_count": 0,
+    "table_overlap_lemma_count": 0,
+    "column_overlap_count": 0,
+    "column_overlap_lemma_count": 0
+  },
+  "sql_analysis": {
+    "char_length": 267,
+    "tables_count": 3,
+    "tables": [
+      "Degree_Programs",
+      "Students",
+      "Student_Enrolment"
+    ],
+    "join_count": 2,
+    "where_conditions": 1,
+    "subquery_count": 0,
+    "clauses_count": 0,
+    "clause_types": [],
+    "aggregation_function_count": 0,
+    "aggregation_functions": [],
+    "select_columns": 3
+  },
+  "inference_results": {
+    "has_prediction": true,
+    "model": {
+      "model_name": "claude-3-7-sonnet-20250219",
+      "model_type": "anthropic",
+      "timestamp": "2025-05-12T11:00:07.512979"
+    },
+    "predicted_output": {
+      "generated_sql": "SELECT DISTINCT s.first_name, s.middle_name, s.last_name FROM Students s JOIN Student_Enrolment se ON s.student_id = se.student_id JOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id WHERE dp.degree_summary_name LIKE '%Bachelor%' OR dp.degree_summary_description LIKE '%Bachelor%'",
+      "execution_correct": true,
+      "execution_error": "",
+      "exact_match": false,
+      "semantic_equivalent": true,
+      "semantic_explanation": "Execution correct but not exact match",
+      "raw_response": "<think>\nLet's understand what we need to do here:\n\n1. We need to get first, middle, and last names for everybody enrolled in a Bachelors program.\n\nLet's first understand the database schema and identify the relevant tables:\n\n1. `Students` - Contains student information including first_name, middle_name, and last_name.\n2. `Student_Enrolment` - Contains information about which degree program a student is enrolled in.\n3. `Degree_Programs` - Contains information about degree programs.\n\nTo find students enrolled in a Bachelors program, we need to join these tables and filter for Bachelors programs.\n\nHowever, there doesn't seem to be a specific column in the Degree_Programs table that explicitly indicates whether a program is a Bachelors program. We might need to check the `degree_summary_name` column to filter for Bachelors programs.\n\nLet's write a SQL query that:\n1. Joins the Students and Student_Enrolment tables to get enrolled students.\n2. Joins the Student_Enrolment and Degree_Programs tables to get information about the degree program.\n3. Filters the results to only include students enrolled in Bachelors programs.\n\n```sql\nSELECT DISTINCT s.first_name, s.middle_name, s.last_name\nFROM Students s\nJOIN Student_Enrolment se ON s.student_id = se.student_id\nJOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id\nWHERE dp.degree_summary_name LIKE '%Bachelor%' OR dp.degree_summary_description LIKE '%Bachelor%'\n```\n\nThis query:\n1. Selects the first, middle, and last names from the Students table.\n2. Joins the Students table with the Student_Enrolment table to get enrollment information.\n3. Joins the Student_Enrolment table with the Degree_Programs table to get information about the degree program.\n4. Filters for degree programs with \"Bachelor\" in the name or description.\n5. Uses DISTINCT to avoid duplicates if a student is enrolled in multiple Bachelors programs.\n\nNote that I'm making an assumption here that Bachelors programs will have the word \"Bachelor\" somewhere in their name or description. If there's a more specific way to identify Bachelors programs in the database, the query would need to be adjusted accordingly.\n</think>\n\nBased on the database schema, I need to find students enrolled in Bachelor's programs by joining the Students table with Student_Enrolment and Degree_Programs tables. Since there's no explicit column indicating program type, I'll search for \"Bachelor\" in the degree name or description.\n\n```json\n{\n  \"sql\": \"SELECT DISTINCT s.first_name, s.middle_name, s.last_name FROM Students s JOIN Student_Enrolment se ON s.student_id = se.student_id JOIN Degree_Programs dp ON se.degree_program_id = dp.degree_program_id WHERE dp.degree_summary_name LIKE '%Bachelor%' OR dp.degree_summary_description LIKE '%Bachelor%'\"\n}\n```"
+    }
+  }
+}
