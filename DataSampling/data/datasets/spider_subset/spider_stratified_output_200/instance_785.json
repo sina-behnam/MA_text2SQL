@@ -1,0 +1,76 @@
+{
+    "id": 785,
+    "dataset": "spider",
+    "database": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/schemas/world_1/world_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the names of cities in Europe for which English is not the official language?",
+    "sql": "SELECT DISTINCT T2.Name FROM country AS T1 JOIN city AS T2 ON T2.CountryCode  =  T1.Code WHERE T1.Continent  =  'Europe' AND T1.Name NOT IN (SELECT T3.Name FROM country AS T3 JOIN countrylanguage AS T4 ON T3.Code  =  T4.CountryCode WHERE T4.IsOfficial  =  'T' AND T4.Language  =  'English')",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 86,
+        "word_length": 16,
+        "entities": [
+            {
+                "text": "Europe",
+                "label": "LOC",
+                "start": 32,
+                "end": 38
+            },
+            {
+                "text": "English",
+                "label": "LANGUAGE",
+                "start": 49,
+                "end": 56
+            }
+        ],
+        "entity_types": [
+            "LOC",
+            "LANGUAGE"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": true,
+        "negation_words": [
+            "not"
+        ],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 290,
+        "tables_count": 3,
+        "tables": [
+            "country",
+            "countrylanguage",
+            "city"
+        ],
+        "join_count": 2,
+        "where_conditions": 3,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

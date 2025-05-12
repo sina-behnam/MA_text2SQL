@@ -1,0 +1,67 @@
+{
+    "id": 485,
+    "dataset": "spider",
+    "database": {
+        "name": "wta_1",
+        "path": [
+            "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "wta_1",
+        "path": [
+            "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many different winners both participated in the WTA Championships and were left handed?",
+    "sql": "SELECT count(DISTINCT winner_name) FROM matches WHERE tourney_name  =  'WTA Championships' AND winner_hand  =  'L'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 91,
+        "word_length": 14,
+        "entities": [
+            {
+                "text": "the WTA Championships",
+                "label": "EVENT",
+                "start": 48,
+                "end": 69
+            }
+        ],
+        "entity_types": [
+            "EVENT"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 114,
+        "tables_count": 1,
+        "tables": [
+            "matches"
+        ],
+        "join_count": 0,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

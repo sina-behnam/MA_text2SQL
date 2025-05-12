@@ -1,0 +1,65 @@
+{
+    "id": 343,
+    "dataset": "spider",
+    "database": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which template type code is used by most number of documents?",
+    "sql": "SELECT T1.template_type_code FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id GROUP BY T1.template_type_code ORDER BY count(*) DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 61,
+        "word_length": 11,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 169,
+        "tables_count": 2,
+        "tables": [
+            "Templates",
+            "Documents"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

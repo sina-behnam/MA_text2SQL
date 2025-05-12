@@ -1,0 +1,72 @@
+{
+    "id": 619,
+    "dataset": "spider",
+    "database": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the air date of TV series with Episode \"A Love of a Lifetime\"?",
+    "sql": "SELECT Air_Date FROM TV_series WHERE Episode = \"A Love of a Lifetime\";",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 70,
+        "word_length": 15,
+        "entities": [
+            {
+                "text": "Episode",
+                "label": "ORG",
+                "start": 39,
+                "end": 46
+            },
+            {
+                "text": "A Love of a Lifetime",
+                "label": "WORK_OF_ART",
+                "start": 48,
+                "end": 68
+            }
+        ],
+        "entity_types": [
+            "ORG",
+            "WORK_OF_ART"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 70,
+        "tables_count": 1,
+        "tables": [
+            "TV_series"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

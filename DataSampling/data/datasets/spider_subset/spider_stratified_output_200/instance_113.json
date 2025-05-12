@@ -1,0 +1,68 @@
+{
+    "id": 113,
+    "dataset": "spider",
+    "database": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/schemas/car_1/car_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many car makers are there in france?",
+    "sql": "SELECT count(*) FROM CAR_MAKERS AS T1 JOIN COUNTRIES AS T2 ON T1.Country  =  T2.CountryId WHERE T2.CountryName  =  'france';",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 40,
+        "word_length": 8,
+        "entities": [
+            {
+                "text": "france",
+                "label": "GPE",
+                "start": 33,
+                "end": 39
+            }
+        ],
+        "entity_types": [
+            "GPE"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 124,
+        "tables_count": 2,
+        "tables": [
+            "CAR_MAKERS",
+            "COUNTRIES"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

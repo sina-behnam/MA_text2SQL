@@ -1,0 +1,58 @@
+{
+    "id": 403,
+    "dataset": "spider",
+    "database": {
+        "name": "course_teach",
+        "path": [
+            "spider_stratified_output_200/databases/course_teach/course_teach.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "course_teach",
+        "path": [
+            "spider_stratified_output_200/schemas/course_teach/course_teach.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Show the name of the teacher for the math course.",
+    "sql": "SELECT T3.Name FROM course_arrange AS T1 JOIN course AS T2 ON T1.Course_ID  =  T2.Course_ID JOIN teacher AS T3 ON T1.Teacher_ID  =  T3.Teacher_ID WHERE T2.Course  =  \"Math\"",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 49,
+        "word_length": 10,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 2,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 172,
+        "tables_count": 3,
+        "tables": [
+            "teacher",
+            "course_arrange",
+            "course"
+        ],
+        "join_count": 2,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

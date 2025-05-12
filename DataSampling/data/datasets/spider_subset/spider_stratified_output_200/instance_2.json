@@ -1,0 +1,61 @@
+{
+    "id": 2,
+    "dataset": "spider",
+    "database": {
+        "name": "concert_singer",
+        "path": [
+            "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "concert_singer",
+        "path": [
+            "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+    "sql": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 87,
+        "word_length": 16,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "oldest",
+            "youngest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 59,
+        "tables_count": 1,
+        "tables": [
+            "singer"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 1,
+        "clause_types": [
+            "ORDER BY"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 3
+    }
+}

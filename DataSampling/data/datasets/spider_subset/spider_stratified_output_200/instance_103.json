@@ -1,0 +1,69 @@
+{
+    "id": 103,
+    "dataset": "spider",
+    "database": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/schemas/car_1/car_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which distinct car models are the produced after 1980?",
+    "sql": "SELECT DISTINCT T1.model FROM MODEL_LIST AS T1 JOIN CAR_NAMES AS T2 ON T1.model  =  T2.model JOIN CARS_DATA AS T3 ON T2.MakeId  =  T3.id WHERE T3.year  >  1980;",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 54,
+        "word_length": 9,
+        "entities": [
+            {
+                "text": "1980",
+                "label": "DATE",
+                "start": 49,
+                "end": 53
+            }
+        ],
+        "entity_types": [
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "1980"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 160,
+        "tables_count": 3,
+        "tables": [
+            "MODEL_LIST",
+            "CAR_NAMES",
+            "CARS_DATA"
+        ],
+        "join_count": 2,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

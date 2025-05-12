@@ -1,0 +1,59 @@
+{
+    "id": 920,
+    "dataset": "spider",
+    "database": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the average age of the dogs who have gone through any treatments?",
+    "sql": "SELECT avg(age) FROM Dogs WHERE dog_id IN ( SELECT dog_id FROM Treatments )",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 73,
+        "word_length": 14,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 2,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 75,
+        "tables_count": 2,
+        "tables": [
+            "Dogs",
+            "Treatments"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "AVG"
+        ],
+        "select_columns": 1
+    }
+}

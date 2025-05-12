@@ -1,0 +1,76 @@
+{
+    "id": 177,
+    "dataset": "spider",
+    "database": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/schemas/car_1/car_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the id and names of the countries which have more than 3 car makers or produce the 'fiat' model?",
+    "sql": "SELECT T1.countryId ,  T1.CountryName FROM Countries AS T1 JOIN CAR_MAKERS AS T2 ON T1.CountryId  =  T2.Country GROUP BY T1.countryId HAVING count(*)  >  3 UNION SELECT T1.countryId ,  T1.CountryName FROM Countries AS T1 JOIN CAR_MAKERS AS T2 ON T1.CountryId  =  T2.Country JOIN MODEL_LIST AS T3 ON T2.Id  =  T3.Maker WHERE T3.Model  =  'fiat';",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 105,
+        "word_length": 22,
+        "entities": [
+            {
+                "text": "more than 3",
+                "label": "CARDINAL",
+                "start": 54,
+                "end": 65
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "3"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "more"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 3
+    },
+    "sql_analysis": {
+        "char_length": 344,
+        "tables_count": 3,
+        "tables": [
+            "CAR_MAKERS",
+            "Countries",
+            "MODEL_LIST"
+        ],
+        "join_count": 3,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 2,
+        "clause_types": [
+            "GROUP BY",
+            "HAVING"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 2
+    }
+}

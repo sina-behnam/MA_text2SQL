@@ -1,0 +1,67 @@
+{
+    "id": 691,
+    "dataset": "spider",
+    "database": {
+        "name": "voter_1",
+        "path": [
+            "spider_stratified_output_200/databases/voter_1/voter_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "voter_1",
+        "path": [
+            "spider_stratified_output_200/schemas/voter_1/voter_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is last date created of votes from the state 'CA'?",
+    "sql": "SELECT max(created) FROM votes WHERE state  =  'CA'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 55,
+        "word_length": 11,
+        "entities": [
+            {
+                "text": "CA",
+                "label": "PRODUCT",
+                "start": 51,
+                "end": 53
+            }
+        ],
+        "entity_types": [
+            "PRODUCT"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 51,
+        "tables_count": 1,
+        "tables": [
+            "votes"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "MAX"
+        ],
+        "select_columns": 1
+    }
+}

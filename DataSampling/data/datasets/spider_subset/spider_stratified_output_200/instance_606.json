@@ -1,0 +1,73 @@
+{
+    "id": 606,
+    "dataset": "spider",
+    "database": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the languages used by the least number of TV Channels and how many channels use it?",
+    "sql": "SELECT LANGUAGE ,  count(*) FROM TV_Channel GROUP BY LANGUAGE ORDER BY count(*) ASC LIMIT 1;",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 92,
+        "word_length": 18,
+        "entities": [
+            {
+                "text": "TV Channels",
+                "label": "ORG",
+                "start": 51,
+                "end": 62
+            }
+        ],
+        "entity_types": [
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "least"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 92,
+        "tables_count": 1,
+        "tables": [
+            "TV_Channel"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 2
+    }
+}

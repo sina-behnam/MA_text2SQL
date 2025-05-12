@@ -1,0 +1,73 @@
+{
+    "id": 753,
+    "dataset": "spider",
+    "database": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/schemas/world_1/world_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which regions speak Dutch or English?",
+    "sql": "SELECT DISTINCT T1.Region FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \"English\" OR T2.Language  =  \"Dutch\"",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 37,
+        "word_length": 6,
+        "entities": [
+            {
+                "text": "Dutch",
+                "label": "NORP",
+                "start": 20,
+                "end": 25
+            },
+            {
+                "text": "English",
+                "label": "LANGUAGE",
+                "start": 29,
+                "end": 36
+            }
+        ],
+        "entity_types": [
+            "LANGUAGE",
+            "NORP"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 160,
+        "tables_count": 2,
+        "tables": [
+            "country",
+            "countrylanguage"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

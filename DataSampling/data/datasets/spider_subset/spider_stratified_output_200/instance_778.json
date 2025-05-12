@@ -1,0 +1,67 @@
+{
+    "id": 778,
+    "dataset": "spider",
+    "database": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/schemas/world_1/world_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the country codes for countries that do not speak English?",
+    "sql": "SELECT CountryCode FROM countrylanguage EXCEPT SELECT CountryCode FROM countrylanguage WHERE LANGUAGE  =  \"English\"",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 67,
+        "word_length": 12,
+        "entities": [
+            {
+                "text": "English",
+                "label": "LANGUAGE",
+                "start": 59,
+                "end": 66
+            }
+        ],
+        "entity_types": [
+            "LANGUAGE"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": true,
+        "negation_words": [
+            "not"
+        ],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 115,
+        "tables_count": 1,
+        "tables": [
+            "countrylanguage"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

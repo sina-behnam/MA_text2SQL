@@ -1,0 +1,74 @@
+{
+    "id": 529,
+    "dataset": "spider",
+    "database": {
+        "name": "student_transcripts_tracking",
+        "path": [
+            "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "student_transcripts_tracking",
+        "path": [
+            "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the semester which most student registered in? Show both the name and the id.",
+    "sql": "SELECT T1.semester_name ,  T1.semester_id FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id GROUP BY T1.semester_id ORDER BY count(*) DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 85,
+        "word_length": 17,
+        "entities": [
+            {
+                "text": "the id.",
+                "label": "ORG",
+                "start": 78,
+                "end": 85
+            }
+        ],
+        "entity_types": [
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 183,
+        "tables_count": 2,
+        "tables": [
+            "Semesters",
+            "Student_Enrolment"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 2
+    }
+}

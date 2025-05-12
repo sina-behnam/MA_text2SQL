@@ -1,0 +1,76 @@
+{
+    "id": 536,
+    "dataset": "spider",
+    "database": {
+        "name": "student_transcripts_tracking",
+        "path": [
+            "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "student_transcripts_tracking",
+        "path": [
+            "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the first, middle, and last names for everybody enrolled in a Bachelors program?",
+    "sql": "SELECT DISTINCT T1.first_name ,  T1.middle_name ,  T1.last_name FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id JOIN Degree_Programs AS T3 ON T2.degree_program_id  =  T3.degree_program_id WHERE T3.degree_summary_name  =  'Bachelor'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 89,
+        "word_length": 15,
+        "entities": [
+            {
+                "text": "first",
+                "label": "ORDINAL",
+                "start": 13,
+                "end": 18
+            },
+            {
+                "text": "Bachelors",
+                "label": "ORG",
+                "start": 71,
+                "end": 80
+            }
+        ],
+        "entity_types": [
+            "ORG",
+            "ORDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "first"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 267,
+        "tables_count": 3,
+        "tables": [
+            "Degree_Programs",
+            "Students",
+            "Student_Enrolment"
+        ],
+        "join_count": 2,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 3
+    }
+}

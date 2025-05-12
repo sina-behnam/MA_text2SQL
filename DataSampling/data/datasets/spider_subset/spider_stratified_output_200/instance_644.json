@@ -1,0 +1,68 @@
+{
+    "id": 644,
+    "dataset": "spider",
+    "database": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the ids of the TV channels that do not have any cartoons directed by Ben Jones?",
+    "sql": "SELECT id FROM TV_Channel EXCEPT SELECT channel FROM cartoon WHERE directed_by  =  'Ben Jones'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 88,
+        "word_length": 18,
+        "entities": [
+            {
+                "text": "Ben Jones",
+                "label": "PERSON",
+                "start": 78,
+                "end": 87
+            }
+        ],
+        "entity_types": [
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": true,
+        "negation_words": [
+            "not"
+        ],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 94,
+        "tables_count": 2,
+        "tables": [
+            "TV_Channel",
+            "cartoon"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

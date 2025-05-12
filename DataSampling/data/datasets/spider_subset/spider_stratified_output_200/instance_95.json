@@ -1,0 +1,60 @@
+{
+    "id": 95,
+    "dataset": "spider",
+    "database": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/schemas/car_1/car_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which model of the car has the minimum horsepower?",
+    "sql": "SELECT T1.Model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id ORDER BY T2.horsepower ASC LIMIT 1;",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 50,
+        "word_length": 9,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 116,
+        "tables_count": 2,
+        "tables": [
+            "CAR_NAMES",
+            "CARS_DATA"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

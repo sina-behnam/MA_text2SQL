@@ -1,0 +1,74 @@
+{
+    "id": 371,
+    "dataset": "spider",
+    "database": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "List all document ids with at least two paragraphs.",
+    "sql": "SELECT document_id FROM Paragraphs GROUP BY document_id HAVING count(*)  >=  2",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 51,
+        "word_length": 9,
+        "entities": [
+            {
+                "text": "at least two",
+                "label": "CARDINAL",
+                "start": 27,
+                "end": 39
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "two"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "least"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 78,
+        "tables_count": 1,
+        "tables": [
+            "Paragraphs"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "GROUP BY",
+            "HAVING"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

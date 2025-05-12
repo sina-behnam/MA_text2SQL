@@ -1,0 +1,58 @@
+{
+    "id": 1030,
+    "dataset": "spider",
+    "database": {
+        "name": "real_estate_properties",
+        "path": [
+            "spider_stratified_output_200/databases/real_estate_properties/real_estate_properties.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "real_estate_properties",
+        "path": [
+            "spider_stratified_output_200/schemas/real_estate_properties/real_estate_properties.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many available features are there in total?",
+    "sql": "SELECT count(*) FROM Other_Available_Features",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 47,
+        "word_length": 8,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 45,
+        "tables_count": 1,
+        "tables": [
+            "Other_Available_Features"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

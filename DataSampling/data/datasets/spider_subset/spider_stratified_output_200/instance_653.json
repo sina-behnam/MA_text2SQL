@@ -1,0 +1,58 @@
+{
+    "id": 653,
+    "dataset": "spider",
+    "database": {
+        "name": "poker_player",
+        "path": [
+            "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "poker_player",
+        "path": [
+            "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the average earnings of poker players?",
+    "sql": "SELECT avg(Earnings) FROM poker_player",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 46,
+        "word_length": 8,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 38,
+        "tables_count": 1,
+        "tables": [
+            "poker_player"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "AVG"
+        ],
+        "select_columns": 1
+    }
+}

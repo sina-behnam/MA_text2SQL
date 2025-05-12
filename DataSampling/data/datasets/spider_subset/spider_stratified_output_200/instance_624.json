@@ -1,0 +1,66 @@
+{
+    "id": 624,
+    "dataset": "spider",
+    "database": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the name of the series that has the episode \"A Love of a Lifetime\"?",
+    "sql": "SELECT T1.series_name FROM TV_Channel AS T1 JOIN TV_series AS T2 ON T1.id = T2.Channel WHERE T2.Episode = \"A Love of a Lifetime\";",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 75,
+        "word_length": 16,
+        "entities": [
+            {
+                "text": "A Love of a Lifetime",
+                "label": "WORK_OF_ART",
+                "start": 53,
+                "end": 73
+            }
+        ],
+        "entity_types": [
+            "WORK_OF_ART"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 129,
+        "tables_count": 2,
+        "tables": [
+            "TV_Channel",
+            "TV_series"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

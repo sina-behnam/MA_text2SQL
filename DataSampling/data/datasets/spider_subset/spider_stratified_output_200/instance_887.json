@@ -1,0 +1,65 @@
+{
+    "id": 887,
+    "dataset": "spider",
+    "database": {
+        "name": "network_1",
+        "path": [
+            "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "network_1",
+        "path": [
+            "spider_stratified_output_200/schemas/network_1/network_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Return the name of the high school student with the most friends.",
+    "sql": "SELECT T2.name FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 65,
+        "word_length": 12,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 137,
+        "tables_count": 2,
+        "tables": [
+            "Friend",
+            "Highschooler"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

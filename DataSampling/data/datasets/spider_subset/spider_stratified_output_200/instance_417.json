@@ -1,0 +1,72 @@
+{
+    "id": 417,
+    "dataset": "spider",
+    "database": {
+        "name": "museum_visit",
+        "path": [
+            "spider_stratified_output_200/databases/museum_visit/museum_visit.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "museum_visit",
+        "path": [
+            "spider_stratified_output_200/schemas/museum_visit/museum_visit.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the opening year and staff number of the museum named Plaza Museum?",
+    "sql": "SELECT Num_of_Staff ,  Open_Year FROM museum WHERE name  =  'Plaza Museum'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 76,
+        "word_length": 14,
+        "entities": [
+            {
+                "text": "the opening year",
+                "label": "DATE",
+                "start": 9,
+                "end": 25
+            },
+            {
+                "text": "Plaza Museum",
+                "label": "ORG",
+                "start": 63,
+                "end": 75
+            }
+        ],
+        "entity_types": [
+            "ORG",
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 74,
+        "tables_count": 1,
+        "tables": [
+            "museum"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

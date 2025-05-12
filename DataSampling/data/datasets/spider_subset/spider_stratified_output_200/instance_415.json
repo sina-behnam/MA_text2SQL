@@ -1,0 +1,61 @@
+{
+    "id": 415,
+    "dataset": "spider",
+    "database": {
+        "name": "museum_visit",
+        "path": [
+            "spider_stratified_output_200/databases/museum_visit/museum_visit.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "museum_visit",
+        "path": [
+            "spider_stratified_output_200/schemas/museum_visit/museum_visit.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Find the id and name of the museum that has the most staff members?",
+    "sql": "SELECT museum_id ,  name FROM museum ORDER BY num_of_staff DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 67,
+        "word_length": 15,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 71,
+        "tables_count": 1,
+        "tables": [
+            "museum"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

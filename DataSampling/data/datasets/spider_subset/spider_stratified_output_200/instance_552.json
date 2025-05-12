@@ -1,0 +1,75 @@
+{
+    "id": 552,
+    "dataset": "spider",
+    "database": {
+        "name": "student_transcripts_tracking",
+        "path": [
+            "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "student_transcripts_tracking",
+        "path": [
+            "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the date and id of the transcript with at least 2 courses listed?",
+    "sql": "SELECT T2.transcript_date ,  T1.transcript_id FROM Transcript_Contents AS T1 JOIN Transcripts AS T2 ON T1.transcript_id  =  T2.transcript_id GROUP BY T1.transcript_id HAVING count(*)  >=  2",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 73,
+        "word_length": 16,
+        "entities": [
+            {
+                "text": "at least 2",
+                "label": "CARDINAL",
+                "start": 47,
+                "end": 57
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "2"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "least"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 189,
+        "tables_count": 2,
+        "tables": [
+            "Transcripts",
+            "Transcript_Contents"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "GROUP BY",
+            "HAVING"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 2
+    }
+}

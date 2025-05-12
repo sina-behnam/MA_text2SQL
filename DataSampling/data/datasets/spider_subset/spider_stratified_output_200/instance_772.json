@@ -1,0 +1,69 @@
+{
+    "id": 772,
+    "dataset": "spider",
+    "database": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/schemas/world_1/world_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the countries that have greater surface area than any country in Europe?",
+    "sql": "SELECT Name FROM country WHERE SurfaceArea  >  (SELECT min(SurfaceArea) FROM country WHERE Continent  =  \"Europe\")",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 81,
+        "word_length": 14,
+        "entities": [
+            {
+                "text": "Europe",
+                "label": "LOC",
+                "start": 74,
+                "end": 80
+            }
+        ],
+        "entity_types": [
+            "LOC"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "greater"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 114,
+        "tables_count": 1,
+        "tables": [
+            "country"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "MIN"
+        ],
+        "select_columns": 1
+    }
+}

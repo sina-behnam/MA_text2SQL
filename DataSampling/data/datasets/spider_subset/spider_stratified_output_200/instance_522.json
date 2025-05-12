@@ -1,0 +1,59 @@
+{
+    "id": 522,
+    "dataset": "spider",
+    "database": {
+        "name": "student_transcripts_tracking",
+        "path": [
+            "spider_stratified_output_200/databases/student_transcripts_tracking/student_transcripts_tracking.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "student_transcripts_tracking",
+        "path": [
+            "spider_stratified_output_200/schemas/student_transcripts_tracking/student_transcripts_tracking.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many degrees does the engineering department have?",
+    "sql": "SELECT count(*) FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_id  =  T2.department_id WHERE T1.department_name  =  'engineer'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 54,
+        "word_length": 8,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 146,
+        "tables_count": 2,
+        "tables": [
+            "Degree_Programs",
+            "Departments"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

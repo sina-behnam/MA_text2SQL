@@ -1,0 +1,58 @@
+{
+    "id": 822,
+    "dataset": "spider",
+    "database": {
+        "name": "orchestra",
+        "path": [
+            "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "orchestra",
+        "path": [
+            "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many conductors are there?",
+    "sql": "SELECT count(*) FROM conductor",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 30,
+        "word_length": 5,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 30,
+        "tables_count": 1,
+        "tables": [
+            "conductor"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

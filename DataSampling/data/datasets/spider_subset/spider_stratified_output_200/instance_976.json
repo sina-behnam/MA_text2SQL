@@ -1,0 +1,61 @@
+{
+    "id": 976,
+    "dataset": "spider",
+    "database": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How much does the most recent treatment cost?",
+    "sql": "SELECT cost_of_treatment FROM Treatments ORDER BY date_of_treatment DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 45,
+        "word_length": 8,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 80,
+        "tables_count": 1,
+        "tables": [
+            "Treatments"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

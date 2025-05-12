@@ -1,0 +1,70 @@
+{
+    "id": 467,
+    "dataset": "spider",
+    "database": {
+        "name": "wta_1",
+        "path": [
+            "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "wta_1",
+        "path": [
+            "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "find the names of loser and winner who played in the match with greatest number of minutes.",
+    "sql": "SELECT winner_name ,  loser_name FROM matches ORDER BY minutes DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 91,
+        "word_length": 17,
+        "entities": [
+            {
+                "text": "minutes",
+                "label": "TIME",
+                "start": 83,
+                "end": 90
+            }
+        ],
+        "entity_types": [
+            "TIME"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "greatest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 75,
+        "tables_count": 1,
+        "tables": [
+            "matches"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

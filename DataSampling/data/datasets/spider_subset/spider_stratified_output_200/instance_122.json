@@ -1,0 +1,56 @@
+{
+    "id": 122,
+    "dataset": "spider",
+    "database": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/schemas/car_1/car_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the makers and models?",
+    "sql": "SELECT Maker ,  Model FROM MODEL_LIST;",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 31,
+        "word_length": 6,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 38,
+        "tables_count": 1,
+        "tables": [
+            "MODEL_LIST;"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

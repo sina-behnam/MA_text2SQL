@@ -1,0 +1,70 @@
+{
+    "id": 466,
+    "dataset": "spider",
+    "database": {
+        "name": "wta_1",
+        "path": [
+            "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "wta_1",
+        "path": [
+            "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the name of the winner with the most rank points who participated in the Australian Open tournament?",
+    "sql": "SELECT winner_name FROM matches WHERE tourney_name  =  'Australian Open' ORDER BY winner_rank_points DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 108,
+        "word_length": 19,
+        "entities": [
+            {
+                "text": "the Australian Open",
+                "label": "EVENT",
+                "start": 77,
+                "end": 96
+            }
+        ],
+        "entity_types": [
+            "EVENT"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 113,
+        "tables_count": 1,
+        "tables": [
+            "matches"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

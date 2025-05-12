@@ -1,0 +1,76 @@
+{
+    "id": 220,
+    "dataset": "spider",
+    "database": {
+        "name": "flight_2",
+        "path": [
+            "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "flight_2",
+        "path": [
+            "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Count the number of United Airlines flights that arrive in Aberdeen.",
+    "sql": "SELECT count(*) FROM FLIGHTS AS T1 JOIN AIRPORTS AS T2 ON T1.DestAirport  =  T2.AirportCode JOIN AIRLINES AS T3 ON T3.uid  =  T1.Airline WHERE T2.City  =  \"Aberdeen\" AND T3.Airline  =  \"United Airlines\"",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 68,
+        "word_length": 11,
+        "entities": [
+            {
+                "text": "United Airlines",
+                "label": "ORG",
+                "start": 20,
+                "end": 35
+            },
+            {
+                "text": "Aberdeen",
+                "label": "GPE",
+                "start": 59,
+                "end": 67
+            }
+        ],
+        "entity_types": [
+            "GPE",
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 202,
+        "tables_count": 3,
+        "tables": [
+            "AIRLINES",
+            "FLIGHTS",
+            "AIRPORTS"
+        ],
+        "join_count": 2,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

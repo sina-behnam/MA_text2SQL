@@ -1,0 +1,75 @@
+{
+    "id": 218,
+    "dataset": "spider",
+    "database": {
+        "name": "flight_2",
+        "path": [
+            "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "flight_2",
+        "path": [
+            "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Return the number of United Airlines flights leaving from AHD Airport.",
+    "sql": "SELECT count(*) FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T2.Airline  =  T1.uid WHERE T1.Airline  =  \"United Airlines\" AND T2.SourceAirport  =  \"AHD\"",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 70,
+        "word_length": 11,
+        "entities": [
+            {
+                "text": "United Airlines",
+                "label": "ORG",
+                "start": 21,
+                "end": 36
+            },
+            {
+                "text": "AHD Airport",
+                "label": "FAC",
+                "start": 58,
+                "end": 69
+            }
+        ],
+        "entity_types": [
+            "FAC",
+            "ORG"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 149,
+        "tables_count": 2,
+        "tables": [
+            "FLIGHTS",
+            "AIRLINES"
+        ],
+        "join_count": 1,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

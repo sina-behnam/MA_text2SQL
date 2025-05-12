@@ -1,0 +1,67 @@
+{
+    "id": 590,
+    "dataset": "spider",
+    "database": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the number of cartoones written by Joseph Kuhr?",
+    "sql": "SELECT count(*) FROM Cartoon WHERE Written_by = \"Joseph Kuhr\";",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 55,
+        "word_length": 10,
+        "entities": [
+            {
+                "text": "Joseph Kuhr",
+                "label": "PERSON",
+                "start": 43,
+                "end": 54
+            }
+        ],
+        "entity_types": [
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 62,
+        "tables_count": 1,
+        "tables": [
+            "Cartoon"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

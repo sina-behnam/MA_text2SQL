@@ -1,0 +1,65 @@
+{
+    "id": 249,
+    "dataset": "spider",
+    "database": {
+        "name": "flight_2",
+        "path": [
+            "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "flight_2",
+        "path": [
+            "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are flight numbers of flights arriving at Airport \"APG\"?",
+    "sql": "SELECT FlightNo FROM FLIGHTS WHERE DestAirport  =  \"APG\"",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 61,
+        "word_length": 10,
+        "entities": [
+            {
+                "text": "Airport",
+                "label": "WORK_OF_ART",
+                "start": 47,
+                "end": 54
+            }
+        ],
+        "entity_types": [
+            "WORK_OF_ART"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 56,
+        "tables_count": 1,
+        "tables": [
+            "FLIGHTS"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

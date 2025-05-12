@@ -1,0 +1,68 @@
+{
+    "id": 360,
+    "dataset": "spider",
+    "database": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Count the number of paragraphs in the document named 'Summer Show'.",
+    "sql": "SELECT count(*) FROM Paragraphs AS T1 JOIN Documents AS T2 ON T1.document_ID  =  T2.document_ID WHERE T2.document_name  =  'Summer Show'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 67,
+        "word_length": 11,
+        "entities": [
+            {
+                "text": "'Summer Show'",
+                "label": "WORK_OF_ART",
+                "start": 53,
+                "end": 66
+            }
+        ],
+        "entity_types": [
+            "WORK_OF_ART"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 136,
+        "tables_count": 2,
+        "tables": [
+            "Documents",
+            "Paragraphs"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

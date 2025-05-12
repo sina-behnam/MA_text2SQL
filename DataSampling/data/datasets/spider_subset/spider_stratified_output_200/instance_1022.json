@@ -1,0 +1,75 @@
+{
+    "id": 1022,
+    "dataset": "spider",
+    "database": {
+        "name": "singer",
+        "path": [
+            "spider_stratified_output_200/databases/singer/singer.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "singer",
+        "path": [
+            "spider_stratified_output_200/schemas/singer/singer.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Show the names of singers that have more than one song.",
+    "sql": "SELECT T1.Name FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Name HAVING COUNT(*)  >  1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 55,
+        "word_length": 11,
+        "entities": [
+            {
+                "text": "more than one",
+                "label": "CARDINAL",
+                "start": 36,
+                "end": 49
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "one"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "more"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 120,
+        "tables_count": 2,
+        "tables": [
+            "song",
+            "singer"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "GROUP BY",
+            "HAVING"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

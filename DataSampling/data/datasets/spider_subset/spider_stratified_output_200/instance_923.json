@@ -1,0 +1,82 @@
+{
+    "id": 923,
+    "dataset": "spider",
+    "database": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Find the id, last name and cell phone of the professionals who live in the state of Indiana or have performed more than two treatments.",
+    "sql": "SELECT professional_id ,  last_name ,  cell_number FROM Professionals WHERE state  =  'Indiana' UNION SELECT T1.professional_id ,  T1.last_name ,  T1.cell_number FROM Professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING count(*)  >  2",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 135,
+        "word_length": 26,
+        "entities": [
+            {
+                "text": "Indiana",
+                "label": "GPE",
+                "start": 84,
+                "end": 91
+            },
+            {
+                "text": "more than two",
+                "label": "CARDINAL",
+                "start": 110,
+                "end": 123
+            }
+        ],
+        "entity_types": [
+            "GPE",
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "two"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "more"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 2,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 303,
+        "tables_count": 2,
+        "tables": [
+            "Treatments",
+            "Professionals"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 2,
+        "clause_types": [
+            "GROUP BY",
+            "HAVING"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 3
+    }
+}

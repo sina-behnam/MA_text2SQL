@@ -1,0 +1,59 @@
+{
+    "id": 346,
+    "dataset": "spider",
+    "database": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the codes of template types that are not used for any document?",
+    "sql": "SELECT template_type_code FROM Templates EXCEPT SELECT template_type_code FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 72,
+        "word_length": 14,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": true,
+        "negation_words": [
+            "not"
+        ],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 152,
+        "tables_count": 2,
+        "tables": [
+            "Templates",
+            "Documents"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

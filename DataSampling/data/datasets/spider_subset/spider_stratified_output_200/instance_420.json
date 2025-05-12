@@ -1,0 +1,65 @@
+{
+    "id": 420,
+    "dataset": "spider",
+    "database": {
+        "name": "museum_visit",
+        "path": [
+            "spider_stratified_output_200/databases/museum_visit/museum_visit.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "museum_visit",
+        "path": [
+            "spider_stratified_output_200/schemas/museum_visit/museum_visit.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the id, name and membership level of visitors who have spent the largest amount of money in total in all museum tickets?",
+    "sql": "SELECT t2.visitor_id ,  t1.name ,  t1.Level_of_membership FROM visitor AS t1 JOIN visit AS t2 ON t1.id  =  t2.visitor_id GROUP BY t2.visitor_id ORDER BY sum(t2.Total_spent) DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 129,
+        "word_length": 25,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "largest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 185,
+        "tables_count": 2,
+        "tables": [
+            "visitor",
+            "visit"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "SUM"
+        ],
+        "select_columns": 3
+    }
+}

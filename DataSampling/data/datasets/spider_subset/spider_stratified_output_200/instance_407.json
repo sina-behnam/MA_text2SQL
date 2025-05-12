@@ -1,0 +1,75 @@
+{
+    "id": 407,
+    "dataset": "spider",
+    "database": {
+        "name": "course_teach",
+        "path": [
+            "spider_stratified_output_200/databases/course_teach/course_teach.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "course_teach",
+        "path": [
+            "spider_stratified_output_200/schemas/course_teach/course_teach.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Show names of teachers that teach at least two courses.",
+    "sql": "SELECT T2.Name FROM course_arrange AS T1 JOIN teacher AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T2.Name HAVING COUNT(*)  >=  2",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 55,
+        "word_length": 10,
+        "entities": [
+            {
+                "text": "at least two",
+                "label": "CARDINAL",
+                "start": 34,
+                "end": 46
+            }
+        ],
+        "entity_types": [
+            "CARDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "two"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "least"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 134,
+        "tables_count": 2,
+        "tables": [
+            "teacher",
+            "course_arrange"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "GROUP BY",
+            "HAVING"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

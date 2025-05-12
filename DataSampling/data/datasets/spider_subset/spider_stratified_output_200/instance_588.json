@@ -1,0 +1,65 @@
+{
+    "id": 588,
+    "dataset": "spider",
+    "database": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/databases/tvshow/tvshow.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "tvshow",
+        "path": [
+            "spider_stratified_output_200/schemas/tvshow/tvshow.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the names of all cartoons directed by Ben Jones?",
+    "sql": "SELECT Title FROM Cartoon WHERE Directed_by = \"Ben Jones\";",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 57,
+        "word_length": 11,
+        "entities": [
+            {
+                "text": "Ben Jones",
+                "label": "PERSON",
+                "start": 47,
+                "end": 56
+            }
+        ],
+        "entity_types": [
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 58,
+        "tables_count": 1,
+        "tables": [
+            "Cartoon"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

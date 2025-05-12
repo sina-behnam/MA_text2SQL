@@ -1,0 +1,61 @@
+{
+    "id": 287,
+    "dataset": "spider",
+    "database": {
+        "name": "employee_hire_evaluation",
+        "path": [
+            "spider_stratified_output_200/databases/employee_hire_evaluation/employee_hire_evaluation.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "employee_hire_evaluation",
+        "path": [
+            "spider_stratified_output_200/schemas/employee_hire_evaluation/employee_hire_evaluation.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Find the number of employees hired in each shop; show the shop name as well.",
+    "sql": "SELECT count(*) ,  t2.name FROM hiring AS t1 JOIN shop AS t2 ON t1.shop_id  =  t2.shop_id GROUP BY t2.name",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 76,
+        "word_length": 15,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 106,
+        "tables_count": 2,
+        "tables": [
+            "shop",
+            "hiring"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 1,
+        "clause_types": [
+            "GROUP BY"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 2
+    }
+}

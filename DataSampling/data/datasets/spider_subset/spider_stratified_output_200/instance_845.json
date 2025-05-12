@@ -1,0 +1,65 @@
+{
+    "id": 845,
+    "dataset": "spider",
+    "database": {
+        "name": "orchestra",
+        "path": [
+            "spider_stratified_output_200/databases/orchestra/orchestra.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "orchestra",
+        "path": [
+            "spider_stratified_output_200/schemas/orchestra/orchestra.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the name of the conductor who has conducted the most orchestras?",
+    "sql": "SELECT T1.Name FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID GROUP BY T2.Conductor_ID ORDER BY COUNT(*) DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 72,
+        "word_length": 13,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 151,
+        "tables_count": 2,
+        "tables": [
+            "conductor",
+            "orchestra"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

@@ -1,0 +1,68 @@
+{
+    "id": 952,
+    "dataset": "spider",
+    "database": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "List pairs of the owner's first name and the dogs's name.",
+    "sql": "SELECT T1.first_name ,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 57,
+        "word_length": 13,
+        "entities": [
+            {
+                "text": "first",
+                "label": "ORDINAL",
+                "start": 26,
+                "end": 31
+            }
+        ],
+        "entity_types": [
+            "ORDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "first"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 96,
+        "tables_count": 2,
+        "tables": [
+            "Dogs",
+            "Owners"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

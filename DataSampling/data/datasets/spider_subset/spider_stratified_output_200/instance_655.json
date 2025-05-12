@@ -1,0 +1,61 @@
+{
+    "id": 655,
+    "dataset": "spider",
+    "database": {
+        "name": "poker_player",
+        "path": [
+            "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "poker_player",
+        "path": [
+            "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the money rank of the poker player with the highest earnings?",
+    "sql": "SELECT Money_Rank FROM poker_player ORDER BY Earnings DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 69,
+        "word_length": 13,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "highest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 66,
+        "tables_count": 1,
+        "tables": [
+            "poker_player"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

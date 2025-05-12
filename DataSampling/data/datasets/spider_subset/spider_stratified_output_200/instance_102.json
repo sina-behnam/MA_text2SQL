@@ -1,0 +1,71 @@
+{
+    "id": 102,
+    "dataset": "spider",
+    "database": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/schemas/car_1/car_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the maker of the carr produced in the earliest year and what year was it?",
+    "sql": "SELECT T2.Make ,  T1.Year FROM CARS_DATA AS T1 JOIN CAR_NAMES AS T2 ON T1.Id  =  T2.MakeId WHERE T1.Year  =  (SELECT min(YEAR) FROM CARS_DATA);",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 81,
+        "word_length": 17,
+        "entities": [
+            {
+                "text": "the earliest year",
+                "label": "DATE",
+                "start": 42,
+                "end": 59
+            }
+        ],
+        "entity_types": [
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "earliest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 143,
+        "tables_count": 3,
+        "tables": [
+            "CAR_NAMES",
+            "CARS_DATA",
+            "CARS_DATA);"
+        ],
+        "join_count": 1,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "MIN"
+        ],
+        "select_columns": 2
+    }
+}

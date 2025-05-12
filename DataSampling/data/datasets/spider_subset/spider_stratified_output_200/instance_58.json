@@ -1,0 +1,69 @@
+{
+    "id": 58,
+    "dataset": "spider",
+    "database": {
+        "name": "pets_1",
+        "path": [
+            "spider_stratified_output_200/databases/pets_1/pets_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "pets_1",
+        "path": [
+            "spider_stratified_output_200/schemas/pets_1/pets_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the first names of every student who has a cat or dog as a pet?",
+    "sql": "SELECT DISTINCT T1.Fname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat' OR T3.pettype  =  'dog'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 72,
+        "word_length": 17,
+        "entities": [
+            {
+                "text": "first",
+                "label": "ORDINAL",
+                "start": 13,
+                "end": 18
+            }
+        ],
+        "entity_types": [
+            "ORDINAL"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "first"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 179,
+        "tables_count": 3,
+        "tables": [
+            "has_pet",
+            "pets",
+            "student"
+        ],
+        "join_count": 2,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

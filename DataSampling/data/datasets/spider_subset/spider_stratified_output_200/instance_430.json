@@ -1,0 +1,58 @@
+{
+    "id": 430,
+    "dataset": "spider",
+    "database": {
+        "name": "wta_1",
+        "path": [
+            "spider_stratified_output_200/databases/wta_1/wta_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "wta_1",
+        "path": [
+            "spider_stratified_output_200/schemas/wta_1/wta_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many players are there?",
+    "sql": "SELECT count(*) FROM players",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 27,
+        "word_length": 5,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 28,
+        "tables_count": 1,
+        "tables": [
+            "players"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

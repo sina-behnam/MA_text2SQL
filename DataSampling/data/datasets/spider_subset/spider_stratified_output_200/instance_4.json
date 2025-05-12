@@ -1,0 +1,69 @@
+{
+    "id": 4,
+    "dataset": "spider",
+    "database": {
+        "name": "concert_singer",
+        "path": [
+            "spider_stratified_output_200/databases/concert_singer/concert_singer.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "concert_singer",
+        "path": [
+            "spider_stratified_output_200/schemas/concert_singer/concert_singer.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the average, minimum, and maximum age of all singers from France?",
+    "sql": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 73,
+        "word_length": 13,
+        "entities": [
+            {
+                "text": "France",
+                "label": "GPE",
+                "start": 66,
+                "end": 72
+            }
+        ],
+        "entity_types": [
+            "GPE"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 78,
+        "tables_count": 1,
+        "tables": [
+            "singer"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 3,
+        "aggregation_functions": [
+            "AVG",
+            "MIN",
+            "MAX"
+        ],
+        "select_columns": 3
+    }
+}

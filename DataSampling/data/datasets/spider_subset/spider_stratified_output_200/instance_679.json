@@ -1,0 +1,58 @@
+{
+    "id": 679,
+    "dataset": "spider",
+    "database": {
+        "name": "poker_player",
+        "path": [
+            "spider_stratified_output_200/databases/poker_player/poker_player.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "poker_player",
+        "path": [
+            "spider_stratified_output_200/schemas/poker_player/poker_player.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "List the names and birth dates of people in ascending alphabetical order of name.",
+    "sql": "SELECT Name ,  Birth_Date FROM people ORDER BY Name ASC",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 81,
+        "word_length": 14,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 55,
+        "tables_count": 1,
+        "tables": [
+            "people"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 1,
+        "clause_types": [
+            "ORDER BY"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

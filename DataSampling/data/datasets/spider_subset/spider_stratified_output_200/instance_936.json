@@ -1,0 +1,66 @@
+{
+    "id": 936,
+    "dataset": "spider",
+    "database": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/databases/dog_kennels/dog_kennels.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "dog_kennels",
+        "path": [
+            "spider_stratified_output_200/schemas/dog_kennels/dog_kennels.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which owner has paid for the most treatments on his or her dogs? List the owner id and last name.",
+    "sql": "SELECT T1.owner_id ,  T1.last_name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id JOIN Treatments AS T3 ON T2.dog_id  =  T3.dog_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 97,
+        "word_length": 21,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 2,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 200,
+        "tables_count": 3,
+        "tables": [
+            "Owners",
+            "Dogs",
+            "Treatments"
+        ],
+        "join_count": 2,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 2
+    }
+}

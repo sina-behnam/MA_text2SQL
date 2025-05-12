@@ -1,0 +1,84 @@
+{
+    "id": 154,
+    "dataset": "spider",
+    "database": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/databases/car_1/car_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "car_1",
+        "path": [
+            "spider_stratified_output_200/schemas/car_1/car_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What are the different years in which there were cars produced that weighed less than 4000 and also cars that weighted more than 3000 ?",
+    "sql": "select distinct year from cars_data where weight between 3000 and 4000;",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 135,
+        "word_length": 24,
+        "entities": [
+            {
+                "text": "years",
+                "label": "DATE",
+                "start": 23,
+                "end": 28
+            },
+            {
+                "text": "less than 4000",
+                "label": "CARDINAL",
+                "start": 76,
+                "end": 90
+            },
+            {
+                "text": "more than 3000",
+                "label": "CARDINAL",
+                "start": 119,
+                "end": 133
+            }
+        ],
+        "entity_types": [
+            "CARDINAL",
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "4000",
+            "3000"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "less",
+            "more"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 71,
+        "tables_count": 1,
+        "tables": [
+            "cars_data"
+        ],
+        "join_count": 0,
+        "where_conditions": 2,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

@@ -1,0 +1,59 @@
+{
+    "id": 409,
+    "dataset": "spider",
+    "database": {
+        "name": "course_teach",
+        "path": [
+            "spider_stratified_output_200/databases/course_teach/course_teach.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "course_teach",
+        "path": [
+            "spider_stratified_output_200/schemas/course_teach/course_teach.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "List the names of teachers who have not been arranged to teach courses.",
+    "sql": "SELECT Name FROM teacher WHERE Teacher_id NOT IN (SELECT Teacher_id FROM course_arrange)",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 71,
+        "word_length": 13,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": true,
+        "negation_words": [
+            "not"
+        ],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 2,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 88,
+        "tables_count": 2,
+        "tables": [
+            "teacher",
+            "course_arrange)"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

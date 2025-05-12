@@ -1,0 +1,67 @@
+{
+    "id": 734,
+    "dataset": "spider",
+    "database": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/schemas/world_1/world_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many type of governments are in Africa?",
+    "sql": "SELECT count(DISTINCT GovernmentForm) FROM country WHERE Continent  =  \"Africa\"",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 43,
+        "word_length": 8,
+        "entities": [
+            {
+                "text": "Africa",
+                "label": "LOC",
+                "start": 36,
+                "end": 42
+            }
+        ],
+        "entity_types": [
+            "LOC"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 79,
+        "tables_count": 1,
+        "tables": [
+            "country"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

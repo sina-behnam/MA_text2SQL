@@ -1,0 +1,65 @@
+{
+    "id": 225,
+    "dataset": "spider",
+    "database": {
+        "name": "flight_2",
+        "path": [
+            "spider_stratified_output_200/databases/flight_2/flight_2.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "flight_2",
+        "path": [
+            "spider_stratified_output_200/schemas/flight_2/flight_2.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the code of airport that has the highest number of flights?",
+    "sql": "SELECT T1.AirportCode FROM AIRPORTS AS T1 JOIN FLIGHTS AS T2 ON T1.AirportCode  =  T2.DestAirport OR T1.AirportCode  =  T2.SourceAirport GROUP BY T1.AirportCode ORDER BY count(*) DESC LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 67,
+        "word_length": 13,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "highest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 191,
+        "tables_count": 2,
+        "tables": [
+            "FLIGHTS",
+            "AIRPORTS"
+        ],
+        "join_count": 1,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

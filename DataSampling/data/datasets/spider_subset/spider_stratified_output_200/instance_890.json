@@ -1,0 +1,66 @@
+{
+    "id": 890,
+    "dataset": "spider",
+    "database": {
+        "name": "network_1",
+        "path": [
+            "spider_stratified_output_200/databases/network_1/network_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "network_1",
+        "path": [
+            "spider_stratified_output_200/schemas/network_1/network_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Show the names of all of the high schooler Kyle's friends.",
+    "sql": "SELECT T3.name FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id JOIN Highschooler AS T3 ON T1.friend_id  =  T3.id WHERE T2.name  =  \"Kyle\"",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 58,
+        "word_length": 12,
+        "entities": [
+            {
+                "text": "Kyle",
+                "label": "PERSON",
+                "start": 43,
+                "end": 47
+            }
+        ],
+        "entity_types": [
+            "PERSON"
+        ],
+        "has_entities": true,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 158,
+        "tables_count": 2,
+        "tables": [
+            "Friend",
+            "Highschooler"
+        ],
+        "join_count": 2,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

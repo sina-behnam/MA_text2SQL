@@ -1,0 +1,58 @@
+{
+    "id": 262,
+    "dataset": "spider",
+    "database": {
+        "name": "employee_hire_evaluation",
+        "path": [
+            "spider_stratified_output_200/databases/employee_hire_evaluation/employee_hire_evaluation.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "employee_hire_evaluation",
+        "path": [
+            "spider_stratified_output_200/schemas/employee_hire_evaluation/employee_hire_evaluation.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "List the names of employees and sort in ascending order of age.",
+    "sql": "SELECT name FROM employee ORDER BY age",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 63,
+        "word_length": 12,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 38,
+        "tables_count": 1,
+        "tables": [
+            "employee"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 1,
+        "clause_types": [
+            "ORDER BY"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

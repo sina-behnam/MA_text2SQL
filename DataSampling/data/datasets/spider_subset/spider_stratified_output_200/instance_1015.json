@@ -1,0 +1,64 @@
+{
+    "id": 1015,
+    "dataset": "spider",
+    "database": {
+        "name": "singer",
+        "path": [
+            "spider_stratified_output_200/databases/singer/singer.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "singer",
+        "path": [
+            "spider_stratified_output_200/schemas/singer/singer.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the most common singer citizenship ?",
+    "sql": "select citizenship from singer group by citizenship order by count(*) desc limit 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 44,
+        "word_length": 7,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "most"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 82,
+        "tables_count": 1,
+        "tables": [
+            "singer"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 3,
+        "clause_types": [
+            "GROUP BY",
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}

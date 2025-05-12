@@ -1,0 +1,62 @@
+{
+    "id": 795,
+    "dataset": "spider",
+    "database": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/schemas/world_1/world_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How many cities in each district have a population that is above the average population across all cities?",
+    "sql": "SELECT count(*) ,  District FROM city WHERE Population  >  (SELECT avg(Population) FROM city) GROUP BY District",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 106,
+        "word_length": 18,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 111,
+        "tables_count": 2,
+        "tables": [
+            "city)",
+            "city"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 1,
+        "clauses_count": 1,
+        "clause_types": [
+            "GROUP BY"
+        ],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "COUNT",
+            "AVG"
+        ],
+        "select_columns": 2
+    }
+}

@@ -1,0 +1,56 @@
+{
+    "id": 349,
+    "dataset": "spider",
+    "database": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/databases/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "cre_Doc_Template_Mgt",
+        "path": [
+            "spider_stratified_output_200/schemas/cre_Doc_Template_Mgt/cre_Doc_Template_Mgt.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "What is the template type descriptions for template type code \"AD\".",
+    "sql": "SELECT template_type_description FROM Ref_template_types WHERE template_type_code  =  \"AD\"",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 67,
+        "word_length": 11,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 90,
+        "tables_count": 1,
+        "tables": [
+            "Ref_template_types"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

@@ -1,0 +1,56 @@
+{
+    "id": 493,
+    "dataset": "spider",
+    "database": {
+        "name": "battle_death",
+        "path": [
+            "spider_stratified_output_200/databases/battle_death/battle_death.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "battle_death",
+        "path": [
+            "spider_stratified_output_200/schemas/battle_death/battle_death.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "List the name, date and result of each battle.",
+    "sql": "SELECT name ,  date FROM battle",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 46,
+        "word_length": 9,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 2,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 31,
+        "tables_count": 1,
+        "tables": [
+            "battle"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 0,
+        "clause_types": [],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 2
+    }
+}

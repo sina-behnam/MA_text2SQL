@@ -1,0 +1,66 @@
+{
+    "id": 796,
+    "dataset": "spider",
+    "database": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/databases/world_1/world_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "world_1",
+        "path": [
+            "spider_stratified_output_200/schemas/world_1/world_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Find the government form name and total population for each government form whose average life expectancy is longer than 72.",
+    "sql": "SELECT sum(Population) ,  GovernmentForm FROM country GROUP BY GovernmentForm HAVING avg(LifeExpectancy)  >  72",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 124,
+        "word_length": 20,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [
+            "72"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "longer"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 1
+    },
+    "sql_analysis": {
+        "char_length": 111,
+        "tables_count": 1,
+        "tables": [
+            "country"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "GROUP BY",
+            "HAVING"
+        ],
+        "aggregation_function_count": 2,
+        "aggregation_functions": [
+            "AVG",
+            "SUM"
+        ],
+        "select_columns": 2
+    }
+}

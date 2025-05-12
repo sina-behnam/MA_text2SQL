@@ -1,0 +1,61 @@
+{
+    "id": 48,
+    "dataset": "spider",
+    "database": {
+        "name": "pets_1",
+        "path": [
+            "spider_stratified_output_200/databases/pets_1/pets_1.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "pets_1",
+        "path": [
+            "spider_stratified_output_200/schemas/pets_1/pets_1.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "How much does the youngest dog weigh?",
+    "sql": "SELECT weight FROM pets ORDER BY pet_age LIMIT 1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 37,
+        "word_length": 7,
+        "entities": [],
+        "entity_types": [],
+        "has_entities": false,
+        "numbers": [],
+        "has_numbers": false,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [],
+        "has_comparatives": false,
+        "superlatives": [
+            "youngest"
+        ],
+        "has_superlatives": true,
+        "table_overlap_count": 0,
+        "table_overlap_lemma_count": 0,
+        "column_overlap_count": 0,
+        "column_overlap_lemma_count": 0
+    },
+    "sql_analysis": {
+        "char_length": 48,
+        "tables_count": 1,
+        "tables": [
+            "pets"
+        ],
+        "join_count": 0,
+        "where_conditions": 0,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "ORDER BY",
+            "LIMIT"
+        ],
+        "aggregation_function_count": 0,
+        "aggregation_functions": [],
+        "select_columns": 1
+    }
+}

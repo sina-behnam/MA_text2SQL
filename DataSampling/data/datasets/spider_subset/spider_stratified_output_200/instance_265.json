@@ -1,0 +1,82 @@
+{
+    "id": 265,
+    "dataset": "spider",
+    "database": {
+        "name": "employee_hire_evaluation",
+        "path": [
+            "spider_stratified_output_200/databases/employee_hire_evaluation/employee_hire_evaluation.sqlite"
+        ],
+        "type": "sqlite"
+    },
+    "schemas": {
+        "name": "employee_hire_evaluation",
+        "path": [
+            "spider_stratified_output_200/schemas/employee_hire_evaluation/employee_hire_evaluation.csv"
+        ],
+        "type": "csv"
+    },
+    "question": "Which cities do more than one employee under age 30 come from?",
+    "sql": "SELECT city FROM employee WHERE age  <  30 GROUP BY city HAVING count(*)  >  1",
+    "evidence": "",
+    "difficulty": "simple",
+    "question_analysis": {
+        "char_length": 62,
+        "word_length": 12,
+        "entities": [
+            {
+                "text": "more than one",
+                "label": "CARDINAL",
+                "start": 16,
+                "end": 29
+            },
+            {
+                "text": "age 30",
+                "label": "DATE",
+                "start": 45,
+                "end": 51
+            }
+        ],
+        "entity_types": [
+            "CARDINAL",
+            "DATE"
+        ],
+        "has_entities": true,
+        "numbers": [
+            "one",
+            "30"
+        ],
+        "has_numbers": true,
+        "has_negation": false,
+        "negation_words": [],
+        "comparatives": [
+            "more"
+        ],
+        "has_comparatives": true,
+        "superlatives": [],
+        "has_superlatives": false,
+        "table_overlap_count": 1,
+        "table_overlap_lemma_count": 1,
+        "column_overlap_count": 1,
+        "column_overlap_lemma_count": 2
+    },
+    "sql_analysis": {
+        "char_length": 78,
+        "tables_count": 1,
+        "tables": [
+            "employee"
+        ],
+        "join_count": 0,
+        "where_conditions": 1,
+        "subquery_count": 0,
+        "clauses_count": 2,
+        "clause_types": [
+            "GROUP BY",
+            "HAVING"
+        ],
+        "aggregation_function_count": 1,
+        "aggregation_functions": [
+            "COUNT"
+        ],
+        "select_columns": 1
+    }
+}
