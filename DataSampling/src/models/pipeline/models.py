@@ -2,6 +2,12 @@ import os
 from typing import Dict, List, Tuple, Any, Optional, Union
 import openai
 import torch
+# Optional import for Anthropic API
+try:
+    from anthropic import Anthropic, NOT_GIVEN
+    HAS_ANTHROPIC = True
+except ImportError:
+    HAS_ANTHROPIC = False
 
 # Optional imports for local models
 try:
@@ -110,6 +116,91 @@ class OpenAIProvider(ModelProvider):
         )
         
         return response.choices[0].message.content
+    
+class AnthropicProvider(ModelProvider):
+    """Provider for Anthropic API models (Claude)"""
+    
+    def __init__(self, model_name: str = "claude-3-opus-20240229", api_key: str = None, max_tokens: int = 1024, extended_thinking: bool = False):
+        """
+        Initialize the Anthropic provider.
+        
+        Args:
+            model_name: Name of the Claude model to use (e.g., "claude-3-opus-20240229")
+            api_key: API key for Anthropic
+            max_tokens: Maximum number of tokens to generate
+        """
+        if not HAS_ANTHROPIC:
+            raise ImportError(
+                "To use Anthropic models, you need to install the anthropic package: "
+                "pip install anthropic"
+            )
+            
+        self.model_name = model_name
+        self.api_key = api_key 
+        self.max_tokens = max_tokens
+        self.extended_thinking = extended_thinking
+        
+        if not self.api_key:
+            raise ValueError(
+                "Anthropic API key is required. Please provide it as a parameter "
+                "or set the ANTHROPIC_API_KEY environment variable."
+            )
+        
+        # Initialize Anthropic client
+        self.client = Anthropic(api_key=self.api_key)
+
+    @staticmethod
+    def get_output_response(response):
+        thinking_messages = None
+        response_messages = None
+
+        for block in response.content:
+            if block.type == "thinking":
+                thinking_messages = block.thinking
+            elif block.type == "redacted_thinking":
+                thinking_messages = 'IT IS REDACTED'
+            elif block.type == "text":
+                response_messages = block.text
+
+        message = f'<think>\n{thinking_messages}\n</think>\n\n' if thinking_messages else ''
+        message += response_messages
+
+        return message
+    
+    def generate(self, system_message: str, user_message: str) -> str:
+        """
+        Generate a response using the Anthropic API.
+        
+        Args:
+            system_message: System message to guide the model's behavior
+            user_message: User message with the actual prompt
+            
+        Returns:
+            Model's response as a string
+        """
+        try:
+            # Create message using Anthropic API format
+            response = self.client.messages.create(
+                model=self.model_name,
+                system=system_message,
+                thinking={
+                    "type": "enabled",
+                    "budget_tokens": 2000,
+                } if self.extended_thinking else NOT_GIVEN,
+                messages=[
+                    {"role": "user", "content": user_message},
+                ],
+                max_tokens= 4000 if self.extended_thinking else 1024, # It always should be higher than the budget tokens for thinking
+            )
+            
+            # Extract the response message
+            return AnthropicProvider.get_output_response(response)
+    
+        except Exception as e:
+            # Handle API errors
+            error_message = f"Anthropic API error: {str(e)}"
+            print(error_message)
+            return error_message
 
 class LocalHuggingFaceProvider(ModelProvider):
     """Provider for local HuggingFace models"""
