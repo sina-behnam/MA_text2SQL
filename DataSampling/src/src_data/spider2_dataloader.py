@@ -1,5 +1,18 @@
 import glob
 import os
+import pandas as pd
+import json
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO,)
+logger = logging.getLogger(__name__)
+# disable the logger
+# logger.setLevel(logging.CRITICAL)
+# enable the logger
+logger.setLevel(logging.INFO)
+
+SPIDER2_DATASET_PATH = 'Your/Path/To/Data/Spider2'  # Change this to your Spider2 dataset path
 
 def get_schemas_path(dataset_dir, method='json'):
     """
@@ -58,9 +71,10 @@ def prepare_spider2_lite_files(dataset_dir, available_dbs=None,method=None):
         else:
             raise ValueError(f"Unknown database type: {available_db}")
         
-    return db_paths
+    return pd.DataFrame.from_dict(db_paths, orient='index').T
 
-def get_spider2_files(dataset_dir,category,available_dbs=None,method=None):
+
+def get_spider2_files(dataset_dir,category,available_dbs=None,method=None) -> pd.DataFrame:
     """
     Get the path to the Spider2 dataset directory.
     """
@@ -71,18 +85,6 @@ def get_spider2_files(dataset_dir,category,available_dbs=None,method=None):
     else:
         raise ValueError(f"Unknown category: {category}")
     
-
-import json
-import logging
-
-# Set up logging
-logging.basicConfig(level=logging.INFO,)
-logger = logging.getLogger(__name__)
-# disable the logger
-# logger.setLevel(logging.CRITICAL)
-# enable the logger
-logger.setLevel(logging.INFO)
-
 def read_json_file(file_path):
     """
     Read a JSON file and return its content.
@@ -165,27 +167,41 @@ def get_external_knowledge_instance(external_knowledge_file: str,external_know_d
         else:
             return None
         
-def get_database_schema(database_name, db_schemas_path_dict, available_dbs=None):
+def get_database_schema(database_name : str, schema_paths_df : pd.DataFrame, available_dbs: list = None):
     """
     Check if the database schema exists for a given database name.
     This function checks if the database name exists in the provided database schemas path dictionary.
 
     Args:
         database_name: Name of the database
-        db_schemas_path: Dictionary containing the paths to the database schemas
+        schema_paths_df: Dataframe containing the database schemas paths
         available_dbs: List of available databases to check against
-
     Returns:
-        bool: True if the database schema exists, False otherwise
-        list: List of paths to the database schema files
+        tuple: (database_category, schema_path) if the database schema exists,
+                None if the database schema does not exist.
     """
-    for available_db in available_dbs:
-        if available_db in db_schemas_path_dict:
-            if database_name in db_schemas_path_dict[available_db]:
-                return True,available_db,db_schemas_path_dict[available_db][database_name]
-        else:
-            return None,available_db,None
-    return False,None,None
+    if available_dbs is None:
+        available_dbs = schema_paths_df.columns.tolist()
+
+    if database_name not in schema_paths_df.index:
+        logger.warning(f"Database name {database_name} not found in the schema paths dataframe.")
+        return None
+    
+    schema_paths = schemas_path_df.loc[database_name, available_dbs].dropna().to_dict()
+
+    # ! Here the database name may not belong to any of the available databases, so the schema_paths will be empty
+    if not schema_paths:
+        return None
+    
+    # ! Getting ONLY the first key of the schema_paths dictionary, meaning that we are assuming that the a database name can only belong to one category of 
+    # ! database, e.g. sqlite, bigquery, snowflake
+    if len(schema_paths) > 1:
+        logger.warning(f"Multiple database categories found for database name: {database_name}. Using the first one found.")
+
+    database_cat = list(schema_paths.keys())[0] 
+
+    return database_cat, schema_paths[database_cat]
+    
 
 def get_sqlite_db_file_path(sqlite_file_dir, db_name):
     """
@@ -202,16 +218,31 @@ def get_sqlite_db_file_path(sqlite_file_dir, db_name):
     # Check if the SQLite database file exists in the directory
     sqlite_db_file_path = os.path.join(sqlite_file_dir, db_name + '.sqlite')
     if os.path.exists(sqlite_db_file_path):
-        return True,sqlite_db_file_path
-    return False,None
+        return sqlite_db_file_path
+    return None
+
+def standarize_spider2_instance(instance, count):
+
+    new_instance = {
+        'id': count,
+        'original_instance_id': instance.get('instance_id', None),
+        'dataset' : instance.get('dataset', None),
+        'question': instance.get('question', None),
+        'sql': instance.get('sql', None),
+        'database': instance.get('database', None),
+        'schemas': instance.get('schemas', None),
+        'evidence': instance.get('evidence', None)
+    }
+    return new_instance
 
 def load_data(data_file_path,
                 limit,
                 queries_dir=None,
                 external_knowledge_dir=None,
-                db_schemas_path_dict=None,
+                schemas_path_df=None,
                 available_dbs=None,
-                sqlites_file_dir=None
+                sqlites_file_dir=None,
+                dataset_type='lite'
               ):
         """
         Load the Spider2 dataset.
@@ -232,12 +263,20 @@ def load_data(data_file_path,
 
         results_data =[]
         
-        for instance in data:
+        for count,value in enumerate(data):
+
+            instance = value.copy()  # Create a copy of the instance to avoid modifying the original data
 
             instance_id = instance.get('instance_id')
 
             if instance_id is None:
                 logger.warning("No instance ID found for example")
+                continue
+
+            # Check if the database exists for the given instance
+            database_name = instance.get('db')
+            if database_name is None:
+                logger.warning(f"No database name found for instance {instance_id}")
                 continue
 
             # Ensure the question key name is consistent
@@ -246,52 +285,69 @@ def load_data(data_file_path,
             query = get_sql_query_per_instance(instance_id, queries_dir)
 
             if query is None:
-                logger.warning(f"No SQL query found for instance {instance_id}")
                 continue
+            
             # Add the SQL query to the instance
             instance['sql'] = query
 
             external_knowledge = instance.get('external_knowledge', None)
 
-            instance['external_knowledge'] = get_external_knowledge_instance(external_knowledge, external_knowledge_dir)
+            instance['evidence'] = get_external_knowledge_instance(external_knowledge, external_knowledge_dir)
 
             # Check if the database schema exists for the given instance
-            database_name = instance.get('db')
-            if database_name is None:
-                logger.warning(f"No database name found for instance {instance_id}")
+            db_schemas = get_database_schema(database_name, schemas_path_df, available_dbs)
+            if db_schemas is None:
                 continue
 
-            # Check if the database schema exists for the given instance
-            db_schema_exists, dataset_cat ,db_schemas_path = get_database_schema(database_name, db_schemas_path_dict, available_dbs)
-            if db_schema_exists == None:
-                logger.warning(f"The dataset is exluded therefore this dataset not included in the schema path: {dataset_cat} for instance {instance_id} with database name {database_name}")
-                continue
-            elif db_schema_exists == False:
-                logger.warning(f"Database schema not found for instance {instance_id} with database name {database_name}")
-                continue
+            database_cat, db_schemas_path = db_schemas
 
-            if dataset_cat == 'sqlite':
-                is_sqlite_exist, sqlite_path = get_sqlite_db_file_path(sqlites_file_dir, database_name)
-                if not is_sqlite_exist:
+            if database_cat == 'sqlite':
+                
+                sqlite_path = get_sqlite_db_file_path(sqlites_file_dir, database_name)
+                
+                if not sqlite_path:
                     logger.warning(f"SQLite database file not found for instance {instance_id} with database name {database_name}")
                     continue
-                instance['sqlite_db_path'] = sqlite_path
-            
-            instance['dataset_category'] = dataset_cat
-            instance['database_schema'] = db_schemas_path
-            results_data.append(instance)
+
+                instance['database'] = {
+                    'name': database_name,
+                    'path': sqlite_path,
+                    'type': database_cat
+                }
+            elif database_cat == 'snowflake':
+                instance['database'] = {
+                    'name': database_name,
+                    'path': 'Call the snowflake API to get the database',
+                    'type': database_cat
+                }
+            elif database_cat == 'bigquery':
+                instance['database'] = {
+                    'name': database_name,
+                    'path': 'Call the snowflake API to get the database',
+                    'type': database_cat
+                }
+            else:
+                logger.warning(f"Unknown database category for instance {instance_id} with database name {database_name} with category {database_cat}")
+                continue
+
+            instance['schemas'] = []
+            for db_schema in db_schemas_path:
+                instance['schemas'].append({
+                    'name': db_schema.split(os.sep)[-2],  # Extract the database name from the path
+                    'path': db_schema
+                })
+
+            instance['dataset'] = f'spider2-{dataset_type}'
+
+            # Standardize the instance and append it to the results
+            results_data.append(standarize_spider2_instance(instance, count))
 
         logger.info(f"Loaded {len(results_data)} examples from Spider2 dataset")
         
         logger.info("IF the number of loaded Data are less than what you expected, is because of the missing SQL queries in GOLD Directory")
         return results_data
 
-if __name__ == '__main__':
-
-    SPIDER2_DATASET_PATH = '/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Spider2'
-
-    spider2_schemas_path = get_spider2_files(SPIDER2_DATASET_PATH, 'lite', available_dbs=['snowflake', 'sqlite','bigquery'], method='csv')
-
+if __name__ == "__main__":
     data_path = os.path.join(SPIDER2_DATASET_PATH, 'spider2-lite', 'spider2-lite.jsonl')
     # Data/Spider2/spider2-lite/evaluation_suite/gold/sql
     queries_dir = os.path.join(SPIDER2_DATASET_PATH, 'spider2-lite', 'evaluation_suite', 'gold', 'sql')
@@ -299,14 +355,18 @@ if __name__ == '__main__':
     external_knowledge_dir = os.path.join(SPIDER2_DATASET_PATH, 'spider2-lite', 'resource', 'documents')
     # Data/Spider2/spider2-lite/resource/databases/spider2-localdb
     sqlite_file_dir = os.path.join(SPIDER2_DATASET_PATH, 'spider2-lite', 'resource', 'databases', 'spider2-localdb')
-    # Load the data
-    data = load_data(data_path,
-                    limit=None,
-                    queries_dir=queries_dir,
-                    external_knowledge_dir=external_knowledge_dir,
-                    db_schemas_path_dict=spider2_schemas_path,
-                    available_dbs=['snowflake', 'sqlite','bigquery'],
-                    sqlites_file_dir=sqlite_file_dir
-                    )
 
-    print(data)
+    resulted_data = load_data(data_path,
+                limit=None,
+                queries_dir=queries_dir,
+                external_knowledge_dir=external_knowledge_dir,
+                schemas_path_df= get_spider2_files(
+                    dataset_dir=os.path.join(SPIDER2_DATASET_PATH, 'spider2-lite'),
+                    category='lite',
+                    available_dbs=['sqlite', 'snowflake', 'bigquery'],
+                    method='json'
+                ),
+                available_dbs=['sqlite', 'snowflake'],
+                sqlites_file_dir=sqlite_file_dir,
+                dataset_type='lite'
+                )
