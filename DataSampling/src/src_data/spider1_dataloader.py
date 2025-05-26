@@ -190,24 +190,24 @@ def make_spider_database_dict(instance, db_dir):
         'type': 'sqlite',
     }
 
-def make_spider_schema_dict(instance, schemas_dir):
+def make_spider_schemas(instance, schemas_dir):
     """
     Create a dictionary for the spider schema instance.
     Args:
         instance (dict): spider instance dictionary.
         schemas_dir (str): Path to the spider schemas directory.
     Returns:
-        dict: Dictionary containing the schema information.
+        list: List of dictionaries containing the schema information.
     """
     
     db_name = instance['db_id']
     schema_path = get_spider_processed_schemas(schemas_dir, db_name)
     
-    return {
+    return [{
         'name': db_name,
         'path': schema_path,
         'type': 'csv',
-    }
+    }]
 
 def generate_difficulty(sql_query):
     # Parse the SQL and get all non-whitespace tokens
@@ -273,7 +273,7 @@ def load_spider_instances(instances_file, db_dir, processed_schema_dir, limit=No
         # Process the original instance to make the database section
         instance['database'] = make_spider_database_dict(instance, db_dir)
         # Process the original instance to make the schema section
-        instance['schemas'] = make_spider_schema_dict(instance, processed_schema_dir) 
+        instance['schemas'] = make_spider_schemas(instance, processed_schema_dir) 
         # * Standardize the instance
         standard_instances.append(standardize_spider_instance(instance,count))
 
@@ -311,7 +311,7 @@ def load_spider(spider_dataset_path,split='dev',schema_processe_required = True)
 if __name__ == "__main__":
 
     load_spider(
-        spider_dataset_path='/home/mahmoud/Downloads/spider',
+        spider_dataset_path='',
         split='train',
         schema_processe_required=True
     )
