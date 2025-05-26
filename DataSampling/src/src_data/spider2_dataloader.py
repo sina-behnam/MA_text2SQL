@@ -187,7 +187,7 @@ def get_database_schema(database_name : str, schema_paths_df : pd.DataFrame, ava
         logger.warning(f"Database name {database_name} not found in the schema paths dataframe.")
         return None
     
-    schema_paths = schemas_path_df.loc[database_name, available_dbs].dropna().to_dict()
+    schema_paths = schema_paths_df.loc[database_name, available_dbs].dropna().to_dict()
 
     # ! Here the database name may not belong to any of the available databases, so the schema_paths will be empty
     if not schema_paths:
