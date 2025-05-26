@@ -224,24 +224,24 @@ def make_bird_database_dict(instance, db_dir):
         'type': 'sqlite',
     }
 
-def make_bird_schema_dict(instance, schemas_dir):
+def make_bird_schemas(instance, schemas_dir):
     """
     Create a dictionary for the bird schema instance.
     Args:
         instance (dict): Bird instance dictionary.
         schemas_dir (str): Path to the bird schemas directory.
     Returns:
-        dict: Dictionary containing the schema information.
+        list: List of dictionaries containing the schema information.
     """
     
     db_name = instance['db_id']
     schema_path = get_bird_processed_schemas(schemas_dir, db_name)
     
-    return {
+    return [{
         'name': db_name,
         'path': schema_path,
         'type': 'csv',
-    }
+    }]
 
 def standardize_bird_instance(instance):
 
@@ -294,7 +294,7 @@ def load_bird_instances(instances_file, db_dir, processed_schema_dir, limit=None
         # Process the original instance to make the database section
         instance['database'] = make_bird_database_dict(instance, db_dir)
         # Process the original instance to make the schema section
-        instance['schemas'] = make_bird_schema_dict(instance, processed_schema_dir) 
+        instance['schemas'] = make_bird_schemas(instance, processed_schema_dir) 
         # * Standardize the instance
         standard_instances.append(standardize_bird_instance(instance))
 
