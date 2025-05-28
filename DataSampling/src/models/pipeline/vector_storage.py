@@ -42,6 +42,8 @@ class Text2SQLVectorDB:
         self.model = SentenceTransformer(embedding_model)
         self.dimensions = self.model.get_sentence_embedding_dimension()
 
+
+    def create_collection(self):
         # Create collection if it doesn't exist
         if self.collection not in self.db.list_collection_names():
             self.db.create_collection(self.collection_name)
@@ -256,22 +258,3 @@ class Text2SQLVectorDB:
         results = list(self.collection.aggregate(pipeline))
         return results
 
-# Example usage
-if __name__ == "__main__":
-    # Initialize vector DB
-    vector_db = Text2SQLVectorDB()
-    
-    # Store instances from a directory
-    count = vector_db.store_instances_from_files("path/to/instances/")
-    print(f"Stored {count} instances in vector database")
-    
-    # Find similar instances
-    query = "List all students with grade above 90 in Math class"
-    similar = vector_db.find_similar_instances(query)
-    
-    # Print similar instances
-    for instance in similar:
-        print(f"Score: {instance['score']:.4f}")
-        print(f"Question: {instance['question']}")
-        print(f"SQL: {instance['sql']}")
-        print("-" * 50)
