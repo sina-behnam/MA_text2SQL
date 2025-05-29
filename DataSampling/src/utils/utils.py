@@ -4,9 +4,16 @@ from typing import Dict
 import logging
 import json
 import glob
-from typing import List
+from typing import List, Tuple, Union, Optional
+import certifi
 import re
+import sqlparse
 
+import sqlite3
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Ensure the logging captures all messages, including debug
+logging.getLogger().setLevel(logging.DEBUG)
 
 def _get_instance_model_name(instance: Dict) -> str:
     try:
@@ -118,6 +125,59 @@ def process_schema(root_data_dir : str,schema_info: Dict, dataset_name : str) ->
             
         return schema_text
 
+def load_password_and_api_key(key_file_path):
+    """
+    """
+    with open(key_file_path, 'r') as f:
+        api_key = f.read().strip()
+    return api_key
+
+
+def connect_to_mongodb_atlas_1(username: str, password: str):
+    """
+    Connect to MongoDB Atlas using the provided username and password.
+    Args:
+        username: MongoDB Atlas username
+        password: MongoDB Atlas password
+    """
+    from pymongo.mongo_client import MongoClient
+    from pymongo.server_api import ServerApi
+
+    uri = f"mongodb+srv://{username}:{password}@cluster0.ixr2wwl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+    # Create a new client and connect to the server
+    client = MongoClient(uri, server_api=ServerApi('1'), tlsCAFile=certifi.where())
+
+    # Send a ping to confirm a successful connection
+    try:
+        client.admin.command('ping')
+        print("Pinged your deployment. You successfully connected to MongoDB!")
+    except Exception as e:
+        print(e)
+
+def create_sql_prompt(question: str, schema_text: str, evidence: str = None):
+            
+    # Format system message
+    system_message = (
+        "You are a database expert. "
+        "You are supposed to provide a SQL query based on the user's question and the provided database schema. "
+        "Your response must be in JSON format with a field named 'sql' containing the generated SQL query. "
+        "Example response format: {\"sql\": \"SELECT * FROM table WHERE condition\"}"
+    )
+    
+    # Format user message
+    user_message = f"{question}\n\n"
+    
+    # Add evidence if available
+    if evidence:
+        user_message += f"Evidence: {evidence}\n\n"
+    
+    user_message += f"Schema: {schema_text}\n\n"
+    
+    user_message += "Please provide the SQL query in the specified JSON format."
+    
+    return system_message, user_message
+
 def extract_sql_query_from_text( text: str) -> str:
     """
     Extract SQL query from text, handling various formats (JSON, code blocks, etc.)
@@ -184,3 +244,128 @@ def extract_sql_query_from_text( text: str) -> str:
     
     # No SQL query found
     return ""
+
+def normalize_sql(sql: str) -> str:
+    """
+    Normalize SQL query by removing extra spaces and formatting.
+    
+    Args:
+        sql: SQL query string
+        
+    Returns:
+        Normalized SQL query string
+    """
+    # Use sqlparse to format the SQL query
+    parsed = sqlparse.parse(sql)
+    
+    # Convert parsed SQL back to string
+    normalized_sql = sqlparse.format(str(parsed[0]), reindent=True, keyword_case='upper')
+    
+    # Remove extra spaces
+    normalized_sql = re.sub(r'\s+', ' ', normalized_sql).strip()
+    
+    return normalized_sql
+
+def check_exact_match(predicted_sql: str, ground_truth_sql: str) -> bool:
+    """
+    Check if predicted SQL exactly matches ground truth after normalization.
+    
+    Args:
+        predicted_sql: Predicted SQL query
+        ground_truth_sql: Ground truth SQL query
+        
+    Returns:
+        True if exact match, False otherwise
+    """
+    # Normalize both queries
+    normalized_pred = normalize_sql(predicted_sql)
+    normalized_gt = normalize_sql(ground_truth_sql)
+    
+    # Compare normalized queries
+    return normalized_pred == normalized_gt
+
+def check_execution_accuracy(predicted_sql: str, ground_truth_sql: str, 
+                             db_connection: sqlite3.Connection) -> Tuple[bool, str]:
+    """
+    Check if predicted SQL executes correctly and produces the same output as ground truth.
+    
+    Args:
+        predicted_sql: Predicted SQL query
+        ground_truth_sql: Ground truth SQL query
+        db_connection: SQLite database connection
+        
+    Returns:
+        Tuple of (is_correct, error_message)
+    """
+    try:
+        # Execute ground truth SQL
+        cursor = db_connection.cursor()
+        cursor.execute(ground_truth_sql)
+        ground_truth_result = cursor.fetchall()
+        
+        # Convert to pandas DataFrame for easier comparison
+        ground_truth_df = pd.DataFrame(ground_truth_result)
+        
+        try:
+            # Execute predicted SQL
+            cursor.execute(predicted_sql)
+            predicted_result = cursor.fetchall()
+            # Simple check 
+            if set(predicted_result) == set(ground_truth_result):
+                return True, ""
+            
+            # Convert to pandas DataFrame
+            predicted_df = pd.DataFrame(predicted_result)
+            
+            # Check if the results match
+            if ground_truth_df.shape == predicted_df.shape:
+                # Sort both dataframes if they have values (not empty)
+                if not ground_truth_df.empty and not predicted_df.empty:
+                    # First handle column ordering - reindex both DataFrames with sorted column names
+                    # This ensures column order doesn't affect comparison
+                    if len(ground_truth_df.columns) > 0:
+                        ground_truth_columns = sorted(ground_truth_df.columns)
+                        predicted_columns = sorted(predicted_df.columns)
+                        
+                        # If column sets are different, DataFrames are not equal
+                        if set(ground_truth_columns) != set(predicted_columns):
+                            return False, "Results have different column sets"
+                        
+                        # Reindex with sorted columns
+                        ground_truth_df = ground_truth_df[ground_truth_columns]
+                        predicted_df = predicted_df[predicted_columns]
+                    
+                    # Now sort by values in each row
+                    ground_truth_sorted = ground_truth_df.sort_values(by=list(ground_truth_df.columns)).reset_index(drop=True)
+                    predicted_sorted = predicted_df.sort_values(by=list(predicted_df.columns)).reset_index(drop=True)
+                    
+                    # Check equality
+                    return ground_truth_sorted.equals(predicted_sorted), ""
+                else:
+                    # If both empty, that's a match
+                    return ground_truth_df.empty == predicted_df.empty, ""
+            else:
+                return False, f"Results have different shapes: ground truth {ground_truth_df.shape} vs predicted {predicted_df.shape}"
+            
+        except Exception as e:
+            return False, f"Execution error: {str(e)}"
+            
+    except Exception as e:
+        return False, f"Ground truth execution error: {str(e)}"
+    
+def get_sqlite_db_connection(database_path: str) -> sqlite3.Connection:
+    """
+    Get a connection to the SQLite database.
+    
+    Args:
+        database_path: Path to the SQLite database file
+        
+    Returns:
+        SQLite connection object
+    """
+    database_path = database_path.split(database_path.split('/')[0])[1]
+    
+    # Connect to the SQLite database
+    conn = sqlite3.connect(database_path)
+    
+    return conn
