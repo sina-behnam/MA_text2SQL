@@ -8,7 +8,7 @@ from typing import List, Tuple, Union, Optional
 import certifi
 import re
 import sqlparse
-
+import io
 import sqlite3
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -369,3 +369,144 @@ def get_sqlite_db_connection(database_path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(database_path)
     
     return conn
+
+def read_ddl_schema_csv(file_path: str, encoding: str = 'utf-8') -> pd.DataFrame:
+    """
+    Robust function to read CSV files containing DDL statements with complex formatting.
+    
+    This function handles:
+    - Embedded quotes within DDL statements
+    - Multi-line DDL content
+    - Commas within quoted DDL fields
+    - Empty description fields
+    
+    Args:
+        file_path (str): Path to the CSV file
+        encoding (str): File encoding, default is 'utf-8'
+    
+    Returns:
+        pd.DataFrame: Parsed DataFrame with columns: table_name, description, DDL
+    """
+    
+    try:
+        # Method 1: Try with standard pandas parameters for complex CSV
+        df = pd.read_csv(
+            file_path,
+            encoding=encoding,
+            quotechar='"',           # Standard quote character
+            quoting=1,               # QUOTE_ALL - treat all fields as potentially quoted
+            skipinitialspace=True,   # Skip whitespace after delimiter
+            escapechar='\\',         # Handle escaped characters
+            doublequote=True,        # Handle double quotes as escapes
+            engine='python'          # Use Python engine for better handling of complex cases
+        )
+        return df
+        
+    except Exception as e:
+        logging.warning(f"Method 1 failed with error: {e}")
+        
+        try:
+            # Method 2: Manual parsing approach for highly problematic files
+            with open(file_path, 'r', encoding=encoding) as file:
+                content = file.read()
+            
+            # Split into lines and process manually
+            lines = content.strip().split('\n')
+            headers = [col.strip() for col in lines[0].split(',')]
+            
+            data_rows = []
+            current_row = []
+            in_quotes = False
+            current_field = ""
+            
+            for line_num, line in enumerate(lines[1:], 2):
+                i = 0
+                while i < len(line):
+                    char = line[i]
+                    
+                    if char == '"' and not in_quotes:
+                        in_quotes = True
+                    elif char == '"' and in_quotes:
+                        # Check for double quote (escaped quote)
+                        if i + 1 < len(line) and line[i + 1] == '"':
+                            current_field += '"'
+                            i += 1  # Skip the next quote
+                        else:
+                            in_quotes = False
+                    elif char == ',' and not in_quotes:
+                        current_row.append(current_field.strip())
+                        current_field = ""
+                    else:
+                        current_field += char
+                    
+                    i += 1
+                
+                # If we're still in quotes, this is a multi-line field
+                if in_quotes:
+                    current_field += "\\n"  # Add line break representation
+                else:
+                    # End of row
+                    current_row.append(current_field.strip())
+                    if len(current_row) == len(headers):
+                        data_rows.append(current_row)
+                        current_row = []
+                        current_field = ""
+                    else:
+                        # Incomplete row, continue to next line
+                        current_field += " "
+            
+            # Handle any remaining incomplete row
+            if current_row or current_field:
+                current_row.append(current_field.strip())
+                if len(current_row) == len(headers):
+                    data_rows.append(current_row)
+            
+            df = pd.DataFrame(data_rows, columns=headers)
+            return df
+            
+        except Exception as e2:
+            logging.warning(f"Method 2 failed with error: {e2}")
+            
+            # Method 3: Fallback with very permissive settings
+            try:
+                df = pd.read_csv(
+                    file_path,
+                    encoding=encoding,
+                    sep=',',
+                    quotechar='"',
+                    quoting=3,  # QUOTE_NONE - don't use quoting
+                    engine='python',
+                    error_bad_lines=False,
+                    warn_bad_lines=True,
+                    on_bad_lines='skip'
+                )
+                return df
+                
+            except Exception as e3:
+                logging.warning(f"All methods failed. Last error: {e3}")
+                raise Exception("Unable to parse the CSV file with any method")
+
+def clean_ddl_column(df: pd.DataFrame, ddl_column: str = 'DDL') -> pd.DataFrame:
+    """
+    Clean and format the DDL column for better readability and processing.
+    
+    Args:
+        df (pd.DataFrame): Input DataFrame
+        ddl_column (str): Name of the DDL column to clean
+    
+    Returns:
+        pd.DataFrame: DataFrame with cleaned DDL column
+    """
+    df_cleaned = df.copy()
+    
+    if ddl_column in df_cleaned.columns:
+        # Remove extra quotes and clean up formatting
+        df_cleaned[ddl_column] = df_cleaned[ddl_column].str.replace('""', '"')
+        df_cleaned[ddl_column] = df_cleaned[ddl_column].str.strip('"')
+        df_cleaned[ddl_column] = df_cleaned[ddl_column].str.replace('\\n', '\n')
+        
+        # Handle empty descriptions
+        if 'description' in df_cleaned.columns:
+            df_cleaned['description'] = df_cleaned['description'].fillna('')
+    
+    return df_cleaned
