@@ -23,6 +23,11 @@ from spider1_dataloader import (
         get_spider_dataset_files
     )
 
+# Adding the utiles directory to the path
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
+
+from utils import read_ddl_schema_csv, clean_ddl_column
 
 # Load the English NLP model
 nlp = spacy.load("en_core_web_sm")
@@ -242,23 +247,31 @@ def analyze_sql(sql_query):
     
     return result
 
-def load_schemas(schemas_path : list):
-    """
-    Load the schemas csv flies from the given path
-    Args:
-        schemas_path (list): list of paths to the schemas csv files
-    Returns:
-        pd.DataFrame: DataFrame containing the schemas
-    """
-    schemas = pd.DataFrame()
-    for path in schemas_path:
-        df = pd.read_csv(path)
-        schemas = pd.concat([schemas, df], ignore_index=True)
-        schemas = schemas.drop_duplicates()
+def load_schemas_list(schemas_path : list):
+    
+    all_concatenated_schemas = pd.DataFrame()
+    for schema in schemas_path:
+        
+        schema_name = schema['name']
+        if isinstance(schema['path'], list):
+            schema_path = schema['path'][0]  # Assuming the first path is the main one
+        else:
+            schema_path = schema['path']
 
-    schemas = schemas.reset_index(drop=True)
+        try:
+            df = read_ddl_schema_csv(schema_path)
+            df = clean_ddl_column(df, 'DDL')
+        except Exception as e:
+            missing_message = 'missing schema or crupted schema'
+            df = pd.DataFrame({'table_name': None,'description' : None,'DDL': missing_message}, index=[0])
+            logging.error(f"Error reading schema file {schema_path}: {e}")
 
-    return schemas
+        # Add schema name to the DataFrame
+        df['schema_name'] = schema_name
+        # Add to the all concatenated schemas
+        all_concatenated_schemas = pd.concat([all_concatenated_schemas, df], ignore_index=True)
+
+    return all_concatenated_schemas        
 
 def analyze_overlap_q_schema(doc, schema : dict):
     """
@@ -596,7 +609,19 @@ def analyze_schema(schema, parser):
         dict: Parsed schema information including table names, column names, types, primary keys, and foreign keys.
     """
 
+    # check if the schema is not empty and has 3 columns namely: table_name, DDL
+    if schema.empty or not all(col in schema.columns for col in ['table_name', 'DDL']):
+        logging.error("Schema DataFrame is empty or missing required columns.")
+        return None;
+
     ddl_statements = schema['DDL'].tolist()
+
+    # There is an important note here:
+    # ! We are ignoring the database which has multiple schemas !!!! 
+    # # if there is column name schema_name
+    # if 'schema_name' in schema.columns:
+    #     # if there is a schema_name column, we need to group by schema_name
+    #     ddl_statements = schema.groupby('schema_name')['DDL'].apply(list).tolist()
 
     # Initialize result structure
     result = {
@@ -609,7 +634,13 @@ def analyze_schema(schema, parser):
 
     # Parse each DDL statement
     for ddl in ddl_statements:
-        parsed = parser(ddl)
+        if not isinstance(ddl,str) or ddl == 'missing schema or crupted schema' or ddl == 'nan':
+            continue;
+        try:
+            parsed = parser(ddl)
+        except Exception as e:
+            logging.error(f"Error parsing DDL statement: {ddl}\nError: {e}")
+            raise e
 
         # Merge the results
         result['table_names'].extend(parsed['table_names'])
@@ -698,19 +729,69 @@ def load_spider(spider_dataset_path,split='dev',schema_processe_required = True)
     logging.info(f"Loaded {len(instances)} instances from {instances_path}.")
     return instances
 
-def process(dataset :  str = 'bird',split : str = 'dev', dataset_path : str = '/path/to/bird_dataset', save_enriched : bool = False):
+def load_spider2(SPIDER2_DATASET_PATH,dataset_type):
+
+    data_path = os.path.join(SPIDER2_DATASET_PATH, 'spider2-lite', 'spider2-lite.jsonl')
+    # Data/Spider2/spider2-lite/evaluation_suite/gold/sql
+    queries_dir = os.path.join(SPIDER2_DATASET_PATH, 'spider2-lite', 'evaluation_suite', 'gold', 'sql')
+    # Data/Spider2/spider2-lite/resource/documents
+    external_knowledge_dir = os.path.join(SPIDER2_DATASET_PATH, 'spider2-lite', 'resource', 'documents')
+    # Data/Spider2/spider2-lite/resource/databases/spider2-localdb
+    sqlite_file_dir = os.path.join(SPIDER2_DATASET_PATH, 'spider2-lite', 'resource', 'databases', 'spider2-localdb')     
+
+    from spider2_dataloader import load_data, get_spider2_files
+
+    schemas_path_df = get_spider2_files(
+        dataset_dir=SPIDER2_DATASET_PATH,
+        category=dataset_type,
+        available_dbs=['sqlite', 'snowflake'],
+        method='csv'
+    )
+
+    instances = load_data(data_file_path= data_path,
+                            limit=None,
+                            queries_dir=queries_dir,
+                            external_knowledge_dir=external_knowledge_dir,
+                            schemas_path_df=schemas_path_df,
+                            available_dbs=['sqlite','snowflake'],
+                            sqlites_file_dir=sqlite_file_dir,
+                            dataset_type=dataset_type
+                          )
+    
+    logging.info(f"Loaded {len(instances)} instances from {data_path}.")
+    return instances
+
+def process(dataset :  str = 'bird', dataset_path : str = '/path/to/bird_dataset', save_enriched : bool = False, **kwargs):
+    """
+    Process the dataset instances and analyze them.
+
+    Args:
+        dataset (str): The name of the dataset to process (e.g., 'bird', 'spider', 'spider2').
+        dataset_path (str): The path to the dataset directory.
+        save_enriched (bool): Whether to save the enriched instances to a file.
+        **kwargs: Additional keyword arguments for specific dataset configurations.
+
+    Returns:
+        List[dict]: A list of enriched instances with analysis results.
+    """
 
     # Load the bird dataset
     if dataset == 'bird':
+        # getting the split from **kwargs
+        split = kwargs.get('split', 'dev')
         instances, db_dir, schema_dir = load_bird(dataset_path, split, schema_processe_required=False)
     elif dataset == 'spider':
+        # getting the split from **kwargs
+        split = kwargs.get('split', 'dev')
         instances = load_spider(dataset_path, split, schema_processe_required=False)
+    elif dataset == 'spider2':
+        instances = load_spider2(dataset_path, dataset_type=kwargs.get('dataset_type', 'dev'))
     else:
         raise ValueError(f"Unsupported dataset: {dataset}")
     
     if save_enriched:
         # Process the schemas
-        output_dir = os.path.join(dataset + '_enriched_instances', split)
+        output_dir = os.path.join(dataset + '_enriched_instances')
         # create the output directory by removing the existing directory even if it is not empty
         if os.path.exists(output_dir):
             import shutil
@@ -721,8 +802,8 @@ def process(dataset :  str = 'bird',split : str = 'dev', dataset_path : str = '/
 
     enriched_instances = []
     for instance in tqdm(instances, desc=f"Processing {dataset} instances"):    
-        # load the schema 
-        schema = load_schemas(instance['schemas']['path'])
+        # load the schema         
+        schema = load_schemas_list(instance['schemas'])
         # Analyze the schema by parsing the DDL 
         database_type = instance['database']['type']
         if database_type == 'sqlite':
@@ -732,6 +813,13 @@ def process(dataset :  str = 'bird',split : str = 'dev', dataset_path : str = '/
         else:
             raise ValueError(f"Unsupported database type: {database_type}")
         
+        # check if the parsed schema is None
+        if parsed_schema is None:
+            logging.error(f"Parsed schema is None for instance: {instance['id'] if 'id' in instance else 'unknown'} with database type {database_type}. Skipping instance.")
+            continue;
+        
+        # replacing the instance['schemas'] with the schema dataframe by converting it to a dictionary
+        instance['schemas'] = schema.to_dict(orient='records')
         # Analyze the question
         question = instance['question']
         question_analysis = analyze_question(question, parsed_schema)
@@ -758,11 +846,23 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Process and analyze dataset instances.")
     parser.add_argument('--dataset', type=str, default='bird', help='Dataset name (default: bird)')
-    parser.add_argument('--split', type=str, default='dev', help='Dataset split (default: dev)')
-    parser.add_argument('--dataset_path', type=str, default='/Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Bird/dev_20240627', help='Path to the dataset (default: /Users/sinabehnam/Desktop/Projects/Polito/Thesis/MA_text2SQL/Data/Bird/dev_20240627)')
+    parser.add_argument('--dataset_path', type=str, default='/path/to/bird_dataset', help='Path to the dataset directory')
 
+    parser.add_argument('--save_enriched', action='store_true', help='Whether to save the enriched instances to a file')
+    parser.add_argument('--split', type=str, default='dev', help='Dataset split (default: dev)')
+    parser.add_argument('--dataset_type', type=str, default='dev', help='Dataset type for spider2 (default: dev)')
     args = parser.parse_args()
 
-    enriched_instances = process(dataset=args.dataset, split=args.split, dataset_path=args.dataset_path)
+    # Set up logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.info(f"Processing dataset: {args.dataset} from path: {args.dataset_path}")
+    enriched_instances = process(
+        dataset=args.dataset,
+        dataset_path=args.dataset_path,
+        save_enriched=args.save_enriched,
+        split=args.split,
+        dataset_type=args.dataset_type
+    )
+    logging.info(f"Processed {len(enriched_instances)} instances.")
 
 
