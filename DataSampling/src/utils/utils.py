@@ -510,3 +510,16 @@ def clean_ddl_column(df: pd.DataFrame, ddl_column: str = 'DDL') -> pd.DataFrame:
             df_cleaned['description'] = df_cleaned['description'].fillna('')
     
     return df_cleaned
+
+
+def generate_difficulty(sql_query):
+    # Parse the SQL and get all non-whitespace tokens
+    sql_tokens = []
+    for statement in sqlparse.parse(sql_query):
+        sql_tokens.extend([token for token in statement.flatten() if not token.is_whitespace])
+    if len(sql_tokens) > 160:
+        return 'challenging'
+    elif len(sql_tokens) > 80:
+        return 'moderate'
+    else:
+        return 'simple'
