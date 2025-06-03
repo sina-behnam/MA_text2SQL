@@ -14,6 +14,12 @@ logger.setLevel(logging.INFO)
 
 SPIDER2_DATASET_PATH = 'Your/Path/To/Data/Spider2'  # Change this to your Spider2 dataset path
 
+# import utilies by adding the path 
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
+
+from utils import generate_difficulty
+
 def get_schemas_path(dataset_dir, method='json'):
     """
     Get the path to the database schemas in the Spider2 dataset.
@@ -231,7 +237,8 @@ def standarize_spider2_instance(instance, count):
         'sql': instance.get('sql', None),
         'database': instance.get('database', None),
         'schemas': instance.get('schemas', None),
-        'evidence': instance.get('evidence', None)
+        'evidence': instance.get('evidence', None),
+        'difficulty' : generate_difficulty(instance.get('sql', None))
     }
     return new_instance
 
@@ -311,7 +318,7 @@ def load_data(data_file_path,
 
                 instance['database'] = {
                     'name': database_name,
-                    'path': sqlite_path,
+                    'path': [sqlite_path],
                     'type': database_cat
                 }
             elif database_cat == 'snowflake':
