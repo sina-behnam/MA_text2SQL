@@ -3,17 +3,31 @@ import re
 import glob
 import sqlite3
 import pandas as pd
-from typing import Dict, List, Tuple, Any, Optional, Union
+from typing import Dict, List, Tuple, Any, Optional, Union, Callable
+from collections import defaultdict
 from sklearn.model_selection import train_test_split
 import sqlparse
-import openai
 import json
-import torch
 from datetime import datetime
 import logging
 from tqdm import tqdm
+# Add this import at the top
+try:
+    import snowflake.connector
+    HAS_SNOWFLAKE = True
+except ImportError:
+    HAS_SNOWFLAKE = False
 
-from models import ModelProvider,TogetherAIProvider, OpenAIProvider, LocalHuggingFaceProvider, AnthropicProvider
+from models import (ConversationalModelProvider,
+                    TogetherAIProvider,
+                    OpenAIProvider,
+                    LocalHuggingFaceProvider,
+                    AnthropicProvider)
+
+
+from model_logger import SchemaUnderstandingLogger
+
+from schemahandler import SequentialSchemaHandler
 
 
 class Text2SQLPipeline:
@@ -712,5 +726,563 @@ class Text2SQLPipeline:
             new_file_path = original_file_path
         
         # Save the updated instance data to the file
+        with open(new_file_path, 'w') as f:
+            json.dump(instance_data, f, indent=2)
+
+class OptimizedText2SQLPipeline:
+    """
+    Optimized pipeline that groups questions by schema and uses conversational context
+    """
+    
+    def __init__(self, model_config: Dict = None,
+                snowflake_config: Dict = None,
+                log_schema_understanding: bool = True,
+                log_dir: str = "schema_understanding_logs"):
+        """
+        Initialize the optimized pipeline
+        
+        Args:
+            model_config: Configuration for the model to use.
+                - "type": "together_ai", "openai", "local", or "anthropic"
+                - "name": Model name (for API models) or path (for local models)
+                - "api_key": API key (for API models)
+            snowflake_config: Configuration for Snowflake connection.
+            log_schema_understanding: Whether to log schema understanding interactions.
+            log_dir: Directory for schema understanding logs.
+        """
+        self.model_config = model_config
+
+        # Setup logging
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+        self.logger.info("Initializing OptimizedText2SQLPipeline...")
+
+        # Initialize schema understanding logger
+        self.log_schema_understanding = log_schema_understanding
+        if self.log_schema_understanding:
+            self.schema_logger = SchemaUnderstandingLogger(log_dir)
+            self.logger.info(f"Schema understanding logging enabled. Logs will be saved to: {self.schema_logger.get_log_file_path()}")
+        else:
+            self.schema_logger = None
+
+        # Initialize Snowflake credentials if provided
+        self.creds = snowflake_config if snowflake_config else None
+        
+        # Initialize the model provider
+        self._init_model_provider()
+
+        # Initialize sequential schema handler
+        self.sequential_handler = SequentialSchemaHandler(
+            model_provider=self.model_provider,
+            max_tokens_per_chunk=4000,
+            token_threshold=6000,
+            nlp_model='en_core_web_sm'
+        )
+
+    def _init_model_provider(self):
+        """Initialize the model provider with conversation wrapper"""
+        model_type = self.model_config.get("type", "together_ai").lower()
+        model_name = self.model_config.get("name")
+        api_key = self.model_config.get("api_key")
+        
+        if model_type == "together_ai":
+            base_provider = TogetherAIProvider(model_name, api_key)
+        elif model_type == "openai":
+            base_provider = OpenAIProvider(model_name, api_key)
+        elif model_type == "local":
+            device = self.model_config.get("device", "auto")
+            max_new_tokens = self.model_config.get("max_new_tokens", 512)
+            base_provider = LocalHuggingFaceProvider(model_name, device, max_new_tokens)
+        elif model_type == "anthropic":
+            max_tokens = self.model_config.get("max_tokens", 1024)
+            extended_thinking = self.model_config.get("extended_thinking", False)
+            base_provider = AnthropicProvider(model_name, api_key, max_tokens, extended_thinking)
+        else:
+            raise ValueError(f"Unsupported model type: {model_type}")
+        
+        # Wrap with conversational provider
+        self.model_provider = ConversationalModelProvider(base_provider)
+        
+        # Store model info
+        self.model_info = {
+            "model_name": model_name,
+            "model_type": model_type,
+            "timestamp": datetime.now().isoformat(),
+            "optimization": "conversational_schema_context"
+        }
+
+    @staticmethod
+    def _get_together_api_key(api_key_file_path: str) -> str:
+        """Read API key from file"""
+        with open(api_key_file_path, "r") as file:
+            return file.read().strip()
+
+    def _create_schema_introduction_prompt(self, schema_info: Dict) -> str:
+        """Create an introduction prompt for a database schema"""
+        db_name = schema_info['database']['name']
+        schemas = schema_info.get('schemas', [])
+        
+        schema_description = f"""You are now working with the "{db_name}" database. 
+
+Here's the complete database schema:
+
+"""
+        
+        for schema in schemas:
+            schema_description += f"## Table: {schema['table_name']}\n"
+            if schema.get('description'):
+                schema_description += f"Description: {schema['description']}\n"
+            schema_description += f"```sql\n{schema['DDL']}\n```\n\n"
+        
+        schema_description += """Please familiarize yourself with this database structure. I will now ask you a series of questions about this database. 
+
+For each question:
+1. Analyze the question carefully
+2. Consider any additional evidence provided
+3. Generate a SQL query that answers the question
+4. Return your response in JSON format: {"sql": "your_sql_query_here"}
+
+Can you understand the database schema fully? If you can, please provide a brief summary of the schema and confirm your understanding."""
+        
+        return schema_description
+
+    def _create_question_prompt(self, instance: Dict) -> str:
+        """Create a prompt for a specific question within schema context"""
+        question = instance['question']
+        evidence = instance.get('evidence', '')
+        
+        prompt = f"Question: {question}"
+        
+        if evidence:
+            prompt += f"\n\nAdditional Evidence: {evidence}"
+        
+        prompt += "\n\nPlease generate the SQL query to answer this question using the database schema we discussed."
+        
+        return prompt
+
+    def extract_sql_query_from_text(self, text: str) -> str:
+        """Extract SQL query from text response"""
+        # Remove thinking tags
+        text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+        text = re.sub(r'<think>', '', text)
+        
+        # Try JSON format first
+        json_match = re.search(r'(\{.*"sql".*\})', text, re.DOTALL)
+        if json_match:
+            try:
+                json_obj = json.loads(json_match.group(1))
+                if "sql" in json_obj:
+                    return json_obj["sql"]
+            except json.JSONDecodeError:
+                pass
+        
+        # Try code blocks
+        sql_code_block = re.search(r'```(?:sql|SQL)\s*([\s\S]*?)```', text, re.DOTALL)
+        if sql_code_block:
+            return sql_code_block.group(1).strip()
+        
+        # Try any code blocks
+        any_code_block = re.search(r'```\s*([\s\S]*?)```', text, re.DOTALL)
+        if any_code_block:
+            code_content = any_code_block.group(1).strip()
+            if re.search(r'\b(SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)\b', code_content, re.IGNORECASE):
+                return code_content
+        
+        # Look for SQL patterns
+        sql_patterns = [
+            r'(?:query:?\s*)?(SELECT\s+[\s\S]*?(?:FROM\s+[\s\S]*?)(?:;|$))',
+            r'(?:query:?\s*)?(INSERT\s+INTO\s+[\s\S]*?(?:;|$))',
+            r'(?:query:?\s*)?(UPDATE\s+[\s\S]*?(?:;|$))',
+            r'(?:query:?\s*)?(DELETE\s+FROM\s+[\s\S]*?(?:;|$))',
+        ]
+        
+        for pattern in sql_patterns:
+            sql_match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+            if sql_match:
+                return sql_match.group(1).strip()
+        
+        return ""
+
+    # Replace the get_sqlite_db_connection method with this:
+    def get_db_connection(self, instance: Dict, instance_path: str = None, ):
+        """Get database connection based on type"""
+        database_info = instance['database']
+        db_type = database_info.get('type', 'sqlite').lower()
+
+        if db_type == 'sqlite' and instance['dataset'] != 'spider2-lite':
+            db_name = database_info['name']
+            db_file = database_info['path'][0].split('/')[-1]  # Get the last part of the path
+            database_path = os.path.join(os.path.dirname(instance_path),'databases', db_name,  db_file)
+            return sqlite3.connect(database_path), 'sqlite'
+        
+        elif db_type == 'sqlite' and instance['dataset'] == 'spider2-lite':
+            db_file = database_info['path'][0]
+            database_path = os.path.join(os.path.dirname(instance_path), db_file)
+            return sqlite3.connect(database_path), 'sqlite'
+
+        elif db_type == 'snowflake':
+            if not HAS_SNOWFLAKE:
+                raise ImportError("Install snowflake-connector-python")
+
+            # Load credentials
+
+            conn = snowflake.connector.connect(
+                database=database_info['name'],
+                **self.creds
+            )
+            return conn, 'snowflake'
+
+        else:
+            raise ValueError(f"Unsupported database type: {db_type}")
+
+
+    def check_execution_accuracy(self, predicted_sql: str, ground_truth_sql: str, 
+                                connection) -> Tuple[bool, str]:
+        """Check if predicted SQL executes correctly"""
+        try:
+
+            cursor = connection.cursor()
+
+            cursor.execute(ground_truth_sql)
+            ground_truth_result = cursor.fetchall()
+            ground_truth_df = pd.DataFrame(ground_truth_result)
+            
+            try:
+                # Execute the predicted
+                cursor.execute(predicted_sql)
+                predicted_result = cursor.fetchall()
+
+                # simple comparison
+                if set(predicted_result) == set(ground_truth_result):
+                    return True, ""
+                
+                predicted_df = pd.DataFrame(predicted_result)
+                
+                if ground_truth_df.shape == predicted_df.shape:
+                    if not ground_truth_df.empty and not predicted_df.empty:
+                        if len(ground_truth_df.columns) > 0:
+                            ground_truth_columns = sorted(ground_truth_df.columns)
+                            predicted_columns = sorted(predicted_df.columns)
+                            
+                            if set(ground_truth_columns) != set(predicted_columns):
+                                return False, "Results have different column sets"
+                            
+                            ground_truth_df = ground_truth_df[ground_truth_columns]
+                            predicted_df = predicted_df[predicted_columns]
+                        # ! Pay attention that this cause the ORDER BY type of query being ignored
+                        ground_truth_sorted = ground_truth_df.sort_values(by=list(ground_truth_df.columns)).reset_index(drop=True)
+                        predicted_sorted = predicted_df.sort_values(by=list(predicted_df.columns)).reset_index(drop=True)
+                        
+                        return ground_truth_sorted.equals(predicted_sorted), ""
+                    else:
+                        return ground_truth_df.empty == predicted_df.empty, ""
+                else:
+                    return False, f"Results have different shapes"
+                
+            except Exception as e:
+                return False, f"Execution error: {str(e)}"
+            finally:
+                cursor.close()
+                
+        except Exception as e:
+            return False, f"Ground truth execution error: {str(e)}"
+
+    def normalize_sql(self, sql: str) -> str:
+        """Normalize SQL query"""
+        parsed = sqlparse.parse(sql)
+        normalized_sql = sqlparse.format(str(parsed[0]), reindent=True, keyword_case='upper')
+        return re.sub(r'\s+', ' ', normalized_sql).strip()
+
+    def check_exact_match(self, predicted_sql: str, ground_truth_sql: str) -> bool:
+        """Check exact match after normalization"""
+        normalized_pred = self.normalize_sql(predicted_sql)
+        normalized_gt = self.normalize_sql(ground_truth_sql)
+        return normalized_pred == normalized_gt
+
+    def check_sql_semantic_equivalence(self, predicted_sql: str, ground_truth_sql: str, 
+                                  question: str) -> Tuple[bool, str]:
+        """Check semantic equivalence using the model"""
+        system_message = (
+            "You are a SQL expert tasked with determining if two SQL queries are semantically equivalent. "
+            "Your response must be in JSON format with two fields: "
+            "'equivalent' (true/false) and 'explanation' (brief explanation)."
+        )
+        
+        user_message = (
+            f"Question: {question}\n\n"
+            f"Gold SQL Query: {ground_truth_sql}\n\n"
+            f"Generated SQL Query: {predicted_sql}\n\n"
+            "Are these semantically equivalent?"
+        )
+        
+        try:
+            # Use base provider for this task (not conversational)
+            raw_response = self.model_provider.base_provider.generate(system_message, user_message)
+            
+            json_match = re.search(r'(\{.*\})', raw_response, re.DOTALL)
+            if json_match:
+                try:
+                    json_obj = json.loads(json_match.group(1))
+                    if "equivalent" in json_obj:
+                        return json_obj["equivalent"], json_obj.get("explanation", "")
+                except json.JSONDecodeError:
+                    pass
+            
+            if re.search(r'\b(yes|equivalent|same|equal)\b', raw_response, re.IGNORECASE):
+                return True, "Model indicated equivalence"
+            elif re.search(r'\b(no|not equivalent|different)\b', raw_response, re.IGNORECASE):
+                return False, "Model indicated non-equivalence"
+            
+            return False, "Could not determine semantic equivalence"
+        
+        except Exception as e:
+            return False, f"Error in semantic check: {str(e)}"
+
+    def evaluate_instance(self, instance: Dict, generated_sql: str, instance_path : str) -> Dict:
+        """Evaluate a generated SQL query"""
+        
+        connection, db_type = self.get_db_connection(instance, instance_path)
+
+        try:
+        
+            exec_correct, exec_error = self.check_execution_accuracy(
+                generated_sql, instance['sql'], connection
+            )
+
+            exact_match = self.check_exact_match(generated_sql, instance['sql'])
+
+            # Determine semantic equivalence
+            if exact_match:
+                semantic_equivalent = True
+                semantic_explanation = "Exact match found"
+            elif exec_correct:
+                semantic_equivalent = True
+                semantic_explanation = "Execution correct but not exact match"
+            elif exec_error and exec_error.strip():
+                semantic_equivalent = False
+                semantic_explanation = f"Execution failed: {exec_error}"
+            else:
+                semantic_equivalent, semantic_explanation = self.check_sql_semantic_equivalence(
+                    generated_sql, instance['sql'], instance['question']
+                )
+
+            return {
+                'instance': instance,
+                'has_prediction': True,
+                'predicted_output': {
+                    'generated_sql': generated_sql,
+                    'execution_correct': exec_correct,
+                    'execution_error': exec_error,
+                    'exact_match': exact_match,
+                    'semantic_equivalent': semantic_equivalent,
+                    'semantic_explanation': semantic_explanation
+                }
+            }
+    
+        finally:
+            connection.close()
+
+    def run_pipeline(self, schema_groups : dict, save_updated_files: bool = True, 
+                    output_dir: str = None) -> Dict:
+        """
+        Run the optimized pipeline with conversational schema context
+        """
+        results = []
+        total_processed = 0
+        
+        # Process each schema group
+        for schema_key, instances in schema_groups.items():
+                
+            self.logger.info(f"\n=== Processing schema group: {schema_key} ===")
+            self.logger.info(f"Number of instances: {len(instances)}")
+            
+            # Start new conversation for this schema
+            self.model_provider.start_new_conversation()
+            
+            # Get schema info from first instance
+            first_instance = instances[0][0]
+            dataset_type = first_instance['dataset']
+            
+            # Create schema introduction
+            system_message = (
+                "You are a database expert specializing in SQL query generation. "
+                "You will be working with a specific database schema and answering "
+                "multiple questions about it. Please pay careful attention to the "
+                "schema structure and relationships between tables."
+            )
+
+            schema_intro = self._create_schema_introduction_prompt(first_instance)
+            
+            try:
+                # Check if schema is large and handle accordingly
+                was_chunked, intro_response = self.sequential_handler.handle_large_schema(
+                    first_instance, system_message
+                )
+
+                if not was_chunked:
+                    # Normal small schema processing
+                    intro_response = self.model_provider.generate_with_context(system_message, schema_intro)
+
+                self.logger.info("Schema introduction completed successfully")
+
+                # Log schema understanding interaction
+                if self.schema_logger:
+                    self.schema_logger.log_schema_introduction(
+                        schema_key=schema_key,
+                        schema_info=first_instance,
+                        introduction_prompt=schema_intro,
+                        model_response=intro_response,
+                        model_info=self.model_info,
+                        dataset_type=dataset_type
+                    )
+                
+                # Process each instance in this schema group
+                # Track statistics for this schema
+                schema_successful = 0
+                schema_failed = 0
+                schema_execution_correct = 0
+                
+                for instance_data, file_path in tqdm(instances, 
+                                                   desc=f"Processing {schema_key}", 
+                                                   unit="instance"):
+                            
+                    self.logger.info(f"Processing instance {instance_data['id']}...")
+                    
+                    # Create question prompt
+                    question_prompt = self._create_question_prompt(instance_data)
+                    
+                    # Generate SQL using conversational context
+                    raw_response = self.model_provider.generate_with_context("", question_prompt)
+                    generated_sql = self.extract_sql_query_from_text(raw_response)
+                    
+                    if generated_sql:
+                        schema_successful += 1
+
+                        # Evaluate the generated SQL
+                        evaluation = self.evaluate_instance(instance_data, generated_sql, file_path)
+                        evaluation['model'] = self.model_info
+                        results.append(evaluation)
+
+                        # Track execution accuracy for schema summary
+                        if evaluation['predicted_output']['execution_correct']:
+                            schema_execution_correct += 1
+                        
+                        # Update instance data
+                        instance_data['inference_results'] = {
+                            'has_prediction': True,
+                            'model': self.model_info,
+                            'predicted_output': {
+                                'generated_sql': generated_sql,
+                                'execution_correct': evaluation['predicted_output']['execution_correct'],
+                                'execution_error': evaluation['predicted_output']['execution_error'],
+                                'exact_match': evaluation['predicted_output']['exact_match'],
+                                'semantic_equivalent': evaluation['predicted_output'].get('semantic_equivalent', None),
+                                'semantic_explanation': evaluation['predicted_output'].get('semantic_explanation', ''),
+                                'raw_response': raw_response,
+                                'conversation_context': True,
+                                'schema_group': schema_key
+                            }
+                        }
+                        
+                        self.logger.info(f"Execution correct: {evaluation['predicted_output']['execution_correct']}")
+                        self.logger.info(f"Exact match: {evaluation['predicted_output']['exact_match']}")
+                        self.logger.info(f"Semantic equivalent: {evaluation['predicted_output'].get('semantic_equivalent', False)}")
+                    else:
+                        schema_failed += 1
+
+                        # Failed to extract SQL
+                        failed_result = {
+                            'instance': instance_data,
+                            'has_prediction': False,
+                            'predicted_output': {
+                                'sql': None,
+                                'raw_response': raw_response
+                            },
+                            'model': self.model_info
+                        }
+                        results.append(failed_result)
+                        
+                        instance_data['inference_results'] = {
+                            'has_prediction': False,
+                            'model': self.model_info,
+                            'predicted_output': {
+                                'sql': None,
+                                'raw_response': raw_response,
+                                'conversation_context': True,
+                                'schema_group': schema_key
+                            }
+                        }
+                        
+                        self.logger.info("Failed to extract SQL from model response")
+                    
+                    # Save updated instance
+                    if save_updated_files:
+                        self._save_updated_instance(instance_data, file_path, output_dir)
+                    
+                    total_processed += 1
+                    self.logger.info("-" * 50)
+
+                # Log conversation summary for this schema
+                if self.schema_logger:
+                    total_schema_questions = len(instances)
+                    avg_execution_accuracy = schema_execution_correct / schema_successful if schema_successful > 0 else 0.0
+                    
+                    self.schema_logger.log_conversation_summary(
+                        schema_key=schema_key,
+                        total_questions=total_schema_questions,
+                        successful_predictions=schema_successful,
+                        failed_predictions=schema_failed,
+                        avg_execution_accuracy=avg_execution_accuracy
+                    )
+                    
+            except Exception as e:
+                self.logger.error(f"Error processing schema group {schema_key}: {str(e)}")
+                continue
+        
+        # Calculate metrics
+        num_eval = len(results)
+        num_with_prediction = sum(1 for r in results if r.get('has_prediction', False))
+        
+        exec_correct = sum(1 for r in results if r.get('has_prediction', False) and 
+                           r['predicted_output'].get('execution_correct', False))
+        exact_match = sum(1 for r in results if r.get('has_prediction', False) and 
+                          r['predicted_output'].get('exact_match', False))
+        semantic_equivalent = sum(1 for r in results if r.get('has_prediction', False) and 
+                                 r['predicted_output'].get('semantic_equivalent', False))
+        
+        metrics = {
+            'num_evaluated': num_eval,
+            'num_with_prediction': num_with_prediction,
+            'prediction_rate': num_with_prediction / num_eval if num_eval > 0 else 0,
+            'execution_accuracy': exec_correct / num_with_prediction if num_with_prediction > 0 else 0,
+            'exact_match_accuracy': exact_match / num_with_prediction if num_with_prediction > 0 else 0,
+            'semantic_equivalent_accuracy': semantic_equivalent / num_with_prediction if num_with_prediction > 0 else 0,
+            'model': self.model_info,
+            'optimization_used': 'conversational_schema_context'
+        }
+        
+        self.logger.info(f"\n=== Final Results ===")
+        self.logger.info(f"Prediction rate: {metrics['prediction_rate']:.2f}")
+        self.logger.info(f"Execution accuracy: {metrics['execution_accuracy']:.2f}")
+        self.logger.info(f"Exact match accuracy: {metrics['exact_match_accuracy']:.2f}")
+        self.logger.info(f"Semantic equivalence accuracy: {metrics['semantic_equivalent_accuracy']:.2f}")
+        
+        # Close schema understanding logger
+        if self.schema_logger:
+            self.schema_logger.close()
+            self.logger.info(f"Schema understanding logs saved to: {self.schema_logger.get_log_file_path()}")
+            self.logger.info(f"Structured schema logs saved to: {self.schema_logger.get_json_log_file_path()}")
+        
+        return metrics
+
+    def _save_updated_instance(self, instance_data: Dict, original_file_path: str, output_dir: str = None):
+        """Save updated instance data to JSON file"""
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+            file_name = os.path.basename(original_file_path)
+            new_file_path = os.path.join(output_dir, file_name)
+        else:
+            new_file_path = original_file_path
+        
         with open(new_file_path, 'w') as f:
             json.dump(instance_data, f, indent=2)
